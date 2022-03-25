@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+### Please note:
+## This file doesn't work as I intend it to in the future, yet.
+## I basically want it to function as a way for me to update my system config
+## declaratively from anywhere in my system, I also want it to setup my channels, etc.
+## As such it's literally just a single switch case rn lmao
+
+case "$1" in
+    "init")
+        chmod +x ./config
+        mkdir -p ~/.bin/
+        if [ ! -L ~/.bin/config ]; then
+            echo "Linking executable to ~/.bin/"
+            ln -s ./config ~/.bin/ # Added to $PATH in guix home
+        fi
+        ;;
+    "haven")
+        sudo -E guix system reconfigure -L . ./system/hosts/haven.scm
+        ;;
+    "den")
+        sudo -E guix system reconfigure -L . ./system/hosts/den.scm
+        ;;
+    "home")
+        guix home reconfigure -L . ./home/core.scm
+        ;;
+    *)
+        echo "TODO: Handle failure and print usage help"
+        exit 1
+        ;;
+esac
