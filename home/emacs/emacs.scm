@@ -2,177 +2,104 @@
   #:use-module (guix gexp)
   #:use-module (guix transformations)
 
-  ;; Package definitions
-  #:use-module (guix packages)
-  #:use-module (guix git-download)
-  #:use-module (guix build-system emacs)
-  #:use-module ((guix licenses) #:prefix license:)
-
-  #:use-module (gnu packages aspell)    ;; aspell
-  #:use-module (gnu packages graphviz)  ;; graphviz
-  #:use-module (gnu packages fonts)     ;; font-hack
-  #:use-module (gnu packages emacs)     ;; Emacs
-  #:use-module (gnu packages emacs-xyz) ;; packages
+  #:use-module ((gnu packages emacs) #:select (emacs-next))
+  #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-sv))
+  #:use-module ((gnu packages fonts) #:select (font-hack))
+  #:use-module ((gnu packages xorg) #:select (xhost xsetroot))
+  #:use-module ((gnu packages glib) #:select (dbus))
+  #:use-module ((gnu packages version-control) #:select (git))
+  #:use-module (gnu packages emacs-xyz)
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (gnu home-services emacs)
   #:use-module (gnu home-services-utils))
 
-(define emacs-org-roam-ui
-  ;; No releases, no tags
-  (let ((commit "1eb9abd4fccc7be767c5df1e158e2d17982f8193")
-        (revision "0"))
-    (package
-     (name "emacs-org-roam-ui")
-     (version (git-version "0" revision commit))
-     (source (origin
-              (method git-fetch)
-              (uri (git-reference
-                    (url "https://github.com/org-roam/org-roam-ui")
-                    (commit commit)))
-              (file-name (git-file-name name version))
-              (sha256
-               (base32
-                "16ld8ky0z3fi2bx79h3vrppvhgkhv62k5fymfcif7z0xmcv688kh"))))
-     (build-system emacs-build-system)
-     (propagated-inputs
-       (list emacs-org-roam emacs-websocket emacs-simple-httpd emacs-f))
-     (home-page "https://github.com/org-roam/org-roam-ui")
-     (synopsis "A graphical frontend for exploring your org-roam Zettelkasten")
-     (description
-      "Org-Roam-UI is a frontend for exploring and interacting with your org-roam notes.")
-     (license license:gpl3+))))
-
-;; FIXME: Doesn't work
-(define emacs-kaolin-themes
-  (package
-   (name "emacs-kaolin-themes")
-   (version "1.6.7")
-   (source
-    (origin
-     (method git-fetch)
-     (uri (git-reference
-           (url "https://github.com/ogdenwebb/emacs-kaolin-themes")
-           (commit (string-append "v" version))))
-     (file-name (git-file-name name version))
-     (sha256
-      (base32 "066iqbyvapc7i41xlci2jlnvdkdhkv7c8rj4ambz8rbj6i2sjb5s"))))
-   (build-system emacs-build-system)
-   (propagated-inputs
-    (list emacs-autothemer))
-   (home-page "https://github.com/ogdenwebb/emacs-kaolin-themes")
-   (synopsis "Set of eye pleasing themes for GNU Emacs. Supports both GUI and terminal.")
-   (description
-    "Kaolin is a set of eye pleasing themes for GNU Emacs with support for a
-large number of modes and external packages.")
-   (license license:gpl3+)))
+(define xsession
+  #~(begin
+      (system* #$(file-append xhost "/bin/xhost") "+SI:localuser:tobias")
+      (system* #$(file-append xsetroot "/bin/xsetroot") "-cursor_name" "left_ptr")
+      (system* #$(file-append dbus "/bin/dbus-launch") "--exit-with-session"
+               #$(file-append emacs-next "/bin/emacs") "-l" "~/.emacs.d/exwm.el")))
 
 (define transform
   (options->transformation
-   '((without-tests . "emacs-dash")
-     (without-tests . "emacs-magit"))))
+   '((without-tests . "emacs-magit"))))
 
 (define elisp-packages
   (map transform
        (list
-        ;; System
+        emacs-diminish
+
+        ;; major modes
         emacs-guix
-        emacs-vterm
         emacs-magit
         emacs-elpher
+        emacs-mastodon
+        emacs-vterm
 
-        ;; Keybindings
-        ;; emacs-meow
-        ;; emacs-paredit
-        emacs-lispy
+        ;; exwm
+        emacs-exwm
+        emacs-exwm-edit
+        emacs-ednc
+        emacs-dmenu
+        emacs-windower     ; TODO: Move this to init-ui with hyper key
+
+        ;; init-ui
+        emacs-paren-face
         emacs-ace-window
+        emacs-hl-todo
+        emacs-diff-hl
         emacs-which-key
 
-        ;; UI
-        emacs-modus-themes
-        emacs-moody
-        emacs-diff-hl
-        emacs-hl-todo
-        emacs-rainbow-mode
-        emacs-rainbow-delimiters
-        emacs-popper
-
-        ;; Completion
-        emacs-vertico
+        ;; init-completion
         emacs-orderless
-        emacs-consult
+        emacs-vertico
         emacs-marginalia
+        emacs-consult
+        emacs-embark
+        ;; emacs-embark-consult
         emacs-corfu
         emacs-kind-icon
 
-        ;; Org
-        emacs-spell-fu
-        emacs-ox-gemini
-        emacs-org-roam
-        emacs-org-roam-ui
-        emacs-htmlize
-        emacs-ox-reveal
-
-        ;; Programming
-        emacs-eglot
-        emacs-apheleia
+        ;; init-prog
+        emacs-lispy
         emacs-yasnippet
         emacs-yasnippet-snippets
-        emacs-auto-yasnippet
-        emacs-dumb-jump
-
-        ;; Clojure
-        emacs-clojure-mode
-        ;; emacs-clj-refactor
+        emacs-aggressive-indent
+        emacs-expand-region
+        emacs-avy
+        ;; languages
         emacs-cider
-
-        ;; Common-lisp
         emacs-sly
-
-        ;; Lua
-        emacs-fennel-mode
-
-        ;; Rust
-        ;; emacs-rustic ;; Brings in lsp-mode >:(
-        emacs-racer
-
-        ;; Scheme
+        emacs-sly-quicklisp
         emacs-geiser
         emacs-geiser-guile
-        emacs-geiser-racket
-        emacs-racket-mode
 
-        ;; Zig
-        ;; emacs-zig-mode
-        )))
+        ;; init-eshell
+        emacs-pcmpl-args)))
 
 (define-public packages
   (list
    aspell
    aspell-dict-sv
-   graphviz
-   font-hack))
+   font-hack
+   git))
 
 (define-public services
   (list
    (simple-service 'emacs-config
-           home-files-service-type
-           `(("emacs.d/init.el"
-              ,(local-file "config/init.el"))
-             ("emacs.d/early-init.el"
-              ,(local-file "config/early-init.el"))
-             ("emacs.d/lisp/init-completion.el"
-              ,(local-file "config/lisp/init-completion.el"))
-             ("emacs.d/lisp/init-keybindings.el"
-              ,(local-file "config/lisp/init-keybindings.el"))
-             ("emacs.d/lisp/init-langs.el"
-              ,(local-file "config/lisp/init-langs.el"))
-             ("emacs.d/lisp/init-org.el"
-              ,(local-file "config/lisp/init-org.el"))
-             ("emacs.d/lisp/init-ui.el"
-              ,(local-file "config/lisp/init-ui.el"))))
-
+                   home-files-service-type
+                   `((".xsession"                        ,(program-file "xsession" xsession))
+                     (".emacs.d/exwm.el"                 ,(local-file "config/exwm.el"))
+                     (".emacs.d/init.el"                 ,(local-file "config/init.el"))
+                     (".emacs.d/early-init.el"           ,(local-file "config/early-init.el"))
+                     (".emacs.d/lisp/init-ui.el"         ,(local-file "config/lisp/init-ui.el"))
+                     (".emacs.d/lisp/init-completion.el" ,(local-file "config/lisp/init-completion.el"))
+                     (".emacs.d/lisp/init-prog.el"       ,(local-file "config/lisp/init-prog.el"))
+                     (".emacs.d/lisp/init-text.el"       ,(local-file "config/lisp/init-text.el"))
+                     (".emacs.d/lisp/init-eshell.el"     ,(local-file "config/lisp/init-eshell.el"))
+                     (".emacs.d/lisp/init-colemak.el"    ,(local-file "config/lisp/init-colemak.el"))))
    (service
     home-emacs-service-type
     (home-emacs-configuration

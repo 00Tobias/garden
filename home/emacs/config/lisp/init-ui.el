@@ -1,78 +1,89 @@
-;; Load theme
-(load-theme 'modus-operandi t)
+;;; init-ui.el --- Configurations for mode enhancements and UI  -*- lexical-binding: t; -*-
 
-;; Set my default font
-(add-to-list 'default-frame-alist '(font . "Hack"))
+;;; Commentary:
+
+;;; Code:
+
+;; Set theme
+(setq modus-themes-mode-line '(borderless)
+      modus-themes-paren-match '(bold intense))
+(load-theme 'modus-vivendi t)
+
+;; Set font
+(add-to-list 'default-frame-alist '(font . "Hack-10"))
+
+;; Disable cursor blinking
+(blink-cursor-mode 0)
+
+;; Delete selection when typing
+(delete-selection-mode 1)
 
 ;; Enable line-numbers
 (global-display-line-numbers-mode)
+(setq display-line-numbers-type 'relative)
+
+;; Show column number on the modeline
+(column-number-mode 1)
 
 ;; Vim-like scrolling
 (setq scroll-step 1)
 (setq scroll-margin 5)
 
-;; Set keybinding for ace-window
-(global-set-key (kbd "M-o") 'ace-window)
+;; If Emacs is version 29 or above, enable smooth scrolling
+(if (>= emacs-major-version 29)
+    (pixel-scroll-precision-mode))
 
-;; Customize modeline faces for moody
-(let ((line (face-attribute 'mode-line :underline)))
-  (set-face-attribute 'mode-line          nil :overline   line)
-  (set-face-attribute 'mode-line-inactive nil :overline   line)
-  (set-face-attribute 'mode-line-inactive nil :underline  line)
-  (set-face-attribute 'mode-line          nil :box        nil)
-  (set-face-attribute 'mode-line-inactive nil :box        nil)
-  (set-face-attribute 'mode-line-inactive nil :background "#ffffff"))
+;; way more useful
+(keymap-global-set "C-z" 'undo)
+(keymap-global-set "C-S-z" 'undo-redo)
 
-;; Enable moody
-(setq x-underline-at-descent-line t)
-;; (setq moody-mode-line-height 19)pf
-(moody-replace-mode-line-buffer-identification)
-(moody-replace-vc-mode)
-(moody-replace-eldoc-minibuffer-message-function)
+;; dired TODO: move this
+(setq dired-dwim-target t)
 
-;; Add elements to modeline
-(column-number-mode)
+;; paren-face
+(global-paren-face-mode 't)
 
-;; Highlight TODO: faces
+;; ace-window
+(keymap-global-set "C-;" 'ace-window)
+(setq aw-dispatch-always t)
+
+;; hl-todo
 (add-hook 'prog-mode-hook 'hl-todo-mode)
 (setq hl-todo-highlight-punctuation ":"
-      hl-todo-keyword-faces
-      `(("TODO" warning bold)
-        ("FIXME" error bold)
-        ("HACK" font-lock-constant-face bold)
-        ("REVIEW" font-lock-keyword-face bold)
-        ("NOTE" success bold)
-        ("DEPRECATED" font-lock-doc-face bold)
-        ("BUG" error bold)
-        ("XXX" font-lock-constant-face bold)))
+    hl-todo-keyword-faces
+    `(("TODO" warning bold)
+      ("FIXME" error bold)
+      ("HACK" font-lock-constant-face bold)
+      ("REVIEW" font-lock-keyword-face bold)
+      ("NOTE" success bold)
+      ("DEPRECATED" font-lock-doc-face bold)
+      ("BUG" error bold)
+      ("XXX" font-lock-constant-face bold)))
 
-;;; (popper-mode)
+;;diff-hl
+(add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+(add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+(setq-default left-fringe-width 5)
+(global-diff-hl-mode)
 
-;; Add buffers to popper-mode
-(setq popper-reference-buffers
-      '("\\*Messages\\*"
-        "\\*scratch\\*"
-        "\\*xref\\*"
-        "Output\\*$"
-        "\\*Async Shell Command\\*"
-        help-mode
-        compilation-mode
+;; which-key
+(which-key-mode)
+(diminish 'which-key-mode)
 
-        ;; Shell modes
-        "^\\*eshell.*\\*$" eshell-mode
-        "^\\*shell.*\\*$"  shell-mode
-        "^\\*term.*\\*$"   term-mode
-        "^\\*vterm.*\\*$"  vterm-mode))
+;; dirvish
+;; (dirvish-override-dired-mode)
 
-;; Set keybindings for popper-mode
-(global-set-key (kbd "C-'") 'popper-toggle-latest)
-(global-set-key (kbd "M-'") 'popper-cycle)
-(global-set-key (kbd "C-M-'") 'popper-toggle-type)
+;; ;; frames-only-mode
+;; (frames-only-mode 1)
 
-;; Enable popper-mode
-(popper-mode +1)
-
-;; Enable echo-area hints for popper
-(popper-echo-mode +1)
+;; ;; mini-frame
+;; (setq mini-frame-standalone 't
+;;       mini-frame-resize-min-height 10
+;;       mini-frame-detach-on-hide nil)
+;; (custom-set-variables
+;;  '(mini-frame-show-parameters
+;;    '((width . 0.5))))
+;; (mini-frame-mode 1)
 
 (provide 'init-ui)
+;;; init-ui.el ends here
