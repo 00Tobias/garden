@@ -11,7 +11,11 @@
   (list
    (service home-bash-service-type
             (home-bash-configuration
-             (guix-defaults? #t)
-             (bash-profile '("export HISTFILE=$XDG_CACHE_HOME/.bash_history"
-                             "export PATH=$PATH:~/.bin"
-                             "export GTK_THEME=Adwaita:dark"))))))
+             ;; (aliases
+             ;;  '(("grep" . "grep --color=auto")
+             ;;    ("la" . "ls -hpla")
+             ;;    ("ls" . "ls -hp --color=auto")
+             ;;    ("diff" . "diff --color=auto")
+             ;;    ("ip" . "ip -color=auto")))
+             (bash-profile '("shopt -s autocd checkwinsize"
+                             "set -o noclobber"))))))

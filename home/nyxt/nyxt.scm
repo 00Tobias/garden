@@ -1,16 +1,14 @@
 (define-module (home nyxt nyxt)
   #:use-module (guix gexp)
 
-  ;; #:use-module ((gnu packages browsers) #:select (nyxt))
-  #:use-module ((gnu packages password-utils) #:select (keepassxc))
+  #:use-module ((gnu packages web-browsers) #:select (nyxt))
 
   #:use-module (gnu services)
   #:use-module (gnu home services))
 
 (define-public packages
   (list
-   ;; nyxt
-   keepassxc))
+   nyxt))
 
 (define-public services
   (list
@@ -18,5 +16,6 @@
                    home-files-service-type
                    `((".config/nyxt/config.lisp" ,(local-file "config/config.lisp"))
                      ;; FIXME: This is goofy
-                     (".config/nyxt/guix-config.lisp" ,(local-file "config/config.lisp"))))))
+                     ;; (".config/nyxt/guix-config.lisp" ,(local-file "config/config.lisp"))
+                     ))))
 

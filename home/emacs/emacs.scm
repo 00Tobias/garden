@@ -72,7 +72,6 @@
         ;; languages
         emacs-cider
         emacs-sly
-        emacs-sly-quicklisp
         emacs-geiser
         emacs-geiser-guile
 
@@ -90,8 +89,8 @@
   (list
    (simple-service 'emacs-config
                    home-files-service-type
-                   `((".xsession"                        ,(program-file "xsession" xsession))
-                     (".emacs.d/exwm.el"                 ,(local-file "config/exwm.el"))
+                   `(;; (".xsession"                        ,(program-file "xsession" xsession))
+                     ;; (".emacs.d/exwm.el"                 ,(local-file "config/exwm.el"))
                      (".emacs.d/init.el"                 ,(local-file "config/init.el"))
                      (".emacs.d/early-init.el"           ,(local-file "config/early-init.el"))
                      (".emacs.d/lisp/init-ui.el"         ,(local-file "config/lisp/init-ui.el"))
