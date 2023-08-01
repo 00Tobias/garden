@@ -15,8 +15,8 @@ case "$1" in
             ln -s ./config ~/.bin/ # Added to $PATH in guix home
         fi
         ;;
-    "haven")
-        sudo -E guix system reconfigure -L . ./system/hosts/haven.scm
+    "genera")
+        sudo guix system reconfigure --cores=$(nproc) -L . ./system/hosts/genera.scm
         ;;
     "den")
         sudo -E guix system reconfigure -L . ./system/hosts/den.scm
