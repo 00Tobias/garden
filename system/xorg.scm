@@ -1,4 +1,6 @@
 (define-module (system xorg)
+  #:use-module (guix transformations)
+
   #:use-module (gnu system keyboard)
 
   #:use-module (gnu packages xorg)
@@ -9,7 +11,7 @@
   #:use-module (gnu services xorg)
   #:use-module (gnu services desktop)
   #:use-module (gnu services lightdm)
-  #:use-module (gnu services sound) ; pulseaudio, ALSA
+  #:use-module (gnu services sound)     ; pulseaudio, ALSA
   )
 
 (define %xorg-libinput-config
