@@ -2,20 +2,22 @@
   #:use-module (guix gexp)
 
   #:use-module (gnu services)
-  #:use-module (gnu home-services shells)
-  #:use-module (gnu home-services shellutils)
-  #:use-module (gnu home-services-utils)
-  #:use-module (gnu home-services base))
+
+  #:use-module (gnu home services shells))
 
 (define-public services
   (list
    (service home-bash-service-type
             (home-bash-configuration
-             ;; (aliases
-             ;;  '(("grep" . "grep --color=auto")
-             ;;    ("la" . "ls -hpla")
-             ;;    ("ls" . "ls -hp --color=auto")
-             ;;    ("diff" . "diff --color=auto")
-             ;;    ("ip" . "ip -color=auto")))
-             (bash-profile '("shopt -s autocd checkwinsize"
-                             "set -o noclobber"))))))
+             (guix-defaults? #t)
+             (aliases
+              '(("grep" . "grep --color=auto")
+                ("la"   . "ls -hpla")
+                ("ls"   . "ls -hp --color=auto")
+                ("diff" . "diff --color=auto")
+                ("ip"   . "ip -color=auto")
+                ("gsr"  . "sudo guix system reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/system/hosts/$HOSTNAME.scm")
+                ("ghr"  . "guix home reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/home/core.scm")))
+             (bash-profile (list (plain-file "bash_profile"
+                                             "shopt -s autocd checkwinsize
+set -o noclobber")))))))
