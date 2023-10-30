@@ -69,22 +69,25 @@
    %base-packages))
 
  (services
-  (append (list (service openssh-service-type)
-                ;; (service nvidia-service-type)
-                ;; (simple-service
-                ;;  'custom-udev-rules udev-service-type
-                ;;  (list nvidia-driver))
-                ;; (service kernel-module-loader-service-type
-                ;;          '("ipmi_devintf"
-                ;;            "nvidia"
-                ;;            "nvidia_modeset"
-                ;;            "nvidia_uvm"))
-                ;; (set-xorg-configuration
-                ;;  (xorg-configuration
-                ;;   (modules (cons* nvidia-driver %default-xorg-modules))
-                ;;   (server (transform xorg-server))
-                ;;   (drivers '("nvidia"))))
-                )
+  (append (list
+           (service upower-service-type)
+           (service tlp-service-type)
+           (service pcscd-service-type)
+           ;; (service nvidia-service-type)
+           ;; (simple-service
+           ;;  'custom-udev-rules udev-service-type
+           ;;  (list nvidia-driver))
+           ;; (service kernel-module-loader-service-type
+           ;;          '("ipmi_devintf"
+           ;;            "nvidia"
+           ;;            "nvidia_modeset"
+           ;;            "nvidia_uvm"))
+           ;; (set-xorg-configuration
+           ;;  (xorg-configuration
+           ;;   (modules (cons* nvidia-driver %default-xorg-modules))
+           ;;   (server (transform xorg-server))
+           ;;   (drivers '("nvidia"))))
+           )
           xorg:services
           ;; syncthing:services
           ))
