@@ -1,52 +1,47 @@
-;; (defmethod initialize-instance :after
-;;            ((interface password:keepassxc-interface)
-;;             &key &allow-other-keys)
-;;            "It's obviously not recommended to set master password here,
-;; as your config is likely unencrypted and can reveal your password to someone
-;; peeking at the screen."
-;;            (setf (password:password-file interface) "~/kpxc-db/passwords.kdbx"
-;;                  ;; (password:yubikey-slot interface) "1:1111"
-;;                  ))
+(in-package :nyxt-user)
 
-;; (define-configuration nyxt/password-mode:password-mode
-;;                       ((nyxt/password-mode:password-interface
-;;                         (make-instance 'password:keepassxc-interface))))
+(define-configuration browser
+  ((theme (make-instance 'theme:theme
+                         :background-color "black"
+                         :on-background-color "white"
+                         :primary-color "rgb(170, 170, 170)"
+                         :on-primary-color "black"
+                         :secondary-color "rgb(100, 100, 100)"
+                         :on-secondary-color "white"
+                         :accent-color "#37A8E4"
+                         :on-accent-color "black"))))
 
-;; (define-configuration web-buffer
-;;                       ((default-modes (append '(dark-mode) %slot-default%))))
+(define-configuration prompt-buffer
+  ((default-modes (append '(vi-insert-mode) %slot-value%))))
 
-;; (define-configuration buffer
-;;                       ((default-modes (append (list 'nyxt/vi-mode:vi-normal-mode      ; Vi bindings
-;;                                                     'nyxt/password-mode:password-mode ; Password management
-;;                                                     'nyxt/blocker-mode:blocker-mode)  ; Adblock
-;;                                               %slot-default%))))
+;; (define-configuration nyxt/mode/hint:hint-mode
+;;   (;; (nyxt/mode/hint:fit-to-prompt-p t)
+;;    (nyxt/mode/hint:auto-follow-hints-p t)))
 
-;; (define-configuration prompt-buffer
-;;                       ((default-modes (append '(nyxt/vi-mode:vi-insert-mode) %slot-default%))))
+;; (defvar *search-engines*
+;;   (list '("qwant" "https://lite.qwant.com/?q=~a&s=1&theme=1&ta=2&a=1" "https://lite.qwant.com/?&s=1&theme=1&ta=2&a=1")))
 
-;; (define-configuration browser
-;;                       ((theme
-;;                         (make-instance 'theme:theme :dark-p t :background-color "black"
-;;                                        :on-background-color "#808080" :accent-color
-;;                                        "#37a8e4" :on-accent-color "black" :primary-color
-;;                                        "gray" :on-primary-color "white" :secondary-color
-;;                                        "darkgray" :on-secondary-color "black"))))
+;; (define-mode my-blocker-mode (nyxt/blocker-mode:blocker-mode)
+;;   ((nyxt/blocker-mode:hostlists (list *my-blocked-hosts* nyxt/blocker-mode:*default-hostlist*))))
 
+;; (define-configuration base-mode
+;;   ((keyscheme-map
+;;     (define-keyscheme-map "my-base" (list :import %slot-value%)
+;;                           keyscheme:emacs
+;;                           (list "g b" )))))
 
-;; Don't autocomplete searches
-;; (define-configuration buffer
-;;                       ((search-always-auto-complete-p nil)))
+(define-configuration web-buffer
+  ((default-modes (append '(vi-normal-mode) %slot-value%))
+   (search-auto-complete-p nil)
+   (search-always-auto-complete-p nil)
+   ;; (search-engines (append %slot-value%
+   ;;                         (mapcar (lambda (engine) (apply 'make-search-engine engine))
+   ;;                                 *search-engines*)))
+   (request-resource-hook
+    (hooks:add-hook %slot-value%
+                    (url-dispatching-handler
+                     'mpv-youtube-links
+                     (match-regex "youtube\.com\/watch")
+                     (lambda (url)
+                       (uiop:run-program (list "mpv" (render-url url)))))))))
 
-;; Make Kagi my search engine
-;; (defvar *my-search-engines*
-;;   (list
-;;    '("kagi" "https://kagi.com/search?q=~a" "https://kagi.com/"))
-;;   "List of search engines.")
-
-;; (define-configuration context-buffer
-;;                       "Go through the search engines above and `make-search-engine' out of them."
-;;                       ((search-engines
-;;                         (append
-;;                          (mapcar (lambda (engine) (apply 'make-search-engine engine))
-;;                                  *my-search-engines*)
-;;                          %slot-default%))))
