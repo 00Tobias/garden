@@ -5,17 +5,43 @@
 
 ;;; Code:
 
-;; Use melpa
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
+;; Functions for settings keys have changed in Emacs 29, this creates dummy functions for Emacs versions below 29.
+(when (version< emacs-version "29")
+  (defun keymap-set (keymap key def)
+    (define-key keymap (kbd key) def))
+  (defun keymap-global-set (key def)
+    (global-set-key (kbd key) def)))
 
-;; automatically generate natively compiled files
+(defun keymap-global-set-keys (&rest lst)
+  "Define multiple global keymap keys using one function call."
+  (declare (indent 1))
+  (while lst
+    (let ((key (pop lst))
+          (cmd (pop lst)))
+      (keymap-global-set key cmd))))
+
+(defun keymap-set-keys (&rest lst)
+  "Define multiple local keymap keys using one function call."
+  (declare (indent 1))
+  (let ((keymap (pop lst)))
+    (while lst
+      (let ((key (pop lst))
+            (cmd (pop lst)))
+        (keymap-set keymap key cmd)))))
+
+(defun gsr ()
+  "Reconfigure system profile"
+  (interactive)
+  (compile "sudo guix system reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/system/hosts/$HOSTNAME.scm"))
+
+(defun ghr ()
+  "Reconfigure home profile"
+  (interactive)
+  (compile "guix home reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/home/core.scm"))
+
 (setq comp-deferred-compilation t)
+(setq comp-async-report-warnings-errors nil)
 
-;; AOT native compile packages
 (setq package-native-compile t)
 
 ;; Write auto-saves and backups to separate directory.
@@ -24,15 +50,20 @@
       backup-directory-alist '(("." . "~/.cache/emacs/backup/"))
       savehist-file "~/.cache/emacs/savehist")
 
-;; Do not move the current file while creating backup
 (setq backup-by-copying t)
 
-;; Disable lockfiles
 (setq create-lockfiles nil)
 
-;; Write customizations to a separate file instead of this file.
+(setq require-final-newline t)
+
+(setq large-file-warning-threshold nil)
+
+(setq find-function-C-source-directory "~/git/emacs/src")
+
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file t)
+
+(global-subword-mode 1)
 
 ;; Lastly, load files in ./lisp
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
@@ -40,8 +71,9 @@
 (require 'init-completion)
 (require 'init-prog)
 (require 'init-text)
-(require 'init-eshell)
-(require 'init-colemak)
+(require 'init-modes)
+(require 'init-modal)
+(require 'init-frames)
 
 (provide 'init)
 ;;; init.el ends here

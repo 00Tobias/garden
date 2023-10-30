@@ -12,54 +12,92 @@
                                       mark-ring global-mark-ring
                                       search-ring regexp-search-ring))
 
-;; Use TAB to autocomplete
+(setq completion-cycle-threshold 3)
+
 (setq tab-always-indent 'complete)
-
-;; Use > Emacs 27.1 flex completion style
-;; (setq completion-styles '(flex)
-;;       completion-cycle-threshold 3)
-
-;; orderless
-(setq completion-styles '(orderless basic)
-      completion-category-overrides '((file (styles basic partial-completion))))
 
 (setq suggest-key-bindings t
       completions-detailed t)
 
-;; (require 'ido)
-;; (ido-mode 1)
-;; (setq ido-enable-flex-matching t
-;;       ido-everywhere t
-;;       ido-use-filename-at-point 'guess)
-;; (fido-mode 1)
+(setq isearch-lazy-count t)
 
-;; vertico
+;;; package: hotfuzz
+(setq completion-styles '(hotfuzz)
+      completion-category-defaults nil
+      completion-category-overrides '((eglot (styles hotfuzz))))
+(hotfuzz-vertico-mode 1)
+
+;;; package: vertico
 (vertico-mode)
 
-;; marginalia
+;;; package: marginalia
 (marginalia-mode)
 
-;; consult
-(keymap-global-set "C-s"     'consult-line)
-(keymap-global-set "C-x C-r" 'consult-recent-file)
-(keymap-global-set "C-c \\"  'consult-register)
-(keymap-global-set "C-c -"   'consult-register-load)
-(keymap-global-set "C-c ="   'consult-register-store)
-(keymap-global-set "C-x b"   'consult-buffer)
-(keymap-global-set "C-x p b" 'consult-project-buffer)
-(keymap-global-set "M-g o"   'consult-outline)
+;;; package: consult
+(keymap-global-set-keys
+    "C-x C-r" 'consult-recent-file
+    "C-x b"   'consult-buffer
+    "C-x p b" 'consult-project-buffer
+    "M-g o"   'consult-outline
+    "C-c \\"  'consult-register
+    "C-c -"   'consult-register-load
+    "C-c ="   'consult-register-store
+    "C-c g"   'consult-grep
+    "C-c G"   'consult-ripgrep
+    "C-c d"   'consult-flymake)
 
-;; embark
-(keymap-global-set "C-." 'embark-act)
+;;; package: embark
 (keymap-global-set "M-." 'embark-dwim)
+(keymap-global-set "C-h B" 'embark-bindings)
+(setq prefix-help-command #'embark-prefix-help-command)
+(add-to-list 'display-buffer-alist
+             '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+               nil
+               (window-parameters (mode-line-format . none))))
+(defun embark-external-file-handler (operation &rest args)
+  (message (car args))
+  (when (and (not (buffer-modified-p)) (zerop (buffer-size)) (called-interactively-p))
+    (embark-open-externally (car args))
+    (kill-buffer nil)))
+(with-eval-after-load 'embark
+  ;; (put 'embark-external-file-handler 'safe-magic t)
+  ;; (put 'embark-external-file-handler 'operations '(insert-file-contents))
+  ;; (add-to-list 'file-name-handler-alist '("\\.\\(?:jp?g\\|png\\|gif\\|webp\\|mp4\\|pdf\\|epub\\)\\'" . embark-external-file-handler))
 
-;; embark-consult
-;; (add-hook 'embark-collect-mode 'consult-preview-at-point-mode)
+  (set-keymap-parent embark-expression-map embark-general-map)
+  (keymap-set-keys embark-expression-map
+    "d" #'paredit-forward-down
+    "n" #'paredit-forward
+    "p" #'paredit-backward
+    "s" #'paredit-forward-slurp-sexp
+    "S" #'paredit-backward-slurp-sexp
+    "a" #'paredit-forward-barf-sexp
+    "A" #'paredit-backward-barf-sexp
+    "r" #'paredit-raise-sexp)
+  (add-to-list 'embark-pre-action-hooks  '(paredit-forward embark--end-of-target))
+  (add-to-list 'embark-pre-action-hooks  '(paredit-backward embark--beginning-of-target))
+  (add-to-list 'embark-post-action-hooks '(paredit-forward-down embark--beginning-of-target))
+  (add-to-list 'embark-repeat-actions #'paredit-forward-down)
+  (add-to-list 'embark-repeat-actions #'paredit-forward)
+  (add-to-list 'embark-repeat-actions #'paredit-backward))
 
-;; corfu
+;;; package: corfu
+(setq corfu-auto t
+      corfu-auto-delay 0
+      corfu-auto-prefix 1
+      corfu-quit-no-match 'separator
+      completion-style '(hotfuzz)
+      corfu-popupinfo-delay 0
+      corfu-popupinfo-hide nil)
+(add-hook 'eshell-mode-hook (lambda () (setq-local corfu-auto nil)))
+(add-hook 'shell-mode-hook (lambda () (setq-local corfu-auto nil)))
+(corfu-popupinfo-mode t)
 (global-corfu-mode)
 
-;; kind-icon
+;;; package: cape
+(advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
+
+;;; package: kind-icon
 (setq kind-icon-default-face 'corfu-default)
 (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
 

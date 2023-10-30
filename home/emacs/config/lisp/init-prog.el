@@ -1,52 +1,153 @@
-9;;; init-prog.el --- Configuration for programming modes  -*- lexical-binding: t; -*-
+;;; init-prog.el --- Configuration for programming modes  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
 ;;; Code:
 
-;; Highlight trailing whitespace
 (add-hook 'prog-mode-hook (lambda () (setq show-trailing-whitespace t)))
 
-;; Use spaces for indentation.
 (setq-default indent-tabs-mode nil)
 
-;; Set width of indent
-(setq-default tab-width 4)
-(setq standard-indent 4)
-
-(add-hook 'emacs-lisp-mode-hook 'flymake-mode)
+(setq-default tab-width 2)
+(setq standard-indent 2)
 
 (electric-pair-mode 1)
 
-;; lispy
-(add-hook 'clojure-mode-hook    'lispy-mode)
-(add-hook 'emacs-lisp-mode-hook 'lispy-mode)
-(add-hook 'fennel-mode-hook     'lispy-mode)
-(add-hook 'hy-mode-hook         'lispy-mode)
-(add-hook 'lisp-mode-hook       'lispy-mode)
-(add-hook 'racket-mode-hook     'lispy-mode)
-(add-hook 'scheme-mode-hook     'lispy-mode)
+(setq case-replace nil)
+(keymap-global-set "C-c r" 'replace-regexp)
+(keymap-global-set "C-c q" 'query-replace-regexp)
 
-;; yasnippet
-(yas-global-mode 1)
-(diminish 'yas-minor-mode)
+;;; treesit
+(setq treesit-extra-load-path '("~/.guix-home/profile/lib/tree-sitter"))
+(dolist (mapping '((bash-mode . bash-ts-mode)
+                   (c-mode . c-ts-mode)
+                   (c++-mode . c++-ts-mode)
+                   (css-mode . css-ts-mode)
+                   (html-mode . html-ts-mode)
+                   (js-mode . js-ts-mode)
+                   (json-mode . json-ts-mode)
+                   (python-mode . python-ts-mode)))
+  (add-to-list 'major-mode-remap-alist mapping))
 
-;; aggressive-indent
-;; (global-aggressive-indent-mode 1)
+(add-to-list 'auto-mode-alist '("\\.js$" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx$" . tsx-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.ts$"  . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.rs$"  . rust-ts-mode))
 
-;; expand-region
-(keymap-global-set "C-:" 'er/expand-region)
+;;; eglot
+(setq eglot-events-buffer-size 0)
+(add-hook 'c-ts-mode-hook 'eglot-ensure)
+(add-hook 'c++-ts-mode-hook 'eglot-ensure)
+(add-hook 'python-ts-mode-hook 'eglot-ensure)
+(add-hook 'js-ts-mode-hook 'eglot-ensure)
+(add-hook 'tsx-ts-mode-hook 'eglot-ensure)
+(add-hook 'typescript-ts-mode-hook 'eglot-ensure)
+(add-hook 'rust-ts-mode-hook 'eglot-ensure)
 
-;; avy
-;; Using 'consult-line' for my search interface, C-r is freed
-(keymap-global-set "C-r" 'avy-goto-char)
+;;; package: combobulate
+(add-hook 'bash-ts-mode-hook       #'combobulate-mode)
+(add-hook 'c-ts-mode-hook          #'combobulate-mode)
+(add-hook 'c++-ts-mode-hook        #'combobulate-mode)
+(add-hook 'css-ts-mode-hook        #'combobulate-mode)
+(add-hook 'html-ts-mode-hook       #'combobulate-mode)
+(add-hook 'js-ts-mode-hook         #'combobulate-mode)
+(add-hook 'json-ts-mode-hook       #'combobulate-mode)
+(add-hook 'python-ts-mode-hook     #'combobulate-mode)
+(add-hook 'typescript-ts-mode-hook #'combobulate-mode)
+(add-hook 'tsx-ts-mode-hook        #'combobulate-mode)
+(add-hook 'ruby-ts-mode-hook       #'combobulate-mode)
+(add-hook 'yaml-ts-mode-hook       #'combobulate-mode)
 
-;;; Langs
+;;; package: tempel
+(with-eval-after-load 'tempel
+  (unless (listp 'tempel-path)
+    (setq tempel-path (list tempel-path)))
+  (add-to-list 'tempel-path "~/git/guix/etc/snippets/tempel/*"))
+(defun tempel-setup-capf ()
+  (setq-local completion-at-point-functions
+              (cons #'tempel-expand completion-at-point-functions)))
 
-;; Clojure
+(add-hook 'prog-mode-hook 'tempel-setup-capf)
+(add-hook 'text-mode-hook 'tempel-setup-capf)
 
-;; Common lisp
+;;; package: aggressive-indent
+(global-aggressive-indent-mode 1)
+(add-to-list 'aggressive-indent-excluded-modes 'shell-mode)
+
+;;; package: avy
+(avy-setup-default)
+(keymap-global-set-keys "C-c C-j" 'avy-resume
+                        "C-."     'avy-goto-char
+                        "C-:"     'avy-goto-char-2
+                        "M-g g"   'avy-goto-line
+                        "M-g w"   'avy-goto-word-1
+                        "M-g e"   'avy-goto-word-0)
+
+;;; package: paredit
+(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+(add-hook 'paredit-mode-hook (lambda () (electric-indent-local-mode 0)))
+(add-hook 'paredit-mode-hook (lambda () (electric-pair-local-mode 0)))
+(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+(add-hook 'clojure-mode-hook          #'enable-paredit-mode)
+(eldoc-add-command
+ 'paredit-backward-delete
+ 'paredit-close-round)
+(with-eval-after-load 'paredit (setcar (alist-get 'paredit-mode minor-mode-alist) " ()"))
+
+;;; Language major modes
+
+;;; Clojure
+;;; package: cider
+(setq cider-repl-display-help-banner nil
+      cider-use-overlays t)
+
+;;; Common lisp
+
+(put 'define-configuration 'lisp-indent-function 'defun)
+
 (setq inferior-lisp-program "sbcl")
+;;; package: sly
+(defun sly-eval-sexp-overlay ()
+  (interactive)
+  (let ((result (->> `(slynk:pprint-eval ,(sly-sexp-at-point))
+                     sly-eval
+                     s-trim
+                     (s-replace "\n" ", "))))
+    (eros--make-result-overlay result
+      :where (point)
+      :duration eros-eval-result-duration)))
+;;; package: sly-asdf
+
+;;; Emacs lisp
+(add-hook 'emacs-lisp-mode-hook 'flymake-mode)
+(add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
+(add-hook 'lisp-interaction-mode-hook 'eldoc-mode)
+(add-hook 'ielm-mode-hook 'eldoc-mode)
+
+;;; package: eros
+(eros-mode 1)
+
+;;; Scheme
+;;; package: geiser
+(require 'geiser)
+(setq geiser-mode-auto-p t
+      geiser-repl-query-on-kill-p nil)
+;;; package: geiser-guile
+(with-eval-after-load 'geiser-guile
+  (add-to-list 'geiser-guile-load-path "~/git/guix"))
+;;; package: guix
+;; Broken package: https://issues.guix.gnu.org/55013
+(with-eval-after-load 'guix-repl
+  (setq guix-guile-program '("guix" "repl")))
+
+;;; Web
+;;; package: web-mode
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 
 (provide 'init-prog)
 ;;; init-prog.el ends here

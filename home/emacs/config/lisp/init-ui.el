@@ -4,86 +4,54 @@
 
 ;;; Code:
 
-;; Set theme
-(setq modus-themes-mode-line '(borderless)
-      modus-themes-paren-match '(bold intense))
+(setq modus-themes-italic-constructs t
+      modus-themes-common-palette-overrides
+      '((fg-region unspecified)
+        (fringe unspecified)
+        (border-mode-line-active unspecified)
+        (border-mode-line-inactive unspecified)))
 (load-theme 'modus-vivendi t)
 
-;; Set font
-(add-to-list 'default-frame-alist '(font . "Hack-10"))
+(set-face-attribute 'mode-line nil
+                    :background "#1e1e1e"
+                    :overline "white")
+;; (add-hook 'minibuffer-setup-hook
+;;           (lambda ()
+;;             (make-local-variable 'face-remapping-alist)
+;;             (add-to-list 'face-remapping-alist '(default (:background "grey10")))))
+;; (set-face-background 'minibuffer-prompt "grey10")
+;; (with-current-buffer (get-buffer " *Echo Area 0*")
+;;   (setq-local face-remapping-alist '((default (:background "#1e1e1e")))))
 
-;; Disable cursor blinking
+(add-to-list 'default-frame-alist '(font . "Sarasa Mono CL-12"))
+
 (blink-cursor-mode 0)
 
-;; Delete selection when typing
 (delete-selection-mode 1)
 
-;; Enable line-numbers
-(global-display-line-numbers-mode)
-(setq display-line-numbers-type 'relative)
-
-;; Show column number on the modeline
 (column-number-mode 1)
 
-;; Vim-like scrolling
+(which-function-mode 1)
+
 (setq scroll-step 1)
 (setq scroll-margin 5)
 
-;; If Emacs is version 29 or above, enable smooth scrolling
-(if (>= emacs-major-version 29)
-    (pixel-scroll-precision-mode))
+(setq use-short-answers t)
 
-;; way more useful
 (keymap-global-set "C-z" 'undo)
 (keymap-global-set "C-S-z" 'undo-redo)
 
-;; dired TODO: move this
-(setq dired-dwim-target t)
+(font-lock-add-keywords 'prog-mode '(("\\(FIXME\\|TODO\\):" 1 font-lock-warning-face t)))
+(font-lock-add-keywords 'prog-mode '(("\\(NOTE\\|DONE\\):" 1 font-lock-string-face t)))
 
-;; paren-face
-(global-paren-face-mode 't)
+(setq flymake-mode-line-lighter "")
 
-;; ace-window
-(keymap-global-set "C-;" 'ace-window)
-(setq aw-dispatch-always t)
-
-;; hl-todo
-(add-hook 'prog-mode-hook 'hl-todo-mode)
-(setq hl-todo-highlight-punctuation ":"
-    hl-todo-keyword-faces
-    `(("TODO" warning bold)
-      ("FIXME" error bold)
-      ("HACK" font-lock-constant-face bold)
-      ("REVIEW" font-lock-keyword-face bold)
-      ("NOTE" success bold)
-      ("DEPRECATED" font-lock-doc-face bold)
-      ("BUG" error bold)
-      ("XXX" font-lock-constant-face bold)))
-
-;;diff-hl
-(add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
-(add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+;;; package: diff-hl
 (setq-default left-fringe-width 5)
 (global-diff-hl-mode)
 
-;; which-key
-(which-key-mode)
-(diminish 'which-key-mode)
-
-;; dirvish
-;; (dirvish-override-dired-mode)
-
-;; ;; frames-only-mode
-;; (frames-only-mode 1)
-
-;; ;; mini-frame
-;; (setq mini-frame-standalone 't
-;;       mini-frame-resize-min-height 10
-;;       mini-frame-detach-on-hide nil)
-;; (custom-set-variables
-;;  '(mini-frame-show-parameters
-;;    '((width . 0.5))))
-;; (mini-frame-mode 1)
+;;; package: vundo
+(keymap-global-set "C-c u" 'vundo)
 
 (provide 'init-ui)
 ;;; init-ui.el ends here
