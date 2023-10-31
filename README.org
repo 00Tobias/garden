@@ -1,0 +1,2 @@
+* Garden
+This repo contains the declarative configuration files for my entire system, managed with [[https://guix.gnu.org/][GNU Guix]].
