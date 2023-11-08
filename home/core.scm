@@ -21,8 +21,9 @@
 
   #:use-module ((gnu packages games) #:select (quakespasm
                                                yamagi-quake2))
-
   #:use-module ((gnu packages game-development) #:select (ioquake3))
+
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
@@ -50,6 +51,7 @@
             qutebrowser:packages
             mpv:packages
             ;; TODO: Clean this
+            (list icecat)               ; Doesn't like replace-mesa
             (map replace-mesa
                  (list rbw
                        pinentry
@@ -59,7 +61,6 @@
                        rxvt-unicode
                        htop
                        pulsemixer
-                       icecat
                        xclip
                        python
 
@@ -68,7 +69,7 @@
                        font-google-noto-sans-cjk
                        font-google-noto-emoji
 
-                       ;;Games
+                       ;; Games
                        quakespasm
                        yamagi-quake2
                        ioquake3

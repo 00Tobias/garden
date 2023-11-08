@@ -15,7 +15,7 @@
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((gnu packages video) #:select (obs))
+  #:use-module ((gnu packages video) #:select (obs obs-vkcapture))
   #:use-module ((gnu packages audio) #:select (ardour))
   #:use-module ((gnu packages music) #:select (zrythm zplugins))
   #:use-module ((gnu packages graphics) #:select (blender))
@@ -93,6 +93,7 @@ pattern-based sequencer (tracker). Features:
 (define-public packages
   (map replace-mesa
        (list obs
+             obs-vkcapture
              sunvox
              ardour
              zrythm
