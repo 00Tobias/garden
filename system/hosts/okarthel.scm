@@ -126,7 +126,18 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/chvt,/run/current-s
 							                                   %default-substitute-urls))
 					                              (authorized-keys
 						                             (append (list (local-file "../../nonguix-signing-key.pub"))
-							                                   %default-authorized-guix-keys)))))))
+							                                   %default-authorized-guix-keys))))
+                    (slim-service-type config =>
+                                       (slim-configuration
+                                        (inherit config)
+                                        (xorg-configuration
+                                         (xorg-configuration
+                                          (keyboard-layout keyboard-layout)
+                                          (modules (cons* nvidia-driver %default-xorg-modules))
+                                          (server (replace-mesa xorg-server))
+                                          (drivers '("nvidia"))
+                                          (extra-config (list xorg:%libinput-config
+                                                              xorg:%nvidia-config)))))))))
 
  (bootloader
   (bootloader-configuration

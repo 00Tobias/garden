@@ -15,7 +15,7 @@
   #:use-module (nongnu services nvidia)
   #:use-module (nongnu packages nvidia))
 
-(define %xorg-libinput-config "
+(define-public %libinput-config "
 Section \"InputClass\"
   Identifier \"Touchpads\"
   Driver \"libinput\"
@@ -46,7 +46,7 @@ Section \"InputClass\"
 EndSection
 ")
 
-(define %xorg-nvidia-config "
+(define-public %nvidia-config "
 Section \"Monitor\"
   Identifier \"DP-0\"
   Option \"Primary\" \"true\"
@@ -64,16 +64,7 @@ EndSection
   (cons*
    (service slim-service-type (slim-configuration
                                (default-user "tobias")
-                               (auto-login? #t)
-                               (xorg-configuration
-                                (xorg-configuration
-                                 (keyboard-layout (keyboard-layout "se" "nodeadkeys"))
-                                 ;; TODO: Move
-                                 (modules (cons* nvidia-driver %default-xorg-modules))
-                                 (server (replace-mesa xorg-server))
-                                 (drivers '("nvidia"))
-                                 (extra-config (list %xorg-libinput-config
-                                                     %xorg-nvidia-config))))))
+                               (auto-login? #t)))
    (modify-services %desktop-services
                     (delete gdm-service-type)
                     (delete upower-service-type)
