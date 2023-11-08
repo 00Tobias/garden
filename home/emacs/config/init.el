@@ -32,12 +32,12 @@
 (defun gsr ()
   "Reconfigure system profile"
   (interactive)
-  (compile "sudo guix system reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/system/hosts/$HOSTNAME.scm"))
+  (compile "sudo guix system reconfigure -c $(nproc) -L ~/garden ~/garden/system/hosts/$HOSTNAME.scm"))
 
 (defun ghr ()
   "Reconfigure home profile"
   (interactive)
-  (compile "guix home reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/home/core.scm"))
+  (compile "guix home reconfigure -c $(nproc) -L ~/garden ~/garden/home/core.scm"))
 
 (setq comp-deferred-compilation t)
 (setq comp-async-report-warnings-errors nil)

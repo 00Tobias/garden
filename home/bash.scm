@@ -16,8 +16,8 @@
                 ("ls"   . "ls -hp --color=auto")
                 ("diff" . "diff --color=auto")
                 ("ip"   . "ip -color=auto")
-                ("gsr"  . "sudo guix system reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/system/hosts/$HOSTNAME.scm")
-                ("ghr"  . "guix home reconfigure -c $(nproc) -L ~/guix-config-ro ~/guix-config-ro/home/core.scm")))
+                ("gsr"  . "sudo guix system reconfigure -c $(nproc) -L ~/garden ~/garden/system/hosts/$HOSTNAME.scm")
+                ("ghr"  . "guix home reconfigure -c $(nproc) -L ~/garden ~/garden/home/core.scm")))
              (bash-profile (list (plain-file "bash_profile"
                                              "shopt -s autocd checkwinsize
 set -o noclobber")))))))
