@@ -34,29 +34,10 @@
 (setq browse-url-handlers
       '(("https://www.youtube.com/\.*" . mpv-play-link)))
 
-;;; xwidget-webkit
-
-(add-hook 'xwidget-webkit-mode-hook (lambda () (display-line-numbers-mode 0)))
-
-(require 'xwidget)
-(keymap-set-keys xwidget-webkit-mode-map
-  "h" 'xwidget-webkit-back
-  "j" 'xwidget-webkit-scroll-up-line
-  "k" 'xwidget-webkit-scroll-down-line
-  "l" 'xwidget-webkit-forward
-  "n" 'xwidget-webkit-back
-  "e" 'xwidget-webkit-scroll-up-line
-  "i" 'xwidget-webkit-scroll-down-line
-  "o" 'xwidget-webkit-forward)
-
-;;; package: xwwp
-(keymap-set xwidget-webkit-mode-map "f" 'xwwp-follow-link)
-
-
 ;;; gnus
 
-;; (add-to-list 'load-path "~/git/nnatom")
-;; (require 'nnatom)
+;;; package: nnatom
+(require 'nnatom)
 
 (with-eval-after-load 'mm-decode (add-to-list 'mm-attachment-override-types "image/.*"))
 

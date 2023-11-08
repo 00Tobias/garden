@@ -9,18 +9,16 @@
   #:use-module ((guix licenses) #:select (gpl3+))
 
   #:use-module ((gnu packages emacs) #:select (emacs-next-tree-sitter))
-  #:use-module ((gnu packages gnome) #:select (gsettings-desktop-schemas))
-  #:use-module ((gnu packages webkit) #:select (webkitgtk-with-libsoup2))
-  #:use-module ((gnu packages xorg) #:select (libxcomposite))
+  #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
-  #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic font-cozette))
+  #:use-module ((gnu packages fonts) #:select (font-tamzen))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
   #:use-module ((gnu packages java) #:select (openjdk))
   #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
-  #:use-module ((gnu packages node) #:select (node))
+  #:use-module ((gnu packages node) #:select (node-lts))
   #:use-module ((contrib packages node-xyz) #:select (node-typescript node-typescript-language-server))
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
@@ -45,6 +43,37 @@
            (build-system emacs-build-system)
            (synopsis "Structured Editing and Navigation in Emacs")
            (description "This package adds structured editing and movement to a wide range of programming languages.")
+           (license gpl3+)))
+
+(define emacs-org-block-capf
+  (package (name "emacs-org-block-capf")
+           (version (git-version "0" "1" "9c1e5c63e38f94238dafeb6bbea312920b6e9901"))
+           (home-page "https://github.com/xenodium/org-block-capf")
+           (source (origin
+                    (method git-fetch)
+                    (uri (git-reference
+                          (url "https://github.com/xenodium/org-block-capf")
+                          (commit "9c1e5c63e38f94238dafeb6bbea312920b6e9901")))
+                    (sha256 (base32 "0bvx693gxvy2f6j6rj9zmvy261cj5lxf0c50yklbcmh26hfibw7a"))))
+           (build-system emacs-build-system)
+           (synopsis "completion-at-point function for Org Mode blocks")
+           (description "This package adds a completion-at-point function for Org Mode blocks")
+           ;; FIXME: doesn't actually have a license
+           (license gpl3+)))
+
+(define emacs-nnatom
+  (package (name "emacs-nnatom")
+           (version (git-version "0" "1" "30e4592e39e1d4a484e3bb2496335e43e0478ab7"))
+           (home-page "https://git.sr.ht/~dsemy/nnatom")
+           (source (origin
+                    (method git-fetch)
+                    (uri (git-reference
+                          (url "https://git.sr.ht/~dsemy/nnatom")
+                          (commit "30e4592e39e1d4a484e3bb2496335e43e0478ab7")))
+                    (sha256 (base32 "084y4ar15phsjlw8dz0djbx1q92sxkslak94gvmzpwkhkybnc93j"))))
+           (build-system emacs-build-system)
+           (synopsis "Atom feed backend for Gnus")
+           (description "This package adds an atom feed backend for Gnus.")
            (license gpl3+)))
 
 (define emacs-hotfuzz
@@ -101,6 +130,12 @@
    ;; init-ui.el
    emacs-diff-hl
    emacs-vundo
+   emacs-which-key
+   emacs-which-key-posframe
+   emacs-transient-posframe
+   emacs-vertico-posframe
+   emacs-flymake-popon
+   emacs-eldoc-box
 
    ;; init-completion.el
    emacs-hotfuzz
@@ -129,13 +164,16 @@
    emacs-web-mode
 
    ;; init-text.el
-   ;; emacs-org-block-capf
+   emacs-jinx
+   emacs-org-block-capf
    emacs-org-roam
 
    ;; init-modes.el
-   ;; emacs-nnatom
+   emacs-nnatom
    emacs-elpher
+   emacs-libgit
    emacs-magit
+   emacs-vterm
    emacs-pcmpl-args
 
    ;; init-frames.el
@@ -143,11 +181,11 @@
 
 (define-public packages
   (list
+   enchant
    aspell
    aspell-dict-en
    aspell-dict-sv
-   font-sarasa-gothic
-   font-cozette
+   font-tamzen
    ;; Langs
    python
    sbcl
@@ -157,7 +195,7 @@
    ;; LSP
    ccls
    python-lsp-server
-   node
+   node-lts                             ; Normal is at v10?
    node-typescript
    node-typescript-language-server
    ;; Treesitter
@@ -173,24 +211,24 @@
    tree-sitter-json
    tree-sitter-typescript))
 
-(define-public services
-  (list
-   (simple-service 'emacs-config
-                   home-files-service-type
-                   `((".emacs.d/init.el"                 ,(local-file "config/init.el"))
-                     (".emacs.d/early-init.el"           ,(local-file "config/early-init.el"))
-                     (".emacs.d/templates"               ,(local-file "config/templates"))
-                     (".emacs.d/lisp/init-ui.el"         ,(local-file "config/lisp/init-ui.el"))
-                     (".emacs.d/lisp/init-completion.el" ,(local-file "config/lisp/init-completion.el"))
-                     (".emacs.d/lisp/init-prog.el"       ,(local-file "config/lisp/init-prog.el"))
-                     (".emacs.d/lisp/init-text.el"       ,(local-file "config/lisp/init-text.el"))
-                     (".emacs.d/lisp/init-modes.el"      ,(local-file "config/lisp/init-modes.el"))
-                     (".emacs.d/lisp/init-modal.el"      ,(local-file "config/lisp/init-modal.el"))
-                     (".emacs.d/lisp/init-frames.el"     ,(local-file "config/lisp/init-frames.el"))))
-   (service
-    home-emacs-service-type
-    (home-emacs-configuration
-     (emacs (replace-mesa emacs-next-tree-sitter))
-     ;; (rebuild-elisp-packages? #t)
-     ;; (server-mode? #t)
-     (elisp-packages elisp-packages)))))
+  (define-public services
+    (list
+     (simple-service 'emacs-config
+                     home-files-service-type
+                     `((".emacs.d/init.el"                 ,(local-file "config/init.el"))
+                       (".emacs.d/early-init.el"           ,(local-file "config/early-init.el"))
+                       (".emacs.d/templates"               ,(local-file "config/templates"))
+                       (".emacs.d/lisp/init-ui.el"         ,(local-file "config/lisp/init-ui.el"))
+                       (".emacs.d/lisp/init-completion.el" ,(local-file "config/lisp/init-completion.el"))
+                       (".emacs.d/lisp/init-prog.el"       ,(local-file "config/lisp/init-prog.el"))
+                       (".emacs.d/lisp/init-text.el"       ,(local-file "config/lisp/init-text.el"))
+                       (".emacs.d/lisp/init-modes.el"      ,(local-file "config/lisp/init-modes.el"))
+                       (".emacs.d/lisp/init-modal.el"      ,(local-file "config/lisp/init-modal.el"))
+                       (".emacs.d/lisp/init-frames.el"     ,(local-file "config/lisp/init-frames.el"))))
+     (service
+      home-emacs-service-type
+      (home-emacs-configuration
+       (emacs (replace-mesa emacs-next-tree-sitter))
+       ;; (rebuild-elisp-packages? #t)
+       ;; (server-mode? #t)
+       (elisp-packages elisp-packages))))))

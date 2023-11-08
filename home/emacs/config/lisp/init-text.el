@@ -6,18 +6,20 @@
 
 (setq sentence-end-double-space nil)
 
-(dolist (hook '(text-mode-hook))
-  (add-hook hook (lambda () (flyspell-mode 1))))
-(dolist (hook '(change-log-mode-hook log-edit-mode-hook))
-  (add-hook hook (lambda () (flyspell-mode -1))))
-
-(keymap-global-set "C-c f" 'flyspell-mode)
-
-(keymap-global-set "C-c d" 'dictionary-lookup-definition)
+(keymap-global-set "C-c d" 'dictionary-search)
 
 (setq-default fill-column 80)
 
 (add-hook 'text-mode-hook 'visual-line-mode)
+
+;;; package: jinx
+(setq jinx-languages "en_US sv_SE")
+
+(dolist (hook '(text-mode-hook conf-mode-hook))
+  (add-hook hook #'jinx-mode))
+
+(keymap-global-set "M-$" #'jinx-correct)
+(keymap-global-set "C-M-$" #'jinx-languages)
 
 ;;; Org mode
 
@@ -30,10 +32,12 @@
     "C-M-b" 'org-backward-heading-same-level
     "C-M-n" 'org-down-element))
 
-;; Complete org-mode blocks
-;; TODO: Uncomment when on *ELPA
-;; (with-package 'org-block-capf
-;;   (add-hook 'org-mode-hook 'org-block-capf-add-to-completion-at-point-functions))
+;;; package: org-block-capf
+(add-hook 'org-mode-hook 'org-block-capf-add-to-completion-at-point-functions)
+(add-hook 'org-mode-hook (lambda ()
+                           (setq-local electric-pair-inhibit-predicate
+                                       `(lambda (c)
+                                          (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
 
 ;;; package: org-roam
 (setq org-roam-directory (file-truename "~/org/")

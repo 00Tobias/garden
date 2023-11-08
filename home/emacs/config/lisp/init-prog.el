@@ -17,6 +17,8 @@
 (keymap-global-set "C-c r" 'replace-regexp)
 (keymap-global-set "C-c q" 'query-replace-regexp)
 
+(keymap-global-set "C-c s" 'save-buffer)
+
 ;;; treesit
 (setq treesit-extra-load-path '("~/.guix-home/profile/lib/tree-sitter"))
 (dolist (mapping '((bash-mode . bash-ts-mode)
@@ -30,6 +32,7 @@
   (add-to-list 'major-mode-remap-alist mapping))
 
 (add-to-list 'auto-mode-alist '("\\.js$" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.mjs$" . js-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.tsx$" . tsx-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.ts$"  . typescript-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.rs$"  . rust-ts-mode))
@@ -94,9 +97,7 @@
 (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 (add-hook 'clojure-mode-hook          #'enable-paredit-mode)
-(eldoc-add-command
- 'paredit-backward-delete
- 'paredit-close-round)
+(eldoc-add-command 'paredit-backward-delete 'paredit-close-round)
 (with-eval-after-load 'paredit (setcar (alist-get 'paredit-mode minor-mode-alist) " ()"))
 
 ;;; Language major modes
@@ -148,6 +149,10 @@
 ;;; Web
 ;;; package: web-mode
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(setq web-mode-part-padding 2
+      web-mode-code-indent-offset 4
+      web-mode-css-indent-offset 4
+      web-mode-indent-style 4)
 
 (provide 'init-prog)
 ;;; init-prog.el ends here

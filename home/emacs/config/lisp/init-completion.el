@@ -24,16 +24,24 @@
 ;;; package: hotfuzz
 (setq completion-styles '(hotfuzz)
       completion-category-defaults nil
-      completion-category-overrides '((eglot (styles hotfuzz))))
+      completion-category-overrides '((eglot (styles hotfuzz)))
+      completion-ignore-case t)
+
 (hotfuzz-vertico-mode 1)
 
 ;;; package: vertico
 (vertico-mode)
 
+(require 'vertico-multiform)
+(add-to-list 'vertico-multiform-categories
+             '(jinx grid (vertico-grid-annotate . 20)))
+(vertico-multiform-mode 1)
+
 ;;; package: marginalia
 (marginalia-mode)
 
 ;;; package: consult
+
 (keymap-global-set-keys
     "C-x C-r" 'consult-recent-file
     "C-x b"   'consult-buffer
@@ -45,6 +53,14 @@
     "C-c g"   'consult-grep
     "C-c G"   'consult-ripgrep
     "C-c d"   'consult-flymake)
+
+;; FIXME: workaround while https://github.com/axelf4/hotfuzz/issues/12
+;; is an issue.
+(with-eval-after-load 'consult
+  (setq consult--tofu-char #x100000
+        consult--tofu-range #xFFFF))
+
+(require 'consult)
 
 ;;; package: embark
 (keymap-global-set "M-." 'embark-dwim)
@@ -89,6 +105,7 @@
       completion-style '(hotfuzz)
       corfu-popupinfo-delay 0
       corfu-popupinfo-hide nil)
+
 (add-hook 'eshell-mode-hook (lambda () (setq-local corfu-auto nil)))
 (add-hook 'shell-mode-hook (lambda () (setq-local corfu-auto nil)))
 (corfu-popupinfo-mode t)
