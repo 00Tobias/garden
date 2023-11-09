@@ -12,6 +12,7 @@
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
   #:use-module ((gnu packages fonts) #:select (font-tamzen))
+  #:use-module ((gnu packages base) #:select (binutils))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
@@ -187,6 +188,7 @@
    aspell-dict-sv
    font-tamzen
    ;; Langs
+   binutils                             ; Fixes odd missing 'as' native comp error
    python
    sbcl
    clojure
@@ -211,24 +213,26 @@
    tree-sitter-json
    tree-sitter-typescript))
 
-  (define-public services
-    (list
-     (simple-service 'emacs-config
-                     home-files-service-type
-                     `((".emacs.d/init.el"                 ,(local-file "config/init.el"))
-                       (".emacs.d/early-init.el"           ,(local-file "config/early-init.el"))
-                       (".emacs.d/templates"               ,(local-file "config/templates"))
-                       (".emacs.d/lisp/init-ui.el"         ,(local-file "config/lisp/init-ui.el"))
-                       (".emacs.d/lisp/init-completion.el" ,(local-file "config/lisp/init-completion.el"))
-                       (".emacs.d/lisp/init-prog.el"       ,(local-file "config/lisp/init-prog.el"))
-                       (".emacs.d/lisp/init-text.el"       ,(local-file "config/lisp/init-text.el"))
-                       (".emacs.d/lisp/init-modes.el"      ,(local-file "config/lisp/init-modes.el"))
-                       (".emacs.d/lisp/init-modal.el"      ,(local-file "config/lisp/init-modal.el"))
-                       (".emacs.d/lisp/init-frames.el"     ,(local-file "config/lisp/init-frames.el"))))
-     (service
-      home-emacs-service-type
-      (home-emacs-configuration
-       (emacs (replace-mesa emacs-next-tree-sitter))
-       ;; (rebuild-elisp-packages? #t)
-       ;; (server-mode? #t)
-       (elisp-packages elisp-packages))))))
+(define-public services
+  (list
+   (simple-service 'emacs-config
+                   home-files-service-type
+                   `((".emacs.d/init.el"                 ,(local-file "config/init.el"))
+                     (".emacs.d/early-init.el"           ,(local-file "config/early-init.el"))
+                     (".emacs.d/templates"               ,(local-file "config/templates"))
+                     (".emacs.d/lisp/init-ui.el"         ,(local-file "config/lisp/init-ui.el"))
+                     (".emacs.d/lisp/init-completion.el" ,(local-file "config/lisp/init-completion.el"))
+                     (".emacs.d/lisp/init-prog.el"       ,(local-file "config/lisp/init-prog.el"))
+                     (".emacs.d/lisp/init-text.el"       ,(local-file "config/lisp/init-text.el"))
+                     (".emacs.d/lisp/init-modes.el"      ,(local-file "config/lisp/init-modes.el"))
+                     (".emacs.d/lisp/init-modal.el"      ,(local-file "config/lisp/init-modal.el"))
+                     (".emacs.d/lisp/init-frames.el"     ,(local-file "config/lisp/init-frames.el"))))
+   (service
+    home-emacs-service-type
+    (home-emacs-configuration
+     (emacs (if (string= (gethostname) "okarthel")
+                (replace-mesa emacs-next-tree-sitter)
+                emacs-next-tree-sitter))
+     ;; (rebuild-elisp-packages? #t)
+     ;; (server-mode? #t)
+     (elisp-packages elisp-packages)))))

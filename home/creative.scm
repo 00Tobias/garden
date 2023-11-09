@@ -91,14 +91,16 @@ pattern-based sequencer (tracker). Features:
    (license (license:nonfree "file:///share/docs/license/sunvox.txt"))))
 
 (define-public packages
-  (map replace-mesa
-       (list obs
-             obs-vkcapture
-             sunvox
-             ardour
-             zrythm
-             zplugins
-             blender
-             kdenlive
-             krita
-             inkscape)))
+  (let ((lst (list obs
+                   obs-vkcapture
+                   sunvox
+                   ardour
+                   zrythm
+                   zplugins
+                   blender
+                   kdenlive
+                   krita
+                   inkscape)))
+    (if (string= (gethostname) "okarthel")
+                  (map replace-mesa lst)
+                lst)))

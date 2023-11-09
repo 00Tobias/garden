@@ -76,7 +76,9 @@
            (files '("share/vulkan/implicit_layer.d")))))))
 
 (define-public packages
-  (list (replace-mesa mpv-nvidia)))
+  (list (if (string= (gethostname) "okarthel")
+            (replace-mesa mpv)
+            mpv)))
 
 (define-public services
   (list

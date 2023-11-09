@@ -52,29 +52,29 @@
             mpv:packages
             ;; TODO: Clean this
             (list icecat)               ; Doesn't like replace-mesa
-            (map replace-mesa
-                 (list rbw
-                       pinentry
-                       password-store
-                       xmrig
-                       wireguard-tools
-                       rxvt-unicode
-                       htop
-                       pulsemixer
-                       xclip
-                       python
+            (let ((lst (list rbw
+                             pinentry
+                             password-store
+                             xmrig
+                             wireguard-tools
+                             rxvt-unicode
+                             htop
+                             pulsemixer
+                             xclip
+                             python
 
-                       ;; Fonts
-                       font-google-noto
-                       font-google-noto-sans-cjk
-                       font-google-noto-emoji
+                             ;; Fonts
+                             font-google-noto
+                             font-google-noto-sans-cjk
+                             font-google-noto-emoji
 
-                       ;; Games
-                       quakespasm
-                       yamagi-quake2
-                       ioquake3
-                       ;; TODO: Dwarf Fortress
-                       ))))
+                             ;; Games
+                             quakespasm
+                             yamagi-quake2
+                             ioquake3)))
+              (if (string= (gethostname) "okarthel")
+                  (map replace-mesa lst)
+                lst))))
 
  (services
   (append

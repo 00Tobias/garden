@@ -14,6 +14,7 @@
   #:use-module ((gnu packages kde) #:select (kdeconnect))
   #:use-module ((gnu packages pulseaudio) #:select (pulsemixer))
   #:use-module ((gnu packages music) #:select (playerctl))
+  #:use-module ((gnu packages linux) #:select (brightnessctl))
 
   #:use-module (gnu services)
   #:use-module (gnu home services))
@@ -181,6 +182,9 @@ XF86AudioPlay
 
 XF86Audio{Next,Prev}
 	playerctl {next,previous}
+
+XF86MonBrightness{Up,Down}
+	brightnessctl s 10%{+,-}
 ")
 
 (define-public packages
@@ -195,6 +199,7 @@ XF86Audio{Next,Prev}
    libnotify
    pulsemixer
    playerctl
+   brightnessctl
    j4-dmenu-desktop
    bemenu))
 

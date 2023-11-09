@@ -11,7 +11,9 @@
   #:use-module (gnu home services))
 
 (define-public packages
-  (list (replace-mesa qutebrowser)))
+  (list (if (string= (gethostname) "okarthel")
+            (replace-mesa qutebrowser)
+            qutebrowser)))
 
 ;; (define-public services
 ;;   (list
