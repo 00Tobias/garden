@@ -6,7 +6,8 @@
   #:use-module (gnu home services)
   #:use-module (gnu home services shepherd)
 
-  #:use-module ((gnu packages dunst) #:select (dunst)))
+  #:use-module ((gnu packages wm) #:select (dunst))
+  #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic)))
 
 (define dunstrc "
 [global]
@@ -28,15 +29,15 @@
 
     text_icon_padding = 0
 
-    frame_width = 1
+    frame_width = 2
 
-    frame_color = \"#ffffff\"
+    frame_color = \"#1c1c1c\"
 
     idle_threshold = 120
 
-    font = Sarasa UI TC 11
+    font = Sarasa UI SC 10
 
-    format = \"<b>%s</b>\n%b\"
+    format = \"<b>%s</b>\\n%b\"
 
     show_age_threshold = 60
 
@@ -82,16 +83,6 @@
 
 (define-public services
   (list
-   (simple-service 'dunst-shepherd-service
-                   home-shepherd-service-type
-                   (list
-                    (shepherd-service
-                     (provision '(dunst))
-                     (stop  #~(make-kill-destructor))
-                     (start #~(make-forkexec-constructor
-                               (list #$(file-append dunst "/bin/dunst")
-                                     (string-append
-                                      "-conf " (getenv "XDG_CONFIG_HOME") "/dunst/dunstrc")))))))
    (simple-service 'dunst-xdg-config
                    home-xdg-configuration-files-service-type
                    `(("dunst/dunstrc" ,(plain-file "dunstrc" dunstrc))))))
