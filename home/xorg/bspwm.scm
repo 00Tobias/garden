@@ -2,19 +2,24 @@
   #:use-module (guix gexp)
 
   #:use-module ((gnu packages glib) #:select (dbus))
-  #:use-module ((gnu packages xorg) #:select (xhost xset xsetroot xrandr))
-  #:use-module ((gnu packages wm) #:select (bspwm))
+  #:use-module ((gnu packages xorg) #:select (xhost xset xrdb xsetroot xrandr))
+  #:use-module ((gnu packages wm) #:select (bspwm
+                                            polybar
+                                            dunst))
   #:use-module ((gnu packages gnome) #:select (libnotify))
   #:use-module ((gnu packages xdisorg) #:select (sxhkd
+                                                 rxvt-unicode
                                                  maim
                                                  unclutter
                                                  xclip
+                                                 xdotool
                                                  j4-dmenu-desktop
                                                  bemenu))
   #:use-module ((gnu packages kde) #:select (kdeconnect))
   #:use-module ((gnu packages pulseaudio) #:select (pulsemixer))
   #:use-module ((gnu packages music) #:select (playerctl))
   #:use-module ((gnu packages linux) #:select (brightnessctl))
+  #:use-module ((gnu packages image-viewers) #:select (feh))
 
   #:use-module (gnu services)
   #:use-module (gnu home services))
@@ -25,14 +30,14 @@
       (if (string= (gethostname) "okarthel")
           (system* #$(file-append xset "/bin/xset") "s" "off" "-dpms"))
       (system* #$(file-append xsetroot "/bin/xsetroot") "-cursor_name" "left_ptr" "-solid" "black")
-      ;; (system* #$(file-append kdeconnect "/libexec/kdeconnectd"))
-      (system* #$(file-append dbus "/bin/dbus-run-session") ;; "--exit-with-session"
+      (system (string-append #$(file-append xrdb "/bin/xrdb") " -load ~/.Xresources"))
+      (system* #$(file-append dbus "/bin/dbus-run-session")
                #$(file-append bspwm "/bin/bspwm"))))
 
 (define bspwmrc
   #~(begin
-      (system* #$(file-append bspwm "/bin/bspc") "config" "border_width" "1")
-      (system* #$(file-append bspwm "/bin/bspc") "config" "window_gap" "0")
+      (system* #$(file-append bspwm "/bin/bspc") "config" "border_width" "2")
+      (system* #$(file-append bspwm "/bin/bspc") "config" "window_gap" "6")
       (system* #$(file-append bspwm "/bin/bspc") "config" "split_ratio" "0.50")
       (system* #$(file-append bspwm "/bin/bspc") "config" "borderless_monocle" "true")
       (system* #$(file-append bspwm "/bin/bspc") "config" "single_monocle" "true")
@@ -43,10 +48,17 @@
       (if (not (string= (gethostname) "okarthel"))
           (system* #$(file-append bspwm "/bin/bspc") "monitor" "-d" "I" "II" "III" "IV" "V" "VI" "VII" "VIII" "IX" "X")
           (begin
-            (system* #$(file-append bspwm "/bin/bspc") "monitor" "DP-0" "-d" "I" "II" "III" "IV" "V" "VI")
-            (system* #$(file-append bspwm "/bin/bspc") "monitor" "HDMI-1" "-d" "VII" "VIII" "IX" "X")))
+            (system* #$(file-append bspwm "/bin/bspc") "monitor" "DP-0" "-d" "I" "II" "III" "IV" "V" "VI" "X")
+            (system* #$(file-append bspwm "/bin/bspc") "monitor" "HDMI-1" "-a" "VII" "VIII" "IX")))
+
+      (system* #$(file-append bspwm "/bin/bspc") "config" "normal_border_color" "#1c1c1c")
+      (system* #$(file-append bspwm "/bin/bspc") "config" "active_border_color" "#1c1c1c")
+      (system* #$(file-append bspwm "/bin/bspc") "config" "focused_border_color" "#ffffff")
+      (system* #$(file-append bspwm "/bin/bspc") "config" "presel_feedback_color" "#1c1c1c")
 
       (system* #$(file-append bspwm "/bin/bspc") "rule" "-a" "Emacs" "state=tiled")
+      (system* #$(file-append bspwm "/bin/bspc") "rule" "-a" "Emacs:emacs:minibuffer" "state=floating" "center=on" "sticky=false" "workspace=^10")
+      (system* #$(file-append bspwm "/bin/bspc") "rule" "-a" "*:floating-terminal:*" "state=floating" "center=on" "sticky=false")
       (system* #$(file-append bspwm "/bin/bspc") "rule" "-a" "discord" "desktop='^7'")
       (system* #$(file-append bspwm "/bin/bspc") "rule" "-a" "Spotify" "desktop='^7'")
       (system* #$(file-append bspwm "/bin/bspc") "rule" "-a" "steam" "desktop='^5'" "state=floating" "focus=off")
@@ -58,8 +70,12 @@
       (system* #$(file-append bspwm "/bin/bspc") "rule" "-a" "steam_app_1172470" "desktop='^6'" "state=fullscreen" "focus=on")
 
       (system* #$(file-append xsetroot "/bin/xsetroot") "-cursor_name" "left_ptr" "-solid" "black")
-      (system* #$(file-append sxhkd "/bin/sxhkd"))
-      (system* #$(file-append unclutter "/bin/unclutter"))
+      (system (string-append #$(file-append sxhkd "/bin/sxhkd") " &"))
+      (system (string-append #$(file-append dunst "/bin/dunst") " &"))
+      (system (string-append #$(file-append polybar "/bin/polybar") " main" " &"))
+      (system (string-append #$(file-append unclutter "/bin/unclutter") " &"))
+      (system (string-append #$(file-append kdeconnect "/libexec/kdeconnectd") " &"))
+      (system (string-append #$(file-append xrdb "/bin/xrdb") " -load ~/.Xresources"))
       ;; FIXME: dumb bandage
       (if (string= (gethostname) "okarthel")
           (system* #$(file-append xrandr "/bin/xrandr") "--output" "DP-0" "--mode" "3440x1440" "--rate" "144"))))
@@ -87,14 +103,17 @@ super + shift + Return
 super + ctrl + Return
 	urxvt
 
-super + @space
-    j4-dmenu-desktop --dmenu='bemenu -cil 10 -W 0.3 -p \"run:\" -B 1 --fn \"Sarasa Mono TC 11\" --nb \"#000000\" --ab \"#000000\" --fb \"#000000\" --bdr \"#ffffff\" --nf \"#ffffff\" --af \"#ffffff\" --ff \"#ffffff\"' --term='urxvt' --no-generic
+super + space
+  rofi -show drun
 
 super + d
 	notify-send -h string:x-canonical-private-synchronous:anything $(date +%D%n%T)
 
 super + v
 	urxvt -name floating-terminal -e pulsemixer
+
+super + V
+	urxvt -name floating-terminal -e sudo nmtui
 
 super + shift + s
 	maim -s | xclip -selection clipboard -t image/png
@@ -164,7 +183,7 @@ super + {o,i}
 	bspc wm -h on
 
 super + {_,shift + }{1-9,0}
-	bspc {desktop -f,node -d} '^{1-9,10}'
+	bspc {desktop -f,node -d} {I,II,III,IV,V,VI,VII,VIII,IX,X}
 
 super + ctrl + shift + space
 	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
@@ -191,17 +210,24 @@ XF86MonBrightness{Up,Down}
   (list
    bspwm
    sxhkd
-   unclutter
-   maim
+   dunst
+   polybar
+
    xclip
    xrandr
+   xdotool
    xsetroot
+
+   bemenu
+   rxvt-unicode
+   unclutter
+   maim
    libnotify
    pulsemixer
    playerctl
    brightnessctl
    j4-dmenu-desktop
-   bemenu))
+   feh))
 
 (define-public services
   (list
