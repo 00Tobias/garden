@@ -19,6 +19,7 @@
   #:use-module ((gnu packages audio) #:select (ardour))
   #:use-module ((gnu packages music) #:select (zrythm zplugins))
   #:use-module ((gnu packages graphics) #:select (blender))
+  #:use-module ((gnu packages python-xyz) #:select (python-numpy)) ; Blender python libraries
   #:use-module ((gnu packages kde) #:select (kdenlive krita))
   #:use-module ((gnu packages inkscape) #:select (inkscape))
 
@@ -98,9 +99,10 @@ pattern-based sequencer (tracker). Features:
                    zrythm
                    zplugins
                    blender
+                   python-numpy
                    kdenlive
                    krita
                    inkscape)))
     (if (string= (gethostname) "okarthel")
-                  (map replace-mesa lst)
-                lst)))
+        (map replace-mesa lst)
+        lst)))
