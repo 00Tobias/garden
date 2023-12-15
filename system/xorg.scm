@@ -1,19 +1,9 @@
 (define-module (system xorg)
-  #:use-module (guix transformations)
-
-  #:use-module (gnu system keyboard)
-
-  #:use-module (gnu packages xorg)
+  #:use-module (guix gexp)
 
   #:use-module (gnu services)
   #:use-module (gnu services xorg)
-  #:use-module (gnu services networking)
-  #:use-module (gnu services desktop)
-  #:use-module (gnu services sound)     ; pulseaudio, ALSA
-
-  ;; TEMP
-  #:use-module (nongnu services nvidia)
-  #:use-module (nongnu packages nvidia))
+  #:use-module (gnu services desktop))
 
 (define-public %libinput-config "
 Section \"InputClass\"
@@ -61,14 +51,11 @@ EndSection
 ")
 
 (define-public services
-  (cons*
-   (service slim-service-type (slim-configuration
-                               (default-user "tobias")
-                               (auto-login? #t)))
-   (modify-services %desktop-services
-                    (delete gdm-service-type)
-                    (delete upower-service-type)
-                    (delete screen-locker-service-type)
-                    (delete network-manager-service-type)
-                    (delete pulseaudio-service-type)
-                    (delete alsa-service-type))))
+  (list
+   ;; (service polkit-service-type)
+   ;; (service x11-socket-directory-service-type)
+   (service elogind-service-type)
+   (service slim-service-type
+            (slim-configuration
+             (default-user "tobias")
+             (auto-login? #t)))))

@@ -1,6 +1,7 @@
 (define-module (system udev)
   #:use-module ((guix download) #:select (url-fetch))
   #:use-module ((guix packages) #:select (origin base32))
+  #:use-module ((gnu packages android) #:select (android-udev-rules))
 
   #:use-module (gnu services)
   #:use-module (gnu services base))
@@ -26,4 +27,6 @@
 (define-public services
   (list
    (udev-rules-service 'steam-input %steam-input-udev-rules)
-   (udev-rules-service 'steam-vr %steam-vr-udev-rules)))
+   (udev-rules-service 'steam-vr %steam-vr-udev-rules)
+   (udev-rules-service 'android android-udev-rules
+                       #:groups '("adbusers"))))

@@ -16,6 +16,8 @@ options trust-ad
    (simple-service 'resolv-service
                    etc-service-type
                    `(("resolv.conf" ,etc-resolv-conf)))
+   (service ntp-service-type)
+   (service wpa-supplicant-service-type)
    (service network-manager-service-type
             (network-manager-configuration
              (dns "none")))
