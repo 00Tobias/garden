@@ -80,11 +80,16 @@
 ;;; package: avy
 (avy-setup-default)
 (keymap-global-set-keys "C-c C-j" 'avy-resume
+                        "C-r"     'avy-goto-char
                         "C-."     'avy-goto-char
                         "C-:"     'avy-goto-char-2
                         "M-g g"   'avy-goto-line
                         "M-g w"   'avy-goto-word-1
                         "M-g e"   'avy-goto-word-0)
+
+;;; package: expand-region
+(require 'expand-region)
+(keymap-global-set "C-=" 'er/expand-region)
 
 ;;; package: paredit
 (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)

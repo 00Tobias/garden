@@ -8,10 +8,12 @@
   #:use-module ((gnu packages cmake) #:select (cmake-minimal))
   #:use-module ((guix licenses) #:select (gpl3+))
 
+  #:use-module (gnu packages)
   #:use-module ((gnu packages emacs) #:select (emacs-next-tree-sitter))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
-  #:use-module ((gnu packages fonts) #:select (font-tamzen))
+  #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic))
+  #:use-module ((gnu packages compression) #:select (zip unzip))
   #:use-module ((gnu packages base) #:select (binutils))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
@@ -24,7 +26,7 @@
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+  #:use-module ((system packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
@@ -131,10 +133,7 @@
    ;; init-ui.el
    emacs-diff-hl
    emacs-vundo
-   emacs-which-key
-   emacs-which-key-posframe
    emacs-transient-posframe
-   emacs-vertico-posframe
    emacs-flymake-popon
    emacs-eldoc-box
 
@@ -153,6 +152,7 @@
    emacs-tempel
    emacs-aggressive-indent
    emacs-avy
+   emacs-expand-region
    emacs-paredit
    ;; Langs
    emacs-eros
@@ -186,14 +186,17 @@
    aspell
    aspell-dict-en
    aspell-dict-sv
-   font-tamzen
+   font-sarasa-gothic
+   ;; Org mode
+   zip
+   unzip
    ;; Langs
    binutils                             ; Fixes odd missing 'as' native comp error
    python
    sbcl
    clojure
    clojure-tools
-   openjdk
+   `(,openjdk "jdk")
    ;; LSP
    ccls
    python-lsp-server

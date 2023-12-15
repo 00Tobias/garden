@@ -19,11 +19,13 @@
   (add-hook hook #'jinx-mode))
 
 (keymap-global-set "M-$" #'jinx-correct)
+(keymap-global-set "C-c c" #'jinx-correct)
 (keymap-global-set "C-M-$" #'jinx-languages)
 
 ;;; Org mode
 
-(setq org-startup-indented t)
+(setq org-startup-indented t
+      org-startup-with-inline-images t)
 
 (with-eval-after-load 'org
   (keymap-set-keys org-mode-map
@@ -40,7 +42,7 @@
                                           (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
 
 ;;; package: org-roam
-(setq org-roam-directory (file-truename "~/org/")
+(setq org-roam-directory (file-truename "~/irthir/")
       org-roam-dailies-directory "journals/"
       org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag))
       org-roam-capture-templates '(("d" "default" plain

@@ -54,6 +54,8 @@
 
 (setq create-lockfiles nil)
 
+(global-auto-revert-mode t)
+
 (setq require-final-newline t)
 
 (setq large-file-warning-threshold nil)

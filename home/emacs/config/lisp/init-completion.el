@@ -43,6 +43,7 @@
 ;;; package: consult
 
 (keymap-global-set-keys
+    "C-s" 'consult-line
     "C-x C-r" 'consult-recent-file
     "C-x b"   'consult-buffer
     "C-x p b" 'consult-project-buffer
