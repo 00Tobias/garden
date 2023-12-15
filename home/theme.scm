@@ -1,0 +1,10 @@
+(define-module (home theme))
+
+(define-public font "Sarasa UI SC")
+(define-public font-mono "Sarasa Mono SC")
+(define-public font-term "Sarasa Term SC")
+(define-public font-size "10")
+(define-public fg "#ffffff")
+(define-public bg "#000000")
+(define-public accent "#1c1c1c")
+(define-public highlight "#ff0000")
