@@ -28,13 +28,10 @@
   #:use-module ((gnu packages base) #:select (glibc-utf8-locales))
   #:use-module ((gnu packages libusb) #:select (libmtp))
   #:use-module ((gnu packages nfs) #:select (nfs-utils))
-  #:use-module ((gnu packages gnome) #:select (network-manager-applet))
-
-  ;; TEMP
-  #:use-module (gnu packages gtk)
-  #:use-module (gnu packages glib)
-  #:use-module (gnu packages gnome)
-  #:use-module (gnu packages selinux)
+  #:use-module ((gnu packages gnome) #:select (network-manager-applet
+                                               libsecret))
+  #:use-module ((gnu packages glib) #:select (dbus-glib))
+  #:use-module ((gnu packages selinux) #:select (libselinux))
 
   #:use-module (gnu services)
   #:use-module (gnu services base)
@@ -55,28 +52,109 @@
 
   #:use-module ((nongnu system linux-initrd) #:select (microcode-initrd))
 
+  #:use-module (guix packages)
+  #:use-module (guix git-download)
+  #:use-module (guix build-system linux-module)
+  #:use-module (guix build-system copy)
+  #:use-module ((guix licenses) #:prefix license:)
+
   #:use-module ((system udev) #:prefix udev:)
   #:use-module ((system network) #:prefix network:)
   #:use-module ((system syncthing) #:prefix syncthing:)
   #:use-module ((system xorg) #:prefix xorg:)
   #:use-module ((system wayland) #:prefix wayland:))
 
+(define %leetmouse-config
+  (plain-file "config.h"
+              "#define BUFFER_SIZE 16
+
+#define SCROLLS_PER_TICK 3.0f
+
+#define SENSITIVITY 0.4f
+#define ACCELERATION 0.7f
+#define SENS_CAP 4.0f
+#define OFFSET 0.0f
+#define POST_SCALE_X 0.4f
+#define POST_SCALE_Y 0.4f
+#define SPEED_CAP 0.0f
+
+#define PRE_SCALE_X 0.25f
+#define PRE_SCALE_Y 0.25f"))
+
+(define leetmouse-module
+  (package
+   (name "leetmouse-module")
+   (version "0.9.0")
+   (source
+    (origin
+     (method git-fetch)
+     (uri (git-reference
+           (url "https://github.com/systemofapwne/leetmouse")
+           (commit "2406c9614056237319e108b1419d2920c772c0ef")))
+     (sha256 (base32 "1c94krkmfcy2bn0an44xb2k9ysrgnxy1xrslpmn4q3cap4fy2pc1"))))
+   (build-system linux-module-build-system)
+   (arguments
+    `(#:tests? #f
+      #:source-directory "driver"
+      #:phases
+      (modify-phases %standard-phases
+                     (add-after 'unpack 'inject-config-header
+                                (lambda _
+                                  (copy-file ,%leetmouse-config "driver/config.h"))))))
+   (home-page "https://github.com/systemofapwne/leetmouse")
+   (synopsis "A fork of the Linux mouse driver with acceleration")
+   (description "A fork of the Linux mouse driver with acceleration")
+   (license license:gpl2+)))
+
+(define leetmouse-udev-rules
+  (package
+   (name "leetmouse-udev-rules")
+   (version "0.9.0")
+   (source
+    (origin
+     (method git-fetch)
+     (uri (git-reference
+           (url "https://github.com/systemofapwne/leetmouse")
+           (commit "2406c9614056237319e108b1419d2920c772c0ef")))
+     (sha256 (base32 "1c94krkmfcy2bn0an44xb2k9ysrgnxy1xrslpmn4q3cap4fy2pc1"))))
+   (build-system copy-build-system)
+   (arguments
+    '(#:install-plan
+      '(("install_files/udev/99-leetmouse.rules" "lib/udev/rules.d/")
+        ("install_files/udev/leetmouse_bind"     "lib/udev/rules.d/")
+        ("install_files/udev/leetmouse_manage"   "lib/udev/rules.d/"))
+      #:phases
+      (modify-phases %standard-phases
+                     (add-after 'unpack 'patch-paths
+                                (lambda* (#:key outputs #:allow-other-keys)
+                                  (let ((out (assoc-ref outputs "out")))
+                                    (substitute* "install_files/udev/leetmouse_bind"
+                                                 (("PATH='/sbin:/bin:/usr/sbin:/usr/bin'")
+                                                  ""))
+                                    (substitute* "install_files/udev/99-leetmouse.rules"
+                                                 (("leetmouse_bind")
+                                                  (string-append out "/lib/udev/rules.d/leetmouse_bind")))))))))
+   (home-page "https://github.com/systemofapwne/leetmouse")
+   (synopsis "Udev rules for leetmouse")
+   (description "This contains the udev rules for leetmouse.")
+   (license license:gpl2+)))
+
 (define etc-sudoers-config
   (plain-file "etc-sudoers-config"
               "Defaults  timestamp_timeout=480
 root      ALL=(ALL) ALL
 %wheel    ALL=(ALL) NOPASSWD:ALL
-tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/chvt,/run/current-system/profile/bin/loginctl"))
+tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/current-system/profile/bin/nmtui"))
 
 (operating-system
- (kernel linux-xanmod-lts)
- (kernel-arguments (append '("video=DP-1:3440x1440@144"
-                             "mitigations=off" ; Live a little
+ (kernel linux-xanmod)
+ (kernel-arguments (append '("mitigations=off" ; Live a little
                              "modprobe.blacklist=nouveau,pcspkr"
                              "nvidia_drm.modeset=1"
                              "quiet")
                            %default-kernel-arguments))
- (kernel-loadable-modules (list nvidia-module))
+ (kernel-loadable-modules (list leetmouse-module
+                                nvidia-module))
  (initrd microcode-initrd)
  (firmware (list linux-firmware amd-microcode nvidia-firmware))
  (locale "en_US.utf8")
@@ -95,6 +173,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/chvt,/run/current-s
                    "audio"
                    "video"
                    "dialout"
+                   "plugdev"
                    "adbusers"
                    "kvm")))
                %base-user-accounts))
@@ -110,7 +189,6 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/chvt,/run/current-s
     xdg-dbus-proxy
 
     glibc-utf8-locales
-    ;; gtk+
     dbus-glib
     libsecret
     libselinux)
@@ -135,14 +213,14 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/chvt,/run/current-s
                         (extra-config (list xorg:%libinput-config
                                             xorg:%nvidia-config)))))))
    (list
+    (service earlyoom-service-type)
     (service pcscd-service-type)
+    (service fstrim-service-type)
+    (service openssh-service-type)
     (service nvidia-service-type)
+    (udev-rules-service 'leetmouse leetmouse-udev-rules)
 
     fontconfig-file-system-service
-
-    ;; (simple-service 'network-manager-applet
-    ;;                 profile-service-type
-    ;;                 (list network-manager-applet))
     (service udisks-service-type)
     (service polkit-service-type)
     (service dbus-root-service-type))
