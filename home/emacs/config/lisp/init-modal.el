@@ -144,7 +144,8 @@
   "b" 'modal-backward-word-select
   "B" 'backward-mark-word
 
-  "p" 'er/expand-region "P" 'er/expand-region
+  "p" 'er/expand-region
+  "P" 'er/contract-region
 
   "f" 'avy-goto-char
   "F" 'avy-goto-char-2
