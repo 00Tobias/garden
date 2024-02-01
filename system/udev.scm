@@ -2,6 +2,7 @@
   #:use-module ((guix download) #:select (url-fetch))
   #:use-module ((guix packages) #:select (origin base32))
   #:use-module ((gnu packages android) #:select (android-udev-rules))
+  #:use-module ((gnu packages security-token) #:select (libfido2))
 
   #:use-module (gnu services)
   #:use-module (gnu services base))
@@ -28,5 +29,5 @@
   (list
    (udev-rules-service 'steam-input %steam-input-udev-rules)
    (udev-rules-service 'steam-vr %steam-vr-udev-rules)
-   (udev-rules-service 'android android-udev-rules
-                       #:groups '("adbusers"))))
+   (udev-rules-service 'android android-udev-rules #:groups '("adbusers"))
+   (udev-rules-service 'fido2 libfido2 #:groups '("plugdev"))))
