@@ -26,39 +26,16 @@
                                        (height . 11))
                                      minibuffer-frame-alist))
 
-(defun setup-minibuffer-identifier (&rest ignored)
-  (defconst minibuffer-identifier
-    (let ((string (shell-command-to-string
-                   "xdotool search --name '^minibuffer$'")))
-      ;; Remove newline from output
-      (substring string 0 (1- (length string)))))
-  (remove-hook 'after-make-frame-functions #'setup-minibuffer-identifier))
-
-(add-hook 'after-make-frame-functions #'setup-minibuffer-identifier)
-
 (defun pull-minibuffer-frame (&rest ignored)
   (call-process-shell-command
-   (concat "bspc node "
-           minibuffer-identifier
-           " -d $(bspc query -d -D focused) && bspc node -f "
-           minibuffer-identifier)
+   "i3-msg [title='minibuffer'] move workspace current"
    nil 0))
-
-;; (advice-add 'read-from-minibuffer :before 'pull-minibuffer-frame)
-;; (advice-add 'read-no-blanks-input :before 'pull-minibuffer-frame)
-;; (advice-add 'read-string :before 'pull-minibuffer-frame)
-;; (advice-add 'read-char :before 'pull-minibuffer-frame)
-;; (advice-add 'read-event :before 'pull-minibuffer-frame)
 
 (add-hook 'minibuffer-setup-hook 'pull-minibuffer-frame)
 
-;; (add-hook 'minibuffer-setup-hook 'vertico--update)
-
 (add-hook 'minibuffer-exit-hook (lambda ()
                                   (call-process-shell-command
-                                   (concat "bspc node "
-                                           minibuffer-identifier
-                                           " -d X")
+                                   "i3-msg [title='minibuffer'] move workspace 10"
                                    nil 0)))
 
 ;;; package: frames-only-mode
