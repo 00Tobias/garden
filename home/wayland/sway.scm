@@ -18,22 +18,22 @@
   #:use-module ((gnu packages pciutils) #:select (hwdata))
   #:use-module ((gnu packages pkg-config) #:select (pkg-config))
   #:use-module ((gnu packages python) #:select (python))
+  #:use-module ((gnu packages base) #:select (findutils))
+  #:use-module ((gnu packages freedesktop) #:select (wayland-protocols))
   #:use-module ((gnu packages xdisorg) #:select (pixman
                                                  libxkbcommon
                                                  libdrm
-                                                 j4-dmenu-desktop
-                                                 bemenu
+                                                 tofi
                                                  wl-clipboard))
   #:use-module ((gnu packages image) #:select (grim slurp))
   #:use-module ((gnu packages pulseaudio) #:select (pulsemixer))
   #:use-module ((gnu packages music) #:select (playerctl))
   #:use-module ((gnu packages linux) #:select (brightnessctl))
   #:use-module ((gnu packages terminals) #:select (foot))
+  #:use-module ((gnu packages emacs) #:select (emacs-next-tree-sitter))
   #:use-module ((gnu packages python-xyz) #:select (i3-autotiling))
 
-  #:use-module ((home mpv mpv) #:select (vulkan-loader-nvidia))
-
-  #:use-module ((system packages nvidia) #:select (replace-mesa))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
@@ -41,26 +41,32 @@
 
   #:use-module ((home theme) #:prefix theme:))
 
-(define pixman-42
+(define libdrm-2.4.120
   (package
-   (inherit pixman)
-   (version "0.42.2")
-   (source
-    (origin
-     (method url-fetch)
-     (uri (string-append "https://www.cairographics.org/releases/pixman-"
-                         version ".tar.gz"))
-     (sha256 (base32 "0pk298iqxqr64vk3z6nhjwr6vjg1971zfrjkqy5r9zd2mppq057a"))))))
-
-(define libxkbcommon-1.6
-  (package
-   (inherit libxkbcommon)
-   (version "1.6.0")
+   (inherit libdrm)
+   (version "2.4.120")
    (source (origin
             (method url-fetch)
-            (uri (string-append "https://xkbcommon.org/download/libxkbcommon-"
-                                version ".tar.xz"))
-            (sha256 (base32 "0awwz5pg9x5bj0d7dpg4a7bd4gl6k55mlpxwb12534fkrpn19p0f"))))))
+            (uri (string-append
+                  "https://dri.freedesktop.org/libdrm/libdrm-"
+                  version ".tar.xz"))
+            (sha256
+             (base32
+              "0yijzgg6rdsa68bz03sw0lcfa2nclv9m3as1cja50wkcyxim7x9v"))))))
+
+(define wayland-protocols-1.33
+  (package
+   (inherit wayland-protocols)
+   (name "wayland-protocols")
+   (version "1.33")
+   (source (origin
+            (method url-fetch)
+            (uri (string-append "https://gitlab.freedesktop.org/wayland/"
+                                name "/-/releases/" version "/downloads/"
+                                name "-" version ".tar.xz"))
+            (sha256
+             (base32
+              "0flnqfc8npzn6rxsw4afpr8yifwsn5kq81327yh62vhd145wbw4l"))))))
 
 (define hwdata-all
   (package
@@ -95,17 +101,16 @@
    (inherit wlroots)
    (propagated-inputs
     (modify-inputs (package-propagated-inputs wlroots)
-                   (replace "pixman" pixman-42)
-                   (replace "libxkbcommon" libxkbcommon-1.6)
+                   (replace "wayland-protocols" wayland-protocols-1.33)
                    (prepend vulkan-loader vulkan-headers glslang hwdata-all libdisplay-info
-                            libglvnd eglexternalplatform)))
+                            libglvnd eglexternalplatform libdrm-2.4.120)))
    (source
     (origin
      (method git-fetch)
      (uri (git-reference
            (url "https://gitlab.freedesktop.org/wlroots/wlroots.git")
-           (commit "36cc698bc5513655e5c57ba62693fce9001d86e7")))
-     (sha256 (base32 "0ppzdb9p10bp754cw637b9p90nagixfb8q23b06vgwq766igad7f"))))
+           (commit "cb815e88476cac1fb5ce2e369672e4beb4f5d469")))
+     (sha256 (base32 "05g6g189aks8j89ar9hvxyad0vpgjgb11xray87fcsszcqif1vx2"))))
    (arguments
     (substitute-keyword-arguments
      (package-arguments wlroots)
@@ -120,7 +125,7 @@
                                                  "/share/hwdata/")))))))
      ((#:configure-flags flags #~'())
       #~(append #$flags
-                (list "-Drenderers=vulkan,gles2"
+                (list "-Drenderers=vulkan" ;; ,gles2
                       "-Dbackends=drm,libinput")))))))
 
 (define sway-git
@@ -128,55 +133,15 @@
    (inherit sway)
    (inputs
     (modify-inputs (package-inputs sway)
-                   (prepend pixman-42)
-                   (replace "libxkbcommon" libxkbcommon-1.6)
-                   (replace "wlroots" wlroots-git)))
+                   (replace "wlroots" wlroots-git)
+                   (prepend libdrm-2.4.120)))
    (source
     (origin
      (method git-fetch)
      (uri (git-reference
            (url "https://github.com/swaywm/sway")
-           (commit "bc7d15d64da1d8b97d52928b8f9ce5688c8dbdd0")))
-     (sha256 (base32 "057dq4j66mplixfp88h2jfcbk7cqgqckb72jaidmjqgn3igm45k0"))))))
-
-(define wlroots-git-nvidia
-  (package
-   (inherit wlroots-git)
-   (propagated-inputs
-    (modify-inputs (package-propagated-inputs wlroots-git)
-                   (replace "vulkan-loader" vulkan-loader-nvidia)))))
-
-(define sway-git-nvidia
-  (package
-   (inherit sway-git)
-   (inputs
-    (modify-inputs (package-inputs sway-git)
-                   (replace "wlroots" wlroots-git-nvidia)))))
-
-(define vulkan-tools-nvidia
-  (package
-   (inherit vulkan-tools)
-   (inputs
-    (modify-inputs (package-inputs vulkan-tools)
-                   (replace "vulkan-loader" vulkan-loader-nvidia)))
-   (arguments
-    (substitute-keyword-arguments
-     (package-arguments vulkan-tools)
-     ((#:configure-flags flags #~'())
-      #~(append #$flags
-                (list "-DBUILD_ICD=off")))))))
-
-(define ws-bindings
-  (map (lambda (ws)
-         `(,(string->symbol (format #f "Mod4+~d" ws))
-           workspace number ,ws))
-       (iota 9 1)))
-
-(define ws-move-bindings
-  (map (lambda (ws)
-         `(,(string->symbol (format #f "Mod4+Shift+~d" ws))
-           move container to workspace number ,ws))
-       (iota 9 1)))
+           (commit "93d391651c1ad43eb8b54449769e034eb1f2380c")))
+     (sha256 (base32 "1mpqw26c30krcsk0khzjf7g84acjb5dmilxiwvw4418m7k2c5sk5"))))))
 
 (define-public services
   (list
@@ -184,31 +149,40 @@
     home-sway-service-type
     (home-sway-configuration
      (package (if (string= (gethostname) "okarthel")
-                  (replace-mesa sway-git-nvidia)
+                  (replace-mesa sway-git)
                   sway-git))
      (config
       `((smart_borders on)
         (title_align center)
+        (focus_follows_mouse no)
+        (focus_wrapping no)
+        (hide_edge_borders smart)
+        (default_border pixel 1)
+        (default_floating_border pixel 1)
+
         (seat * xcursor_theme Adwaita 16)
         (seat * hide_cursor 8000)
         (seat * hide_cursor when-typing enable)
 
         (input type:keyboard ((xkb_layout se)
-                              (xkb_options ctrl:swapcaps)))
+                              (xkb_options ctrl:nocaps)))
         (input type:touchpad ((tap enabled)
                               (natural_scroll enabled)
                               (middle_emulation enabled)))
 
-        (output HDMI-1 ((transform 90)
-                        (position 0 0)))
+        (output * bg "#000000 solid_color")
+        (output DP-1 mode 3440x1440@144Hz)
+        (output HDMI-A-2 transform 90)
 
         (font ,(string-append theme:font " " theme:font-size))
-        (client.focused ,theme:fg ,theme:accent ,theme:accent ,theme:accent)
-        (client.unfocused ,theme:fg ,theme:bg ,theme:accent ,theme:accent)
-        (default_border normal 2)
-        (gaps inner 6)
+        (client.focused ,theme:fg ,theme:fg ,theme:bg ,theme:fg)
+        (client.focused_inactive ,theme:accent ,theme:accent ,theme:fg ,theme:accent)
+        (client.unfocused ,theme:accent ,theme:accent ,theme:fg ,theme:accent)
+        (client.urgent ,theme:highlight ,theme:highlight ,theme:bg ,theme:highlight)
+        (client.background ,theme:bg)
+        (gaps inner 0)
 
-        ;; (set $term ,(file-append foot "/bin/foot"))
+        (floating_modifier Mod4)
 
         (bindsym
          ((Mod4+h focus left)
@@ -255,27 +229,17 @@
           (Mod4+t layout tabbed)
 
           (Mod4+a focus parent)
-          (Mod4+Shift+r focus mode_toggle)
+          ;; (Mod4+Shift+r focus mode_toggle)
 
           (Mod4+minus scratchpad show)
           (Mod4+Shift+minus move scratchpad)
 
           (Mod4+q kill)
-          (Mod4+Return exec ,(file-append foot "/bin/foot"))
-          ;; TODO: tofi?
-          (Mod4+space exec ,(file-append j4-dmenu-desktop "/bin/j4-dmenu-desktop")
-                      --dmenu ,(file-append bemenu "/bin/bemenu")
-                      -cil 10 -W 0.3 -p "'run:'" -B 2
-                      --fn  ,(string-append "'" theme:font " " theme:font-size "'")
-                      --nb  ,(string-append "'" theme:bg "'")
-                      --ab  ,(string-append "'" theme:bg "'")
-                      --fb  ,(string-append "'" theme:bg "'")
-                      --bdr ,(string-append "'" theme:fg "'")
-                      --nf  ,(string-append "'" theme:fg "'")
-                      --af  ,(string-append "'" theme:fg "'")
-                      --ff  ,(string-append "'" theme:fg "'")
-                      --term ,(file-append foot "/bin/foot")
-                      --no-generic)
+          (Mod4+Return exec ,(file-append (replace-mesa emacs-next-tree-sitter) "/bin/emacsclient") -cne "'(switch-to-buffer nil)'")
+          (Mod4+Shift+Return exec ,(file-append foot "/bin/foot"))
+
+          (Mod4+space exec ,(file-append tofi "/bin/tofi-drun")
+                      "|" ,(file-append findutils "/bin/xargs") ,(file-append (replace-mesa sway-git) "/bin/swaymsg") "exec" "--")
 
           (Mod4+p exec ,(file-append grim "/bin/grim")
                   -g ,#~(string-append "$(" #$(file-append slurp "/bin/slurp") ")") "-"
@@ -285,17 +249,26 @@
           (Mod4+Shift+r restart)
           (Mod4+Shift+q exec swaymsg exit)
 
-          ,@(append-map
-             (lambda (x)
-               `((bindsym ,(format #f "Mod4+~a" (modulo x 10))
-                          workspace number ,x)
-                 (bindsym ,(format #f "Mod4+Shift+~a" (modulo x 10))
-                          move container to workspace number ,x)))
-             (iota 10 1))
-
-          ;; ,@ws-bindings
-          ;; ,@ws-move-bindings
-          ))
+          (Mod4+1 workspace number 1)
+          (Mod4+Shift+1 move container to workspace number 1)
+          (Mod4+2 workspace number 2)
+          (Mod4+Shift+2 move container to workspace number 2)
+          (Mod4+3 workspace number 3)
+          (Mod4+Shift+3 move container to workspace number 3)
+          (Mod4+4 workspace number 4)
+          (Mod4+Shift+4 move container to workspace number 4)
+          (Mod4+5 workspace number 5)
+          (Mod4+Shift+5 move container to workspace number 5)
+          (Mod4+6 workspace number 6)
+          (Mod4+Shift+6 move container to workspace number 6)
+          (Mod4+7 workspace number 7)
+          (Mod4+Shift+7 move container to workspace number 7)
+          (Mod4+8 workspace number 8)
+          (Mod4+Shift+8 move container to workspace number 8)
+          (Mod4+9 workspace number 9)
+          (Mod4+Shift+9 move container to workspace number 9)
+          (Mod4+0 workspace number 10)
+          (Mod4+Shift+0 move container to workspace number 10)))
 
         (bindsym
          --locked
@@ -310,10 +283,19 @@
 
         (for_window
          "[title=\"minibuffer\"]"
-         floating enable, resize set width 70 ppt height 70 ppt, focus)
+         floating enable, resize set width 70 ppt height 30 ppt)
 
         (assign "[title=\"minibuffer\"]" 10)
         (assign "[app_id=\"armcord\"]" 7)
+
+        (for_window "[instance=\"floating-terminal\"]" floating enable)
+        (for_window "[class=\"steam\"]" floating enable)
+        (for_window "[title=\"^notificationtoasts.*\"]" floating enable)
+        (no_focus "[class=\"steam\"]")
+        (assign "[class=\"steam\"]" 5)
+
+        (for_window "[class=\"hl2_linux\"]" fullscreen enable)
+        (assign "[class=\"hl2_linux\"]" 6)
 
         (exec ,(file-append dunst "/bin/dunst"))))))
    ;; (service home-swaylock-service-type
@@ -324,4 +306,6 @@
 (define-public packages
   (list
    i3-autotiling
-   vulkan-tools-nvidia))
+   (if (string= (gethostname) "okarthel")
+       (replace-mesa sway-git)
+       sway-git)))
