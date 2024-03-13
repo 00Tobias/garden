@@ -128,6 +128,21 @@
      (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
      (license gpl3+))))
 
+(define sbcl-config (mixed-text-file "sbcl-config" "
+(require \"asdf\")
+(let ((guix-profile (format nil \"~a/.guix-profile/lib/\" (uiop:getenv \"HOME\")))
+      (guix-home (format nil \"~a/.guix-home/profile/lib/\" (uiop:getenv \"HOME\"))))
+  (when (and (probe-file guix-profile)
+             (probe-file guix-home)
+             (ignore-errors (asdf:load-system \"cffi\")))
+    (push guix-profile
+          (symbol-value (find-symbol (string '*foreign-library-directories*)
+                                     (find-package 'cffi))))
+    (push guix-home
+          (symbol-value (find-symbol (string '*foreign-library-directories*)
+                                     (find-package 'cffi))))))
+"))
+
 (define elisp-packages
   (list
    ;; init-ui.el
@@ -238,4 +253,7 @@
                 emacs-next-tree-sitter))
      ;; (rebuild-elisp-packages? #t)
      ;; (server-mode? #t)
-     (elisp-packages elisp-packages)))))
+     (elisp-packages elisp-packages)))
+   (simple-service 'sbcl-config
+                   home-files-service-type
+                   `((".sbclrc" ,sbcl-config)))))
