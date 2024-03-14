@@ -9,7 +9,7 @@
   #:use-module ((guix licenses) #:select (gpl3+))
 
   #:use-module (gnu packages)
-  #:use-module ((gnu packages emacs) #:select (emacs-next-tree-sitter))
+  #:use-module ((gnu packages emacs) #:select (emacs-next))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
   #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic))
@@ -249,8 +249,8 @@
     home-emacs-service-type
     (home-emacs-configuration
      (emacs (if (string= (gethostname) "okarthel")
-                (replace-mesa emacs-next-tree-sitter)
-                emacs-next-tree-sitter))
+                (replace-mesa emacs-next)
+                emacs-next))
      ;; (rebuild-elisp-packages? #t)
      ;; (server-mode? #t)
      (elisp-packages elisp-packages)))

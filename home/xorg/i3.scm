@@ -19,7 +19,7 @@
                                                  j4-dmenu-desktop
                                                  bemenu))
   #:use-module ((gnu packages python-xyz) #:select (i3-autotiling))
-  #:use-module ((gnu packages emacs) #:select (emacs-next-tree-sitter))
+  #:use-module ((gnu packages emacs) #:select (emacs-next))
   #:use-module ((gnu packages admin) #:select (sudo))
   #:use-module ((gnu packages gnome) #:select (network-manager))
 
@@ -134,8 +134,8 @@ bindsym Mod4+Shift+9 move container to workspace number 9
 bindsym Mod4+0 workspace number 10
 bindsym Mod4+Shift+0 move container to workspace number 10
 
-bindsym Mod4+Return exec " (replace-mesa emacs-next-tree-sitter) "/bin/emacsclient -cne '(switch-to-buffer nil)'
-bindsym Mod4+Shift+Return exec " (replace-mesa emacs-next-tree-sitter) "/bin/emacsclient -cne '(eshell t)'
+bindsym Mod4+Return exec " (replace-mesa emacs-next) "/bin/emacsclient -cne '(switch-to-buffer nil)'
+bindsym Mod4+Shift+Return exec " (replace-mesa emacs-next) "/bin/emacsclient -cne '(eshell t)'
 bindsym Mod4+Control+Return exec " rxvt-unicode "/bin/urxvt
 bindsym Mod4+space exec --no-startup-id " j4-dmenu-desktop "/bin/j4-dmenu-desktop"
 " --dmenu=\"" bemenu "/bin/bemenu"
