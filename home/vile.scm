@@ -6,7 +6,7 @@
 
   #:use-module ((games packages minecraft) #:select (prismlauncher))
 
-  #:use-module ((system packages nvidia) #:select (replace-mesa))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services))
