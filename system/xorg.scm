@@ -52,8 +52,6 @@ EndSection
 
 (define-public services
   (list
-   ;; (service polkit-service-type)
-   ;; (service x11-socket-directory-service-type)
    (service elogind-service-type)
    (service slim-service-type
             (slim-configuration
