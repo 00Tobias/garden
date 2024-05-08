@@ -37,6 +37,11 @@
 
 (setq flymake-mode-line-lighter "")
 
+(add-hook 'prog-mode-hook 'hs-minor-mode 1)
+(keymap-global-set "C-c b" 'hs-toggle-hiding)
+(keymap-global-set "C-c h" 'hs-hide-all)
+(keymap-global-set "C-c H" 'hs-show-all)
+
 ;;; package: diff-hl
 (setq-default left-fringe-width 5)
 (global-diff-hl-mode)
