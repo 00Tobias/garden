@@ -118,7 +118,7 @@
   "9" "M-9"
   "<escape>" 'keyboard-escape-quit
   "g" 'keyboard-escape-quit
-  "G" 'keyboard-escape-quit
+  "G" 'exchange-point-and-mark
   "," 'fake-C-c
 
   ;; Movement Colemak and QWERTY
