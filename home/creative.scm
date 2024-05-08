@@ -15,12 +15,11 @@
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((gnu packages video) #:select (obs obs-vkcapture))
-  #:use-module ((gnu packages audio) #:select (ardour))
+  #:use-module ((gnu packages video) #:select (obs obs-pipewire-audio-capture))
   #:use-module ((gnu packages music) #:select (zrythm zplugins))
   #:use-module ((gnu packages graphics) #:select (blender))
   #:use-module ((gnu packages python-xyz) #:select (python-numpy)) ; Blender python libraries
-  #:use-module ((gnu packages kde) #:select (kdenlive krita))
+  #:use-module ((gnu packages gimp) #:select (gimp-next))
   #:use-module ((gnu packages inkscape) #:select (inkscape))
 
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa)))
@@ -92,17 +91,16 @@ pattern-based sequencer (tracker). Features:
    (license (license:nonfree "file:///share/docs/license/sunvox.txt"))))
 
 (define-public packages
-  (let ((lst (list obs
-                   obs-vkcapture
-                   sunvox
-                   ardour
-                   zrythm
-                   zplugins
-                   blender
-                   python-numpy
-                   kdenlive
-                   krita
-                   inkscape)))
+  (let ((lst (list
+              obs
+              obs-pipewire-audio-capture
+              sunvox
+              zrythm
+              zplugins
+              blender
+              python-numpy
+              gimp-next
+              inkscape)))
     (if (string= (gethostname) "okarthel")
         (map replace-mesa lst)
         lst)))
