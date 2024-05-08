@@ -25,7 +25,11 @@
 ;;; Org mode
 
 (setq org-startup-indented t
-      org-startup-with-inline-images t)
+      org-hide-emphasis-markers t
+      org-pretty-entities t
+      org-ellipsis " ➤"
+      org-startup-with-inline-images t
+      org-latex-tables-centered nil)
 
 (with-eval-after-load 'org
   (keymap-set-keys org-mode-map
@@ -40,6 +44,11 @@
                            (setq-local electric-pair-inhibit-predicate
                                        `(lambda (c)
                                           (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
+
+;;; package: org-bullets
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+(setq org-bullets-bullet-list '("∙"))
 
 ;;; package: org-roam
 (setq org-roam-directory (file-truename "~/irthir/")

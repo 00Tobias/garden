@@ -182,6 +182,7 @@
    ;; init-text.el
    emacs-jinx
    emacs-org-block-capf
+   emacs-org-bullets
    emacs-org-roam
 
    ;; init-modes.el
