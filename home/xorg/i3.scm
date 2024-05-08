@@ -9,6 +9,7 @@
   #:use-module ((gnu packages pulseaudio) #:select (pulsemixer))
   #:use-module ((gnu packages music) #:select (playerctl))
   #:use-module ((gnu packages linux) #:select (brightnessctl))
+  #:use-module ((gnu packages disk) #:select (xfe))
   #:use-module ((gnu packages image-viewers) #:select (feh))
   #:use-module ((gnu packages xdisorg) #:select (sxhkd
                                                  rxvt-unicode
@@ -17,7 +18,9 @@
                                                  xclip
                                                  xdotool
                                                  j4-dmenu-desktop
-                                                 bemenu))
+                                                 bemenu
+                                                 xdotool))
+  #:use-module ((gnu packages password-utils) #:select (password-store))
   #:use-module ((gnu packages python-xyz) #:select (i3-autotiling))
   #:use-module ((gnu packages emacs) #:select (emacs-next))
   #:use-module ((gnu packages admin) #:select (sudo))
@@ -27,7 +30,7 @@
   #:use-module (gnu home services)
   #:use-module (rde home services wm)
 
-  #:use-module ((system packages nvidia) #:select (replace-mesa))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module ((home theme) #:prefix theme:))
 
@@ -155,6 +158,18 @@ bindsym --release Mod4+p exec --no-startup-id " maim "/bin/maim"
 " -us | " xclip "/bin/xclip"
 " -selection clipboard -t image/png
 
+bindsym Mod4+Shift+p exec --no-startup-id \"" password-store "/bin/pass show $(find $HOME/.password-store/ -type f -name '*.gpg' | sed 's#'\\\\\"$HOME\\\\\"'/.password-store/##; s/\\.gpg$//' | "
+bemenu "/bin/bemenu -cil 10 -W 0.3 -p 'run:' -B 2"
+" --fn '"  theme:font " " theme:font-size "'"
+" --nb '"  theme:bg "'"
+" --ab '"  theme:bg "'"
+" --fb '"  theme:bg "'"
+" --bdr '" theme:fg "'"
+" --nf '"  theme:fg "'"
+" --af '"  theme:fg "'"
+" --ff '"  theme:fg "') | { IFS= read -r pass; printf %s \\\\\"$pass\\\\\"; } | "
+xdotool "/bin/xdotool type --clearmodifiers --file -\"
+
 bindsym Mod4+v exec " rxvt-unicode "/bin/urxvt -name floating-terminal -e " pulsemixer "/bin/pulsemixer
 bindsym Mod4+Shift+v exec " rxvt-unicode "/bin/urxvt -name floating-terminal -e " network-manager "/bin/nmtui
 
@@ -189,7 +204,6 @@ for_window [instance=\"floating-terminal\"] floating enable
 for_window [class=\"steam\"] floating enable
 for_window [title=\"^notificationtoasts.*\"] floating enable
 no_focus [class=\"steam\"]
-assign [title=\"minibuffer\"] 10
 assign [class=\"steam\"] 5
 assign [class=\"discord\"] 7
 
@@ -199,10 +213,11 @@ assign [class=\"hl2_linux\"] 6
 exec_always --no-startup-id " i3-autotiling "/bin/autotiling
 exec --no-startup-id " dunst "/bin/dunst
 exec --no-startup-id " unclutter "/bin/unclutter
+exec --no-startup-id " kdeconnect "/libexec/kdeconnectd
 exec --no-startup-id " xrandr "/bin/xrandr --output DP-0 --mode 3440x1440 --rate 144"))
 
 (define-public packages
-  (list i3-wm rxvt-unicode feh))
+  (list i3-wm kdeconnect rxvt-unicode xfe feh))
 
 (define-public services
   (list
