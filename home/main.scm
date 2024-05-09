@@ -1,4 +1,4 @@
-(define-module (home core)
+(define-module (home main)
   #:use-module (guix gexp)
   #:use-module (guix channels)
 

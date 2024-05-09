@@ -37,7 +37,7 @@
 (defun ghr ()
   "Reconfigure home profile"
   (interactive)
-  (compile "guix home reconfigure -c $(nproc) -L ~/garden ~/garden/home/core.scm"))
+  (compile "guix home reconfigure -c $(nproc) -L ~/garden ~/garden/home/main.scm"))
 
 (setq comp-deferred-compilation t)
 (setq comp-async-report-warnings-errors nil)
