@@ -36,9 +36,6 @@
 
 ;;; gnus
 
-;;; package: nnatom
-(require 'nnatom)
-
 (with-eval-after-load 'mm-decode (add-to-list 'mm-attachment-override-types "image/.*"))
 
 (setq gnus-asynchronous t

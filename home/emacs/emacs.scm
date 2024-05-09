@@ -64,20 +64,6 @@
            ;; FIXME: doesn't actually have a license
            (license gpl3+)))
 
-(define emacs-nnatom
-  (package (name "emacs-nnatom")
-           (version (git-version "0" "1" "30e4592e39e1d4a484e3bb2496335e43e0478ab7"))
-           (home-page "https://git.sr.ht/~dsemy/nnatom")
-           (source (origin
-                    (method git-fetch)
-                    (uri (git-reference
-                          (url "https://git.sr.ht/~dsemy/nnatom")
-                          (commit "30e4592e39e1d4a484e3bb2496335e43e0478ab7")))
-                    (sha256 (base32 "084y4ar15phsjlw8dz0djbx1q92sxkslak94gvmzpwkhkybnc93j"))))
-           (build-system emacs-build-system)
-           (synopsis "Atom feed backend for Gnus")
-           (description "This package adds an atom feed backend for Gnus.")
-           (license gpl3+)))
 
 (define emacs-hotfuzz
   (let ((commit "3076cb250d0cb7ac6c3ec746dc4ccfea09ccdb25"))
