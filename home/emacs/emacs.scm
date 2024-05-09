@@ -33,20 +33,6 @@
   #:use-module (rde home services emacs)
   #:use-module (gnu home-services-utils))
 
-(define emacs-combobulate
-  (package (name "emacs-combobulate")
-           (version (git-version "0" "1" "c7e4670a3047c0b58dff3746577a5c8e5832cfba"))
-           (home-page "https://github.com/mickeynp/combobulate")
-           (source (origin
-                    (method git-fetch)
-                    (uri (git-reference
-                          (url "https://github.com/mickeynp/combobulate")
-                          (commit "c7e4670a3047c0b58dff3746577a5c8e5832cfba")))
-                    (sha256 (base32 "063w2sm0c7xhg3ml31xp870azb0sv7z689lnbnjnbl3rfdy4kg50"))))
-           (build-system emacs-build-system)
-           (synopsis "Structured Editing and Navigation in Emacs")
-           (description "This package adds structured editing and movement to a wide range of programming languages.")
-           (license gpl3+)))
 
 (define emacs-org-block-capf
   (package (name "emacs-org-block-capf")
@@ -172,7 +158,6 @@
    emacs-org-roam
 
    ;; init-modes.el
-   emacs-nnatom
    emacs-elpher
    emacs-libgit
    emacs-magit
