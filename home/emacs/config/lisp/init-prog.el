@@ -13,11 +13,7 @@
 
 (electric-pair-mode 1)
 
-(setq case-replace nil)
-(keymap-global-set "C-c r" 'replace-regexp)
-(keymap-global-set "C-c q" 'query-replace-regexp)
-
-(keymap-global-set "C-c s" 'save-buffer)
+(setq safe-local-variable-directories '("~/projects/" "~/garden/"))
 
 ;;; treesit
 (setq treesit-extra-load-path '("~/.guix-home/profile/lib/tree-sitter"))
@@ -73,6 +69,9 @@
 (add-hook 'prog-mode-hook 'tempel-setup-capf)
 (add-hook 'text-mode-hook 'tempel-setup-capf)
 
+;;; package: ellama
+(require 'ellama)
+
 ;;; package: aggressive-indent
 (global-aggressive-indent-mode 1)
 (add-to-list 'aggressive-indent-excluded-modes 'shell-mode)
@@ -110,7 +109,8 @@
 ;;; Clojure
 ;;; package: cider
 (setq cider-repl-display-help-banner nil
-      cider-use-overlays t)
+      cider-use-overlays t
+      cider-use-tooltips nil)
 
 ;;; Common lisp
 

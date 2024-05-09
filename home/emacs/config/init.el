@@ -50,6 +50,10 @@
       backup-directory-alist '(("." . "~/.cache/emacs/backup/"))
       savehist-file "~/.cache/emacs/savehist")
 
+(setq project-list-file "~/.emacs.d/auto-save-list/projects")
+
+(setq disabled-command-function nil)
+
 (setq backup-by-copying t)
 
 (setq create-lockfiles nil)

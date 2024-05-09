@@ -10,10 +10,16 @@
 
   #:use-module (gnu packages)
   #:use-module ((gnu packages emacs) #:select (emacs-next))
+  #:use-module ((gnu packages rust-apps) #:select (ripgrep))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
   #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic))
   #:use-module ((gnu packages compression) #:select (zip unzip))
+  #:use-module ((gnu packages tex) #:select (texlive-scheme-basic
+                                             texlive-wrapfig
+                                             texlive-ulem
+                                             texlive-capt-of
+                                             texlive-enumitem))
   #:use-module ((gnu packages base) #:select (binutils))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
@@ -26,81 +32,172 @@
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
 
-  #:use-module ((system packages nvidia) #:select (replace-mesa))
+  #:use-module ((rde packages fonts) #:select (font-iosevka-nerd))
+
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (rde home services emacs)
   #:use-module (gnu home-services-utils))
 
+(define emacs-nerd-icons-completion
+  (let ((commit "c2db8557a3c1a9588d111f8c8e91cae96ee85010"))
+    (package
+      (name "emacs-nerd-icons-completion")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/rainstormstudio/nerd-icons-completion")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/rainstormstudio/nerd-icons-completion")
+                      (commit commit)))
+                (sha256 (base32 "10ll0dj6ym5prrkv6smj0ac2ail4b3rqcrh1lyr61y3cj422vn9z"))))
+      (inputs (list emacs-nerd-icons))
+      (build-system emacs-build-system)
+      (synopsis "Use nerd-icons for completion")
+      (description "Use nerd-icons for completion.")
+      (license gpl3+))))
+
+(define emacs-nerd-icons-dired
+  (let ((commit "c1c73488630cc1d19ce1677359f614122ae4c1b9"))
+    (package
+      (name "emacs-nerd-icons-dired")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/rainstormstudio/nerd-icons-dired")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/rainstormstudio/nerd-icons-dired")
+                      (commit commit)))
+                (sha256 (base32 "1ln73ii7c3chl4lvarwiwrdmx49q528wc0h6a7xbl68pc2pyyvq2"))))
+      (inputs (list emacs-nerd-icons))
+      (build-system emacs-build-system)
+      (synopsis "Use nerd-icons for Dired")
+      (description "Use nerd-icons for Dired.")
+      (license gpl3+))))
+
+(define emacs-nerd-icons-corfu
+  (let ((commit "7077bb76fefc15aed967476406a19dc5c2500b3c"))
+    (package
+      (name "emacs-nerd-icons-corfu")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/LuigiPiucco/nerd-icons-corfu")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/LuigiPiucco/nerd-icons-corfu")
+                      (commit commit)))
+                (sha256 (base32 "13m20k242zma6jw7pkbw89fk3dnbkwdajcpiyay5xx2l9241snb7"))))
+      (inputs (list emacs-nerd-icons))
+      (build-system emacs-build-system)
+      (synopsis "Icons for corfu via nerd-icons")
+      (description "Nerd-icons-corfu.el is a library for adding icons to completions in Corfu.")
+      (license gpl3+))))
+
+(define emacs-llm
+  (let ((commit "477161475f3edba832eed1292dc3f91da27193d8"))
+    (package
+      (name "emacs-llm")
+      (version (git-version "0" "1" commit))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/ahyatt/llm")
+                      (commit commit)))
+                (sha256 (base32 "1z7j6cd8nnsvvl07z4lh2hgwgbs0arqgh2srkhshfc0qf33cjfwk"))))
+      (build-system emacs-build-system)
+      (home-page "https://github.com/ahyatt/llm")
+      (synopsis "A package abstracting llm capabilities for emacs")
+      (description "This library provides an interface for interacting with Large Language Models (LLMs).")
+      (license gpl3+))))
+
+(define emacs-ellama
+  (let ((commit "6e6ec8e28b8ce32ff207b1b026aaaeddc1bd8239"))
+    (package
+      (name "emacs-ellama")
+      (version (git-version "0" "1" commit))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/s-kostyaev/ellama")
+                      (commit commit)))
+                (sha256 (base32 "1nwwqvl91c65r45yxa2dcl4a41r3ahw6294h79riya48nrp8kn54"))))
+      (inputs (list emacs-llm emacs-spinner))
+      (build-system emacs-build-system)
+      (home-page "https://github.com/s-kostyaev/ellama")
+      (synopsis "A tool for interacting with large language models from Emacs.")
+      (description "Ellama is a tool for interacting with large language models from Emacs.")
+      (license gpl3+))))
 
 (define emacs-org-block-capf
-  (package (name "emacs-org-block-capf")
-           (version (git-version "0" "1" "9c1e5c63e38f94238dafeb6bbea312920b6e9901"))
-           (home-page "https://github.com/xenodium/org-block-capf")
-           (source (origin
-                    (method git-fetch)
-                    (uri (git-reference
-                          (url "https://github.com/xenodium/org-block-capf")
-                          (commit "9c1e5c63e38f94238dafeb6bbea312920b6e9901")))
-                    (sha256 (base32 "0bvx693gxvy2f6j6rj9zmvy261cj5lxf0c50yklbcmh26hfibw7a"))))
-           (build-system emacs-build-system)
-           (synopsis "completion-at-point function for Org Mode blocks")
-           (description "This package adds a completion-at-point function for Org Mode blocks")
-           ;; FIXME: doesn't actually have a license
-           (license gpl3+)))
-
+  (let ((commit "9c1e5c63e38f94238dafeb6bbea312920b6e9901"))
+    (package
+      (name "emacs-org-block-capf")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/xenodium/org-block-capf")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/xenodium/org-block-capf")
+                      (commit commit)))
+                (sha256 (base32 "0bvx693gxvy2f6j6rj9zmvy261cj5lxf0c50yklbcmh26hfibw7a"))))
+      (build-system emacs-build-system)
+      (synopsis "completion-at-point function for Org Mode blocks")
+      (description "This package adds a completion-at-point function for Org Mode blocks")
+      ;; FIXME: doesn't actually have a license
+      (license gpl3+))))
 
 (define emacs-hotfuzz
-  (let ((commit "3076cb250d0cb7ac6c3ec746dc4ccfea09ccdb25"))
+  (let ((commit "622329477d893a9fc2528a75935cfe1f8614f4bc"))
     (package
-     (name "emacs-hotfuzz")
-     (version commit)
-     (source (origin
-              (method git-fetch)
-              (uri (git-reference
-                    (url "https://github.com/axelf4/hotfuzz")
-                    (commit commit)))
-              (file-name (git-file-name name version))
-              (sha256 (base32 "0hc13big8cnqf19cjcdwq9k1plpc9401hf2ddxf4vd0gyqlxlsxn"))))
-     (build-system emacs-build-system)
-     (arguments
-      `(#:modules ((guix build emacs-build-system)
-                   ((guix build cmake-build-system) #:prefix cmake:)
-                   (guix build emacs-utils)
-                   (guix build utils))
-        #:imported-modules (,@%emacs-build-system-modules
-                            (guix build cmake-build-system))
-        #:phases
-        (modify-phases %standard-phases
-                       (add-after 'unpack 'patch-module-load
-                                  (lambda* (#:key outputs #:allow-other-keys)
-                                    (make-file-writable "hotfuzz.el")
-                                    (emacs-substitute-sexps "hotfuzz.el"
-                                                            ("(declare-function hotfuzz--filter-c"
-                                                             (string-append (assoc-ref outputs "out") "/lib/hotfuzz-module.so"))
-                                                            ("(use-module-p"
-                                                             `(module-load ,(string-append (assoc-ref outputs "out") "/lib/hotfuzz-module.so"))))))
-                       (add-after 'build 'configure
-                                  (lambda* (#:key outputs #:allow-other-keys)
-                                    ((assoc-ref cmake:%standard-phases 'configure)
-                                     #:outputs outputs
-                                     #:out-of-source? #f
-                                     #:build-type "Release")))
-                       (add-after 'configure 'make
-                                  (lambda* (#:key (make-flags '()) outputs #:allow-other-keys)
-                                    (apply invoke "cmake" "--build" "." make-flags)
-                                    (install-file
-                                     "hotfuzz-module.so"
-                                     (string-append (assoc-ref outputs "out") "/lib")))))
-        #:tests? #f))
-     (native-inputs (list cmake-minimal))
-     (home-page "https://github.com/axelf4/hotfuzz")
-     (synopsis "Fuzzy Emacs completion style")
-     (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
-     (license gpl3+))))
+      (name "emacs-hotfuzz")
+      (version (git-version "0" "1" commit))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/axelf4/hotfuzz")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256 (base32 "1ax98352dl7mbgz7xphdj5xwxxxpmmnvhysic4ccpmrkgim1y7s4"))))
+      (build-system emacs-build-system)
+      (arguments
+       `(#:modules ((guix build emacs-build-system)
+                    ((guix build cmake-build-system) #:prefix cmake:)
+                    (guix build emacs-utils)
+                    (guix build utils))
+         #:imported-modules (,@%emacs-build-system-modules
+                             (guix build cmake-build-system))
+         #:phases
+         (modify-phases %standard-phases
+           (add-after 'unpack 'patch-module-load
+             (lambda* (#:key outputs #:allow-other-keys)
+               (make-file-writable "hotfuzz.el")
+               (emacs-substitute-sexps "hotfuzz.el"
+                 ("(declare-function hotfuzz--filter-c"
+                  (string-append (assoc-ref outputs "out") "/lib/hotfuzz-module.so"))
+                 ("(use-module-p"
+                  `(module-load ,(string-append (assoc-ref outputs "out") "/lib/hotfuzz-module.so"))))))
+           (add-after 'build 'configure
+             (lambda* (#:key outputs #:allow-other-keys)
+               ((assoc-ref cmake:%standard-phases 'configure)
+                #:outputs outputs
+                #:out-of-source? #f
+                #:build-type "Release")))
+           (add-after 'configure 'make
+             (lambda* (#:key (make-flags '()) outputs #:allow-other-keys)
+               (apply invoke "cmake" "--build" "." make-flags)
+               (install-file
+                "hotfuzz-module.so"
+                (string-append (assoc-ref outputs "out") "/lib")))))
+         #:tests? #f))
+      (native-inputs (list cmake-minimal))
+      (home-page "https://github.com/axelf4/hotfuzz")
+      (synopsis "Fuzzy Emacs completion style")
+      (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
+      (license gpl3+))))
 
-(define sbcl-config (mixed-text-file "sbcl-config" "
+(define sbcl-config (plain-file "sbcl-config" "
 (require \"asdf\")
 (let ((guix-profile (format nil \"~a/.guix-profile/lib/\" (uiop:getenv \"HOME\")))
       (guix-home (format nil \"~a/.guix-home/profile/lib/\" (uiop:getenv \"HOME\"))))
@@ -120,9 +217,15 @@
    ;; init-ui.el
    emacs-diff-hl
    emacs-vundo
+   emacs-svg-tag-mode
+   emacs-hide-lines
    emacs-transient-posframe
    emacs-flymake-popon
    emacs-eldoc-box
+   emacs-nerd-icons
+   emacs-nerd-icons-dired
+   emacs-nerd-icons-completion
+   emacs-nerd-icons-corfu
 
    ;; init-completion.el
    emacs-hotfuzz
@@ -137,6 +240,8 @@
    ;; init-prog.el
    emacs-combobulate
    emacs-tempel
+   emacs-llm
+   emacs-ellama
    emacs-aggressive-indent
    emacs-avy
    emacs-expand-region
@@ -169,14 +274,21 @@
 
 (define-public packages
   (list
+   ripgrep
    enchant
    aspell
    aspell-dict-en
    aspell-dict-sv
    font-sarasa-gothic
+   font-iosevka-nerd
    ;; Org mode
    zip
    unzip
+   texlive-scheme-basic
+   texlive-wrapfig
+   texlive-ulem
+   texlive-capt-of
+   ;; texlive-enumitem
    ;; Langs
    binutils                             ; Fixes odd missing 'as' native comp error
    python
@@ -223,9 +335,13 @@
      (emacs (if (string= (gethostname) "okarthel")
                 (replace-mesa emacs-next)
                 emacs-next))
-     ;; (rebuild-elisp-packages? #t)
-     ;; (server-mode? #t)
+     (native-comp? #t)
      (elisp-packages elisp-packages)))
-   (simple-service 'sbcl-config
+   (simple-service 'prog-config
                    home-files-service-type
-                   `((".sbclrc" ,sbcl-config)))))
+                   `((".sbclrc" ,sbcl-config)
+                     (".npmrc"  ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
+   (simple-service 'prog-env-vars
+                   home-environment-variables-service-type
+                   `(("SBCL_HOME" . "$HOME/.guix-home/profile/lib/sbcl")
+                     ("XTDB_ENABLE_BYTEUTILS_SHA1" . "true")))))

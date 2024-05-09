@@ -27,6 +27,12 @@
 (keymap-global-set "C-z" 'undo)
 (keymap-global-set "C-S-z" 'undo-redo)
 
+(setq case-replace nil)
+(keymap-global-set "C-c r" 'replace-regexp)
+(keymap-global-set "C-c q" 'query-replace-regexp)
+
+(keymap-global-set "C-c s" 'save-buffer)
+
 (defun highlight-todo ()
   "Highlight FIXME:, TODO: and NOTE:, case insensitively."
   (font-lock-add-keywords
@@ -63,6 +69,20 @@
 (require 'eldoc-box)
 (with-eval-after-load 'eldoc-box (setcar (alist-get 'eldoc-box-hover-at-point-mode minor-mode-alist) ""))
 (eldoc-box-hover-at-point-mode 1)
+
+;;; package: nerd-icons
+(setq nerd-icons-font-family "Iosevka Nerd Font Mono")
+
+;;; package: nerd-icons-dired
+(add-hook 'dired-mode-hook #'nerd-icons-dired-mode)
+
+;;; package: nerd-icons-completion
+(nerd-icons-completion-mode)
+(add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup)
+
+;;; package: nerd-icons-corfu
+(with-eval-after-load 'corfu
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (provide 'init-ui)
 ;;; init-ui.el ends here

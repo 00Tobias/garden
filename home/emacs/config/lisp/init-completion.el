@@ -27,8 +27,6 @@
       completion-category-overrides '((eglot (styles hotfuzz)))
       completion-ignore-case t)
 
-(hotfuzz-vertico-mode 1)
-
 ;;; package: vertico
 (vertico-mode)
 
@@ -55,11 +53,10 @@
     "C-c G"   'consult-ripgrep
     "C-c d"   'consult-flymake)
 
-;; FIXME: workaround while https://github.com/axelf4/hotfuzz/issues/12
-;; is an issue.
+;; Compatibility with hotfuzz
 (with-eval-after-load 'consult
-  (setq consult--tofu-char #x100000
-        consult--tofu-range #xFFFF))
+  (setq consult--tofu-char  #x100000
+        consult--tofu-range #x00fffe))
 
 (require 'consult)
 
@@ -114,10 +111,6 @@
 
 ;;; package: cape
 (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
-
-;;; package: kind-icon
-(setq kind-icon-default-face 'corfu-default)
-(add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
 
 (provide 'init-completion)
 ;;; init-completion.el ends here

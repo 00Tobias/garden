@@ -21,6 +21,8 @@
 
 (add-hook 'text-mode-hook 'modal-mode 1)
 (add-hook 'prog-mode-hook 'modal-mode 1)
+(add-hook 'eshell-mode-hook 'modal-insert)
+(add-hook 'shell-mode-hook 'modal-insert)
 (add-hook 'xref--xref-buffer-mode-hook 'modal-mode 1)
 
 (keymap-global-set "<escape>" (lambda () (interactive) (modal-mode 1)))

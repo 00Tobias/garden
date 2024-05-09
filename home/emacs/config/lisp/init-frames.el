@@ -21,10 +21,12 @@
 
 (push '(minibuffer . nil) default-frame-alist)
 (push '(minibuffer . nil) initial-frame-alist)
-(setq minibuffer-frame-alist (append '((name . "minibuffer")
-                                       (width . 150)
-                                       (height . 11))
-                                     minibuffer-frame-alist))
+(setq minibuffer-frame-alist
+      (append '((name . "minibuffer")
+                (title . "minibuffer")
+                (width . 150)
+                (height . 11))
+              minibuffer-frame-alist))
 
 (defun pull-minibuffer-frame (&rest ignored)
   (call-process-shell-command
@@ -33,10 +35,11 @@
 
 (add-hook 'minibuffer-setup-hook 'pull-minibuffer-frame)
 
-(add-hook 'minibuffer-exit-hook (lambda ()
-                                  (call-process-shell-command
-                                   "i3-msg [title='minibuffer'] move workspace 10"
-                                   nil 0)))
+(add-hook 'minibuffer-exit-hook
+          (lambda ()
+            (call-process-shell-command
+             "i3-msg [title='minibuffer'] move workspace 10"
+             nil 0)))
 
 ;;; package: frames-only-mode
 (with-eval-after-load 'frames-only-mode
