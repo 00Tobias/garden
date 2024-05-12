@@ -46,6 +46,7 @@
 
   #:use-module ((nongnu system linux-initrd) #:select (microcode-initrd))
 
+  #:use-module ((system common) #:prefix common:)
   #:use-module ((system udev) #:prefix udev:)
   #:use-module ((system network) #:prefix network:)
   #:use-module ((system syncthing) #:prefix syncthing:)
@@ -238,6 +239,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
 
   (services
    (append
+    common:services
     udev:services
     network:services
     syncthing:services
@@ -307,21 +309,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                            #:user "root" #:group "root"
                            #:environment-variables
                            (list "PATH=/run/setuid-programs:/run/current-system/profile/bin:/run/current-system/profile/sbin")))
-                       (stop #~(make-kill-destructor))))))
-    (modify-services %base-services
-      (guix-service-type config =>
-                         (guix-configuration
-                          (inherit config)
-                          (substitute-urls
-                           (append (list "https://substitutes.nonguix.org" "https://guix.bordeaux.inria.fr")
-                                   %default-substitute-urls))
-                          (authorized-keys
-                           (append (list
-                                    (plain-file "nonguix-signing-key.pub"
-                                                "(public-key (ecc (curve Ed25519) (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))")
-                                    (plain-file "guix-science-signing-key.pub"
-                                                "(public-key (ecc (curve Ed25519) (q #89FBA276A976A8DE2A69774771A92C8C879E0F24614AAAAE23119608707B3F06#)))"))
-                                   %default-authorized-guix-keys)))))))
+                       (stop #~(make-kill-destructor))))))))
 
   (bootloader
    (bootloader-configuration
@@ -330,7 +318,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
     (keyboard-layout keyboard-layout)
     (theme (grub-theme
             (gfxmode '("auto"))
-            (color-normal '((fg . white) (bg . black)))
+            (color-normal    '((fg . white) (bg . black)))
             (color-highlight '((fg . black) (bg . white)))
             (image (local-file "wallpapers/grub-okarthel.png"))))))
 
