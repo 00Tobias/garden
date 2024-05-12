@@ -208,7 +208,8 @@ config.bind('-', 'zoom-out')
 
 (define-public packages
   (list
-   (if (string= (gethostname) "okarthel")
+   (if (or (string= (gethostname) "okarthel")
+           (string= (gethostname) "austrat"))
        (replace-mesa qutebrowser)
        qutebrowser)))
 

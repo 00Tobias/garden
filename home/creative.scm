@@ -101,6 +101,7 @@ pattern-based sequencer (tracker). Features:
               python-numpy
               gimp-next
               inkscape)))
-    (if (string= (gethostname) "okarthel")
+    (if (or (string= (gethostname) "okarthel")
+            (string= (gethostname) "austrat"))
         (map replace-mesa lst)
         lst)))

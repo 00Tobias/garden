@@ -67,7 +67,8 @@
                           font-google-noto
                           font-google-noto-sans-cjk
                           font-google-noto-emoji)))
-                (if (string= (gethostname) "okarthel")
+                (if (or (string= (gethostname) "okarthel")
+                        (string= (gethostname) "austrat"))
                     (map replace-mesa lst)
                     lst))))
 
@@ -139,6 +140,12 @@
                         ;; ("XDG_CURRENT_DESKTOP" . "sway")
                         ;; ("WLR_NO_HARDWARE_CURSORS" . "1")
                         ;; ("WLR_RENDERER" . "vulkan")
-                        ("TERM" . "xterm-256color"))))))))
+                        ("TERM" . "xterm-256color"))))
+     (if (string= (gethostname) "austrat")
+         (list
+          (simple-service 'austrat-env-vars
+                          home-environment-variables-service-type
+                          '(("MOZ_USE_XINPUT2" . "1"))))
+         '())))))
 
 main-home

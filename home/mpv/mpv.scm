@@ -42,7 +42,8 @@
               yt-dlp
               curl                      ; sponsorblock_minimal.lua
               )))
-    (if (string= (gethostname) "okarthel")
+    (if (or (string= (gethostname) "okarthel")
+            (string= (gethostname) "austrat"))
         (map replace-mesa lst)
         lst)))
 

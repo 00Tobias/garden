@@ -24,6 +24,10 @@
 
 (setq use-short-answers t)
 
+(when (string= (system-name) "austrat")
+  (pixel-scroll-mode 1)
+  (pixel-scroll-precision-mode 1))
+
 (keymap-global-set "C-z" 'undo)
 (keymap-global-set "C-S-z" 'undo-redo)
 

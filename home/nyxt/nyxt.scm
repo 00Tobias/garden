@@ -2,6 +2,7 @@
   #:use-module (guix gexp)
 
   #:use-module ((gnu packages web-browsers) #:select (nyxt))
+  #:use-module ((gnu packages gstreamer) #:select (gstreamer))
   #:use-module ((gnu packages aspell) #:select (aspell
                                                 aspell-dict-en
                                                 aspell-dict-sv))
@@ -17,16 +18,21 @@
               aspell
               aspell-dict-en
               aspell-dict-sv)))
-    (if (string= (gethostname) "okarthel")
+    (if (or (string= (gethostname) "okarthel")
+            (string= (gethostname) "austrat"))
         (map replace-mesa lst)
         lst)))
 
 (define-public services
-  (list
-   (if (string= (gethostname) "okarthel")
-       (simple-service 'nyxt-nvidia-env-vars
-                       home-environment-variables-service-type
-                       `(("WEBKIT_DISABLE_COMPOSITING_MODE" . "1"))))
-   (simple-service 'nyxt-config
-                   home-files-service-type
-                   `((".config/nyxt/config.lisp" ,(local-file "config/config.lisp"))))))
+  (append
+   (list
+    (simple-service 'nyxt-config
+                    home-files-service-type
+                    `((".config/nyxt/config.lisp" ,(local-file "config/config.lisp")))))
+   (if (or (string= (gethostname) "okarthel")
+           (string= (gethostname) "austrat"))
+       (list
+        (simple-service 'nyxt-nvidia-env-vars
+                        home-environment-variables-service-type
+                        `(("WEBKIT_DISABLE_COMPOSITING_MODE" . "1"))))
+       '())))
