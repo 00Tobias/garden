@@ -37,7 +37,6 @@
   #:use-module (gnu services desktop)
   #:use-module (gnu services xorg)
   #:use-module (gnu services dbus)
-  #:use-module (gnu services ssh)
   #:use-module (gnu services shepherd)
 
   #:use-module (nongnu packages linux)
@@ -259,7 +258,6 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
     (list
      (service earlyoom-service-type)
      (service pcscd-service-type)
-     (service openssh-service-type)
      (service nvidia-service-type)
      ;; (udev-rules-service 'leetmouse leetmouse-udev-rules)
 
