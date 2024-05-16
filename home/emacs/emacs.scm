@@ -27,6 +27,11 @@
   #:use-module ((gnu packages java) #:select (openjdk))
   #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
+  #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
+  #:use-module ((gnu packages rust-apps) #:select (rust-cargo))
+  #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
+  #:use-module ((gnu packages pkg-config) #:select (pkg-config))
+  #:use-module ((gnu packages tls) #:select (openssl))
   #:use-module ((gnu packages node) #:select (node-lts))
   #:use-module ((contrib packages node-xyz) #:select (node-typescript node-typescript-language-server))
   #:use-module (gnu packages tree-sitter)
@@ -296,8 +301,15 @@
    clojure
    clojure-tools
    `(,openjdk "jdk")
+   rust
+   rust-cargo
+   ;; Libraries for cargo
+   gcc-toolchain
+   pkg-config
+   openssl
    ;; LSP
    ccls
+   rust-analyzer
    python-lsp-server
    node-lts                             ; Normal is at v10?
    node-typescript
@@ -343,5 +355,7 @@
                      (".npmrc"  ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
    (simple-service 'prog-env-vars
                    home-environment-variables-service-type
-                   `(("SBCL_HOME" . "$HOME/.guix-home/profile/lib/sbcl")
+                   `(("CC" . ,#~(string-append #$gcc-toolchain "/bin/gcc"))
+                     ("SBCL_HOME" . "$HOME/.guix-home/profile/lib/sbcl")
+                     ("CARGO_HOME" . "$HOME/.local/lib/cargo/")
                      ("XTDB_ENABLE_BYTEUTILS_SHA1" . "true")))))
