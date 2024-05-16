@@ -18,8 +18,7 @@
   #:use-module ((gnu packages tex) #:select (texlive-scheme-basic
                                              texlive-wrapfig
                                              texlive-ulem
-                                             texlive-capt-of
-                                             texlive-enumitem))
+                                             texlive-capt-of))
   #:use-module ((gnu packages base) #:select (binutils))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
@@ -265,7 +264,6 @@
    emacs-jinx
    emacs-org-block-capf
    emacs-org-bullets
-   emacs-org-roam
 
    ;; init-modes.el
    emacs-elpher
@@ -293,7 +291,6 @@
    texlive-wrapfig
    texlive-ulem
    texlive-capt-of
-   ;; texlive-enumitem
    ;; Langs
    binutils                             ; Fixes odd missing 'as' native comp error
    python

@@ -50,22 +50,5 @@
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 (setq org-bullets-bullet-list '("∙"))
 
-;;; package: org-roam
-(setq org-roam-directory (file-truename "~/irthir/")
-      org-roam-dailies-directory "journals/"
-      org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag))
-      org-roam-capture-templates '(("d" "default" plain
-                                    "%?" :target
-                                    (file+head "pages/${slug}.org" "#+title: ${title}\n")
-                                    :unnarrowed t)))
-(keymap-global-set-keys
- "C-c n l" 'org-roam-buffer-toggle
- "C-c n f" 'org-roam-node-find
- "C-c n g" 'org-roam-graph
- "C-c n i" 'org-roam-node-insert
- "C-c n c" 'org-roam-capture
- "C-c n j" 'org-roam-dailies-capture-today)
-(org-roam-db-autosync-mode)
-
 (provide 'init-text)
 ;;; init-text.el ends here
