@@ -149,8 +149,8 @@
   "p" 'er/expand-region
   "P" 'er/contract-region
 
-  "f" 'avy-goto-char
-  "F" 'avy-goto-char-2
+  "f" 'avy-goto-char-timer
+  "F" 'consult-line
 
   "z" 'move-beginning-of-line
   "Z" "C-M-a"
@@ -199,7 +199,7 @@
   ":" 'execute-extended-command
 
   ;; Add comment above / below
-  ";" 'comment-line)
+  ";" 'paredit-comment-line)
 
 (provide 'init-modal)
 ;;; init-modal.el ends here
