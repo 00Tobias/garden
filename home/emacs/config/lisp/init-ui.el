@@ -20,8 +20,6 @@
 
 (column-number-mode 1)
 
-(which-function-mode 1)
-
 (setq use-short-answers t)
 
 (when (string= (system-name) "austrat")
