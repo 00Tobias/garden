@@ -24,8 +24,26 @@
 ;;; package: hotfuzz
 (setq completion-styles '(hotfuzz)
       completion-category-defaults nil
-      completion-category-overrides '((eglot (styles hotfuzz)))
+      completion-category-overrides '((eglot (styles hotfuzz))
+                                      ;; Fixes consult-line's ordering, and makes it more like isearch
+                                      (consult-location (styles substring)))
       completion-ignore-case t)
+
+;; Workaround to show most recently used results first from https://github.com/axelf4/hotfuzz/issues/1
+(defvar +hotfuzz--is-empty nil)
+(defun +hotfuzz-all-completions--enable-history-a (orig content &rest args)
+  "Set a variable needed for showing most recent entries."
+  (setq +hotfuzz--is-empty (string-empty-p content))
+  (apply orig content args))
+(advice-add #'hotfuzz-all-completions
+            :around #'+hotfuzz-all-completions--enable-history-a)
+(defun +hotfuzz--adjust-metadata--enable-history-a (orig metadata)
+  "Enable showing most recent entries for empty input."
+  (if +hotfuzz--is-empty
+      metadata
+    (funcall orig metadata)))
+(advice-add #'hotfuzz--adjust-metadata
+            :around #'+hotfuzz--adjust-metadata--enable-history-a)
 
 ;;; package: vertico
 (vertico-mode)
@@ -52,6 +70,9 @@
     "C-c g"   'consult-grep
     "C-c G"   'consult-ripgrep
     "C-c d"   'consult-flymake)
+
+;; Recent file tracking for consult-buffers virtual buffer types
+(recentf-mode 1)
 
 ;; Compatibility with hotfuzz
 (with-eval-after-load 'consult
