@@ -39,11 +39,11 @@ html {
     (method url-fetch)
     (sha256 (base32 "0vl038x7mm98ghrirr5zcdv24zmhfaj7mrygcm07qs6dri99yjsl"))))
 
-(define vencord-userscript
+(define screenshare-with-audio-userscript
   (origin
-    (uri "https://raw.githubusercontent.com/Vencord/builds/844e4ff09890e27b31c07d15ce8a33c647b067f2/Vencord.user.js")
+    (uri "https://update.greasyfork.org/scripts/436013/Screenshare_with_Audio.user.js")
     (method url-fetch)
-    (sha256 (base32 "1i1xp699insam3p4wrw3cjbvwd6kc0km2xm182rsq0yknpqvjiz3"))))
+    (sha256 (base32 "1szp9c0xvpmkam1b39d2rdj46w5jmf3zdhb7c993xpjmxryc8pqv"))))
 
 (define qb-discord-desktop-entry (mixed-text-file "qb-discord-desktop-entry" "
 [Desktop Entry]
@@ -61,7 +61,18 @@ import operator
 
 config.load_autoconfig()
 
-c.completion.web_history.exclude = [ '*://duckduckgo.com/*', '*://twitter.com/*', '*://*.youtube.com/*', '*://*.reddit.com/r/*']
+c.completion.web_history.exclude = ['duckduckgo.com', 'twitter.com', '*.reddit.com', '*.discord.com']
+
+c.content.notifications.enabled = False
+c.content.notifications.show_origin = False
+
+with config.pattern('*.discord.com') as p:
+    p.content.notifications.enabled = True
+    p.content.desktop_capture = True
+    p.content.media.audio_capture = True
+    p.content.media.video_capture = True
+    p.content.media.audio_video_capture = True
+    p.content.autoplay = True
 
 c.content.blocking.enabled = True
 c.content.blocking.method = 'adblock'
@@ -101,8 +112,10 @@ c.qt.args = [
 c.qt.workarounds.disable_accelerated_2d_canvas = 'never'
 c.qt.chromium.experimental_web_platform_features = 'always'
 
+c.content.prefers_reduced_motion = True
 c.content.autoplay = False
 c.input.media_keys = False
+c.content.pdfjs = True
 
 o = operator.methodcaller
 s = 'setHost'
@@ -124,6 +137,8 @@ def rewrite(info: interceptor.Request):
     if redir is not None and redir(url) is not False:
         info.redirect(url)
 interceptor.register(rewrite)
+
+c.window.title_format = '{current_url}'
 
 c.colors.webpage.preferred_color_scheme = 'dark'
 c.colors.webpage.bg = 'black'
@@ -222,4 +237,4 @@ config.bind('-', 'zoom-out')
                    home-xdg-configuration-files-service-type
                    `(("qutebrowser/config.py" ,qutebrowser-config)
                      ("qutebrowser/greasemonkey/ffz_injector.user.js" ,ffz-userscript)
-                     ("qutebrowser/greasemonkey/Vencord.user.js" ,vencord-userscript)))))
+                     ("qutebrowser/greasemonkey/Screenshare_With_audio.user.js" ,screenshare-with-audio-userscript)))))
