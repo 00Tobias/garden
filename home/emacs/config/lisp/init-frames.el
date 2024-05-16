@@ -6,40 +6,46 @@
 ;;; Code:
 
 ;; Frame title as modeline replacement
-(setq frame-title-format '("%e" mode-line-front-space
-                           (:propertize
-                            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
-                            display (min-width (5.0)))
-                           mode-line-frame-identification mode-line-buffer-identification "   "
-                           mode-line-position (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info
-                           mode-line-end-spaces))
+
+(setq frame-title-format
+      '("%e%z"
+        (:eval (mode-line-eol-desc))
+        mode-line-client
+        "%*%+%@ %b  : :  <"
+        ;; Unfortunately %l and %c is ignored for frame-title-format
+        (:eval (number-to-string (line-number-at-pos)))
+        ":"
+        (:eval (number-to-string (current-column)))
+        " / %p>  "
+        mode-line-modes
+        mode-line-misc-info
+        (:eval (current-message))))
 (setq-default mode-line-format nil)
 
 ;; Dedicated minibuffer frame
-
-(setq inhibit-message t)
 
 (push '(minibuffer . nil) default-frame-alist)
 (push '(minibuffer . nil) initial-frame-alist)
 (setq minibuffer-frame-alist
       (append '((name . "minibuffer")
-                (title . "minibuffer")
                 (width . 150)
                 (height . 11))
               minibuffer-frame-alist))
 
 (defun pull-minibuffer-frame (&rest ignored)
   (call-process-shell-command
-   "i3-msg [title='minibuffer'] move workspace current"
+   "i3-msg [title='^minibuffer$'] move workspace current"
+   nil 0))
+
+(defun push-minibuffer-frame (&rest ignored)
+  (call-process-shell-command
+   "i3-msg [title='^minibuffer$'] move workspace 10"
    nil 0))
 
 (add-hook 'minibuffer-setup-hook 'pull-minibuffer-frame)
-
-(add-hook 'minibuffer-exit-hook
-          (lambda ()
-            (call-process-shell-command
-             "i3-msg [title='minibuffer'] move workspace 10"
-             nil 0)))
+(add-hook 'minibuffer-exit-hook 'push-minibuffer-frame)
+(advice-add 'read-key-sequence :before 'pull-minibuffer-frame)
+(advice-add 'read-key-sequence :after 'push-minibuffer-frame)
 
 ;;; package: frames-only-mode
 (with-eval-after-load 'frames-only-mode
