@@ -50,7 +50,8 @@
       backup-directory-alist '(("." . "~/.cache/emacs/backup/"))
       savehist-file "~/.cache/emacs/savehist")
 
-(setq project-list-file "~/.emacs.d/auto-save-list/projects")
+(setq project-list-file "~/.emacs.d/auto-save-list/projects"
+      project-vc-extra-root-markers '(".project"))
 
 (setq disabled-command-function nil)
 
