@@ -61,6 +61,10 @@ import operator
 
 config.load_autoconfig()
 
+c.url.searchengines = {
+    'DEFAULT': 'https://sift.nights.rest/search.php?q={}'
+}
+
 c.completion.web_history.exclude = ['duckduckgo.com', 'twitter.com', '*.reddit.com', '*.discord.com']
 
 c.content.notifications.enabled = False
