@@ -11,6 +11,8 @@
   #:use-module ((gnu packages linux) #:select (brightnessctl))
   #:use-module ((gnu packages disk) #:select (xfe))
   #:use-module ((gnu packages image-viewers) #:select (feh))
+  #:use-module ((gnu packages gnome) #:select (libnotify))
+  #:use-module ((gnu packages base) #:select (coreutils))
   #:use-module ((gnu packages xdisorg) #:select (sxhkd
                                                  rxvt-unicode
                                                  maim
@@ -21,7 +23,6 @@
                                                  bemenu
                                                  xdotool))
   #:use-module ((gnu packages password-utils) #:select (password-store))
-  #:use-module ((gnu packages python-xyz) #:select (i3-autotiling))
   #:use-module ((gnu packages emacs) #:select (emacs-next))
   #:use-module ((gnu packages admin) #:select (sudo))
   #:use-module ((gnu packages gnome) #:select (network-manager))
@@ -55,13 +56,14 @@ focus_follows_mouse no
 focus_wrapping no
 smart_borders on
 hide_edge_borders smart
-default_border pixel 1
+workspace_layout tabbed
+default_border normal 1
 default_floating_border pixel 1
 
 font pango:" theme:font " " theme:font-size "
 client.focused " theme:fg " " theme:fg " " theme:bg " " theme:fg "
-client.focused_inactive " theme:accent " " theme:accent " " theme:fg " " theme:accent "
-client.unfocused " theme:accent " " theme:accent " " theme:fg " " theme:accent "
+client.focused_inactive " theme:accent " " theme:accent " " theme:fg " " theme:bg "
+client.unfocused " theme:accent " " theme:accent " " theme:fg " " theme:bg "
 client.urgent " theme:highlight " " theme:highlight " " theme:bg " " theme:highlight "
 client.background " theme:bg "
 
@@ -170,6 +172,7 @@ bemenu "/bin/bemenu -cil 10 -W 0.3 -p 'run:' -B 2"
 " --ff '"  theme:fg "') | { IFS= read -r pass; printf %s \\\\\"$pass\\\\\"; } | "
 xdotool "/bin/xdotool type --clearmodifiers --file -\"
 
+bindsym Mod4+d exec " libnotify "/bin/notify-send -h string:x-canonical-private-synchronous:anything $(" coreutils "/bin/date +%D%n%T)
 bindsym Mod4+v exec " rxvt-unicode "/bin/urxvt -name floating-terminal -e " pulsemixer "/bin/pulsemixer
 bindsym Mod4+Shift+v exec " rxvt-unicode "/bin/urxvt -name floating-terminal -e " network-manager "/bin/nmtui
 
@@ -182,23 +185,6 @@ bindsym XF86AudioPrev exec --no-startup-id " playerctl "/bin/playerctl previous
 bindsym XF86MonBrightnessUp exec --no-startup-id " brightnessctl "/bin/brightnessctl s 10%+
 bindsym XF86MonBrightnessDown exec --no-startup-id " brightnessctl "/bin/brightnessctl s 10%-
 
-bar {
-    i3bar_command " i3-wm "/bin/i3bar
-    status_command " i3status "/bin/i3status # --config " i3status-config "
-    mode dock
-    position top
-    font pango:" theme:font " " theme:font-size "
-    colors {
-        background " theme:bg "
-        statusline " theme:fg "
-        separator "  theme:accent "
-        focused_workspace " theme:fg " " theme:fg " " theme:bg "
-        active_workspace " theme:fg " " theme:fg " " theme:bg "
-        inactive_workspace " theme:accent " " theme:bg " " theme:fg "
-        urgent_workspace " theme:fg " " theme:highlight " " theme:bg "
-    }
-}
-
 for_window [title=\"minibuffer\"] floating enable
 for_window [instance=\"floating-terminal\"] floating enable
 for_window [class=\"steam\"] floating enable
@@ -210,7 +196,6 @@ assign [class=\"discord\"] 7
 for_window [class=\"hl2_linux\"] fullscreen enable
 assign [class=\"hl2_linux\"] 6
 
-exec_always --no-startup-id " i3-autotiling "/bin/autotiling
 exec --no-startup-id " dunst "/bin/dunst
 exec --no-startup-id " unclutter "/bin/unclutter
 exec --no-startup-id " kdeconnect "/libexec/kdeconnectd
