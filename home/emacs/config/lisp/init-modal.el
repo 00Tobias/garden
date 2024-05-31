@@ -1,7 +1,6 @@
 ;;; init-modal.el --- Personalized modal editing using ryo-modal  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; TODO: word-select.kak type movement
 
 ;;; Code:
 
@@ -25,10 +24,6 @@
 (add-hook 'shell-mode-hook 'modal-insert)
 (add-hook 'xref--xref-buffer-mode-hook 'modal-mode 1)
 
-(keymap-global-set "<escape>" (lambda () (interactive) (modal-mode 1)))
-
-(keymap-global-set "C-c p" (lambda () (interactive) (setq unread-command-events (listify-key-sequence "\C-x\p"))))
-
 (defun delete-indentation-below ()
   (interactive)
   (forward-line)
@@ -37,6 +32,10 @@
 (defun fake-C-c ()
   (interactive)
   (setq unread-command-events (listify-key-sequence "\C-c")))
+
+(defun fake-C-c-apply-control ()
+  (interactive)
+  (execute-kbd-macro (vconcat (kbd "C-c") (event-apply-control-modifier nil))))
 
 (defun modal-insert ()
   "Simple helper function to exit ryo-modal-mode"
@@ -106,6 +105,12 @@
     (end-of-line))
   (newline-and-indent)
   (modal-mode 0))
+
+(keymap-global-set "<escape>" (lambda () (interactive) (modal-mode 1)))
+
+(keymap-global-set "C-c p" (lambda () (interactive) (setq unread-command-events (listify-key-sequence "\C-x\p"))))
+
+(keymap-global-set "C-c ," 'fake-C-c-apply-control)
 
 (keymap-set-keys modal-mode-map
   "0" "M-0"
