@@ -12,6 +12,26 @@
 
 (add-hook 'text-mode-hook 'visual-line-mode)
 
+(defun calculate-and-replace-number ()
+  (interactive)
+  (let* ((buffer-operand (number-at-point))
+         (operand-bounds (bounds-of-thing-at-point 'number))
+         (operation (completing-read (format "Operation for %s: " buffer-operand)
+                                     '("add" "subtract" "multiply" "divide" "modulo")
+                                     nil t))
+         (prompted-operand (read-number (format "Number to %s with: " operation))))
+    (kill-region (car operand-bounds) (cdr operand-bounds))
+    (insert (number-to-string
+             (pcase operation
+               ("add"      (+   buffer-operand prompted-operand))
+               ("subtract" (-   buffer-operand prompted-operand))
+               ("multiply" (*   buffer-operand prompted-operand))
+               ("divide"   (/   buffer-operand prompted-operand))
+               ("modulo"   (mod buffer-operand prompted-operand))
+               (_ (error "Unsupported operation")))))))
+
+(keymap-global-set "C-c n" 'calculate-and-replace-number)
+
 ;;; package: jinx
 (setq jinx-languages "en_US sv_SE")
 
