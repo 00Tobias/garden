@@ -58,6 +58,8 @@
 
 ;;; package: consult
 
+(require 'consult)
+
 (keymap-global-set-keys
     "C-s" 'consult-line
     "C-x C-r" 'consult-recent-file
@@ -79,7 +81,8 @@
   (setq consult--tofu-char  #x100000
         consult--tofu-range #x00fffe))
 
-(require 'consult)
+(consult-customize
+ consult-line :initial (thing-at-point 'region))
 
 ;;; package: embark
 (keymap-global-set "M-." 'embark-dwim)
