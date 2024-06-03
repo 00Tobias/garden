@@ -23,7 +23,7 @@
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
-  #:use-module ((gnu packages java) #:select (openjdk))
+  #:use-module ((gnu packages java) #:select (openjdk21))
   #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
   #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
@@ -297,7 +297,7 @@
    sbcl
    clojure
    clojure-tools
-   `(,openjdk "jdk")
+   `(,openjdk21 "jdk")
    rust
    rust-cargo
    ;; Libraries for cargo
