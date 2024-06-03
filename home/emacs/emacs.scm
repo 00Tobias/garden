@@ -43,7 +43,14 @@
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (rde home services emacs)
-  #:use-module (gnu home-services-utils))
+  #:use-module (gnu home-services-utils)
+
+  #:use-module ((trowel) #:select (aggressively-optimize)))
+
+(define-public emacs-package
+  (if (string= (gethostname) "okarthel")
+      (replace-mesa (aggressively-optimize emacs-next))
+      (aggressively-optimize emacs-next)))
 
 (define emacs-nerd-icons-completion
   (let ((commit "c2db8557a3c1a9588d111f8c8e91cae96ee85010"))
@@ -341,9 +348,7 @@
    (service
     home-emacs-service-type
     (home-emacs-configuration
-     (emacs (if (string= (gethostname) "okarthel")
-                (replace-mesa emacs-next)
-                emacs-next))
+     (emacs emacs-package)
      (native-comp? #t)
      (elisp-packages elisp-packages)))
    (simple-service 'prog-config
