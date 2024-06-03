@@ -1,37 +1,19 @@
 (define-module (home wayland sway)
   #:use-module (guix gexp)
-  #:use-module (guix utils)
-  #:use-module (guix packages)
-  #:use-module (guix download)
-  #:use-module (guix git-download)
-  #:use-module (guix build-system meson)
-  #:use-module (srfi srfi-1)
-  #:use-module ((guix licenses) #:prefix license:)
 
-  #:use-module ((gnu packages wm) #:select (sway wlroots dunst))
-  #:use-module ((gnu packages vulkan) #:select (vulkan-loader
-                                                vulkan-headers
-                                                vulkan-tools
-                                                glslang))
-  #:use-module ((gnu packages gl) #:select (libglvnd))
-  #:use-module ((gnu packages xorg) #:select (eglexternalplatform))
-  #:use-module ((gnu packages pciutils) #:select (hwdata))
-  #:use-module ((gnu packages pkg-config) #:select (pkg-config))
-  #:use-module ((gnu packages python) #:select (python))
+  #:use-module ((gnu packages wm) #:select (sway dunst))
   #:use-module ((gnu packages base) #:select (findutils))
-  #:use-module ((gnu packages freedesktop) #:select (wayland-protocols))
-  #:use-module ((gnu packages xdisorg) #:select (pixman
-                                                 libxkbcommon
-                                                 libdrm
-                                                 tofi
+  #:use-module ((gnu packages xdisorg) #:select (tofi
                                                  wl-clipboard))
   #:use-module ((gnu packages image) #:select (grim slurp))
   #:use-module ((gnu packages pulseaudio) #:select (pulsemixer))
   #:use-module ((gnu packages music) #:select (playerctl))
   #:use-module ((gnu packages linux) #:select (brightnessctl))
   #:use-module ((gnu packages terminals) #:select (foot))
-  #:use-module ((gnu packages emacs) #:select (emacs-next-tree-sitter))
-  #:use-module ((gnu packages python-xyz) #:select (i3-autotiling))
+  ;; #:use-module ((gnu packages glib) #:select (glib))
+  ;; #:use-module ((gnu packages gnome) #:select (gsettings-desktop-schemas))
+  #:use-module ((gnu packages video) #:select (obs-wlrobs))
+  #:use-module ((gnu packages freedesktop) #:select (xdg-desktop-portal-wlr))
 
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
@@ -39,118 +21,20 @@
   #:use-module (gnu home services)
   #:use-module (rde home services wm)
 
+  #:use-module ((home emacs emacs) #:select (emacs-package))
   #:use-module ((home theme) #:prefix theme:))
 
-(define libdrm-2.4.120
-  (package
-   (inherit libdrm)
-   (version "2.4.120")
-   (source (origin
-            (method url-fetch)
-            (uri (string-append
-                  "https://dri.freedesktop.org/libdrm/libdrm-"
-                  version ".tar.xz"))
-            (sha256
-             (base32
-              "0yijzgg6rdsa68bz03sw0lcfa2nclv9m3as1cja50wkcyxim7x9v"))))))
-
-(define wayland-protocols-1.33
-  (package
-   (inherit wayland-protocols)
-   (name "wayland-protocols")
-   (version "1.33")
-   (source (origin
-            (method url-fetch)
-            (uri (string-append "https://gitlab.freedesktop.org/wayland/"
-                                name "/-/releases/" version "/downloads/"
-                                name "-" version ".tar.xz"))
-            (sha256
-             (base32
-              "0flnqfc8npzn6rxsw4afpr8yifwsn5kq81327yh62vhd145wbw4l"))))))
-
-(define hwdata-all
-  (package
-   (inherit hwdata)
-   (arguments
-    (list
-     #:tests? #f
-     #:target #f
-     #:configure-flags #~(list (string-append "--datadir=" #$output "/share"))))))
-
-(define libdisplay-info
-  (package
-   (name "libdisplay-info")
-   (version "0.2.0-dev")
-   (source
-    (origin
-     (method git-fetch)
-     (uri (git-reference
-           (url "https://gitlab.freedesktop.org/emersion/libdisplay-info.git")
-           (commit "ae6cb5242e40563bbea0048690e432a223f6f452")))
-     (sha256 (base32 "022biq79nqyjgzjmcj2p0g240dnimvsm01hk4s40mggn1g49j59i"))))
-   (build-system meson-build-system)
-   (native-inputs (list pkg-config hwdata-all python))
-   (arguments (list #:tests? #f))
-   (synopsis "EDID and DisplayID library")
-   (description "EDID and DisplayID library")
-   (home-page "https://gitlab.freedesktop.org/emersion/libdisplay-info")
-   (license license:expat)))
-
-(define wlroots-git
-  (package
-   (inherit wlroots)
-   (propagated-inputs
-    (modify-inputs (package-propagated-inputs wlroots)
-                   (replace "wayland-protocols" wayland-protocols-1.33)
-                   (prepend vulkan-loader vulkan-headers glslang hwdata-all libdisplay-info
-                            libglvnd eglexternalplatform libdrm-2.4.120)))
-   (source
-    (origin
-     (method git-fetch)
-     (uri (git-reference
-           (url "https://gitlab.freedesktop.org/wlroots/wlroots.git")
-           (commit "cb815e88476cac1fb5ce2e369672e4beb4f5d469")))
-     (sha256 (base32 "05g6g189aks8j89ar9hvxyad0vpgjgb11xray87fcsszcqif1vx2"))))
-   (arguments
-    (substitute-keyword-arguments
-     (package-arguments wlroots)
-     ((#:phases phases)
-      #~(modify-phases
-         #$phases
-         (replace 'fix-meson-file
-                  (lambda* (#:key native-inputs inputs #:allow-other-keys)
-                    (substitute* "backend/drm/meson.build"
-                                 (("hwdata.get_variable(pkgconfig: 'pkgdatadir')")
-                                  (string-append #$(this-package-input "hwdata")
-                                                 "/share/hwdata/")))))))
-     ((#:configure-flags flags #~'())
-      #~(append #$flags
-                (list "-Drenderers=vulkan" ;; ,gles2
-                      "-Dbackends=drm,libinput")))))))
-
-(define sway-git
-  (package
-   (inherit sway)
-   (inputs
-    (modify-inputs (package-inputs sway)
-                   (replace "wlroots" wlroots-git)
-                   (prepend libdrm-2.4.120)))
-   (source
-    (origin
-     (method git-fetch)
-     (uri (git-reference
-           (url "https://github.com/swaywm/sway")
-           (commit "93d391651c1ad43eb8b54449769e034eb1f2380c")))
-     (sha256 (base32 "1mpqw26c30krcsk0khzjf7g84acjb5dmilxiwvw4418m7k2c5sk5"))))))
+(define-public sway-package
+  (if (string= (gethostname) "okarthel")
+      (replace-mesa sway)
+      sway))
 
 (define-public services
   (list
    (service
     home-sway-service-type
     (home-sway-configuration
-     (package (if (string= (gethostname) "okarthel")
-                  (replace-mesa sway-git)
-                  sway-git))
+     (package sway-package)
      (config
       `((smart_borders on)
         (title_align center)
@@ -164,7 +48,7 @@
         (seat * hide_cursor 8000)
         (seat * hide_cursor when-typing enable)
 
-        (input type:keyboard ((xkb_layout se)
+        (input type:keyboard ((xkb_layout "se(nodeadkeys)")
                               (xkb_options ctrl:nocaps)))
         (input type:touchpad ((tap enabled)
                               (natural_scroll enabled)
@@ -207,19 +91,19 @@
           (Mod4+Control+j resize grow down 10 px)
           (Mod4+Control+k resize grow up 10 px)
           (Mod4+Control+l resize grow right 10 px)
-          (Mod4+Control+Shift+h resize shrink left 10 px)
-          (Mod4+Control+Shift+j resize shrink down 10 px)
-          (Mod4+Control+Shift+k resize shrink up 10 px)
-          (Mod4+Control+Shift+l resize shrink right 10 px)
+          (Mod4+Control+Shift+h resize shrink right 10 px)
+          (Mod4+Control+Shift+j resize shrink up 10 px)
+          (Mod4+Control+Shift+k resize shrink down 10 px)
+          (Mod4+Control+Shift+l resize shrink left 10 px)
 
           (Mod4+Control+n resize grow left 10 px)
           (Mod4+Control+e resize grow down 10 px)
           (Mod4+Control+i resize grow up 10 px)
           (Mod4+Control+o resize grow right 10 px)
-          (Mod4+Control+Shift+n resize shrink left 10 px)
-          (Mod4+Control+Shift+e resize shrink down 10 px)
-          (Mod4+Control+Shift+i resize shrink up 10 px)
-          (Mod4+Control+Shift+o resize shrink right 10 px)
+          (Mod4+Control+Shift+n resize shrink right 10 px)
+          (Mod4+Control+Shift+e resize shrink up 10 px)
+          (Mod4+Control+Shift+i resize shrink down 10 px)
+          (Mod4+Control+Shift+o resize shrink left 10 px)
 
           (Mod4+y split h)
           (Mod4+u split v)
@@ -235,11 +119,11 @@
           (Mod4+Shift+minus move scratchpad)
 
           (Mod4+q kill)
-          (Mod4+Return exec ,(file-append (replace-mesa emacs-next-tree-sitter) "/bin/emacsclient") -cne "'(switch-to-buffer nil)'")
+          (Mod4+Return exec ,(file-append emacs-package "/bin/emacsclient") -cne "'(switch-to-buffer nil)'")
           (Mod4+Shift+Return exec ,(file-append foot "/bin/foot"))
 
           (Mod4+space exec ,(file-append tofi "/bin/tofi-drun")
-                      "|" ,(file-append findutils "/bin/xargs") ,(file-append (replace-mesa sway-git) "/bin/swaymsg") "exec" "--")
+                      "|" ,(file-append findutils "/bin/xargs") ,(file-append sway-package "/bin/swaymsg") "exec" "--")
 
           (Mod4+p exec ,(file-append grim "/bin/grim")
                   -g ,#~(string-append "$(" #$(file-append slurp "/bin/slurp") ")") "-"
@@ -281,14 +165,8 @@
           (XF86MonBrightnessUp exec ,(file-append brightnessctl "/bin/brightnessctl") s 10%+)
           (XF86MonBrightnessDown exec ,(file-append brightnessctl "/bin/brightnessctl") s 10%-)))
 
-        (for_window
-         "[title=\"minibuffer\"]"
-         floating enable, resize set width 70 ppt height 30 ppt)
-
-        (assign "[title=\"minibuffer\"]" 10)
-        (assign "[app_id=\"armcord\"]" 7)
-
         (for_window "[instance=\"floating-terminal\"]" floating enable)
+        (for_window "[title=\"^minibuffer$\"]" floating enable)
         (for_window "[class=\"steam\"]" floating enable)
         (for_window "[title=\"^notificationtoasts.*\"]" floating enable)
         (no_focus "[class=\"steam\"]")
@@ -304,8 +182,13 @@
    ))
 
 (define-public packages
-  (list
-   i3-autotiling
-   (if (string= (gethostname) "okarthel")
-       (replace-mesa sway-git)
-       sway-git)))
+  (let ((lst (list
+              ;; `(,glib "bin")
+              ;; gsettings-desktop-schemas
+              wl-clipboard
+              obs-wlrobs
+              xdg-desktop-portal-wlr
+              sway-package)))
+    (if (string= (gethostname) "okarthel")
+        (map replace-mesa lst)
+        lst)))
