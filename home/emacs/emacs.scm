@@ -106,41 +106,6 @@
       (description "Nerd-icons-corfu.el is a library for adding icons to completions in Corfu.")
       (license gpl3+))))
 
-(define emacs-llm
-  (let ((commit "477161475f3edba832eed1292dc3f91da27193d8"))
-    (package
-      (name "emacs-llm")
-      (version (git-version "0" "1" commit))
-      (source (origin
-                (method git-fetch)
-                (uri (git-reference
-                      (url "https://github.com/ahyatt/llm")
-                      (commit commit)))
-                (sha256 (base32 "1z7j6cd8nnsvvl07z4lh2hgwgbs0arqgh2srkhshfc0qf33cjfwk"))))
-      (build-system emacs-build-system)
-      (home-page "https://github.com/ahyatt/llm")
-      (synopsis "A package abstracting llm capabilities for emacs")
-      (description "This library provides an interface for interacting with Large Language Models (LLMs).")
-      (license gpl3+))))
-
-(define emacs-ellama
-  (let ((commit "6e6ec8e28b8ce32ff207b1b026aaaeddc1bd8239"))
-    (package
-      (name "emacs-ellama")
-      (version (git-version "0" "1" commit))
-      (source (origin
-                (method git-fetch)
-                (uri (git-reference
-                      (url "https://github.com/s-kostyaev/ellama")
-                      (commit commit)))
-                (sha256 (base32 "1nwwqvl91c65r45yxa2dcl4a41r3ahw6294h79riya48nrp8kn54"))))
-      (inputs (list emacs-llm emacs-spinner))
-      (build-system emacs-build-system)
-      (home-page "https://github.com/s-kostyaev/ellama")
-      (synopsis "A tool for interacting with large language models from Emacs.")
-      (description "Ellama is a tool for interacting with large language models from Emacs.")
-      (license gpl3+))))
-
 (define emacs-org-block-capf
   (let ((commit "9c1e5c63e38f94238dafeb6bbea312920b6e9901"))
     (package
