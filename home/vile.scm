@@ -6,6 +6,11 @@
 
   #:use-module (nonguix build-system binary)
 
+  #:use-module ((gnu packages java) #:select (icedtea))
+  #:use-module ((gnu packages qt) #:select (qtbase
+                                            qt5compat
+                                            qtnetworkauth))
+  #:use-module ((gnu packages libusb) #:select (libusb))
   #:use-module ((gnu packages gcc) #:select (gcc))
   #:use-module ((gnu packages linux) #:select (pipewire))
 
@@ -18,6 +23,22 @@
 
   #:use-module (gnu services)
   #:use-module (gnu home services))
+
+(define prismlauncher-latest
+  (package
+    (inherit prismlauncher)
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/PrismLauncher/PrismLauncher")
+                    (recursive? #t)
+                    (commit "0ecdceccd2ea7432ae6810a7e41afe848ccc452f")))
+              (sha256 (base32 "1vfpyb4vrl7h3ms2bjgf2xpzmjzkm4y8vddryldbcrfpsk8rjwql"))))
+    (propagated-inputs (list `(,icedtea "jdk")))
+    (inputs
+     (modify-inputs (package-inputs prismlauncher)
+       (replace "qtbase" qtbase)
+       (prepend qt5compat qtnetworkauth libusb)))))
 
 (define-public virtmic
   (package
@@ -74,8 +95,7 @@ Terminal=false"))
                   steam-nvidia
                   steam)
               protonup-ng
-              ;; prismlauncher
-              )))
+              prismlauncher-latest)))
     (if (or (string= (gethostname) "okarthel")
             (string= (gethostname) "austrat"))
         (map replace-mesa lst)
