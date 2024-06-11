@@ -4,6 +4,7 @@
   #:use-module (guix download)
 
   #:use-module ((gnu packages web-browsers) #:select (qutebrowser))
+  #:use-module ((gnu packages qt) #:select (qtwayland))
 
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
@@ -215,9 +216,15 @@ c.colors.statusbar.url.hover.fg = '" theme:accent "'
 config.bind('gk', 'scroll-to-perc 0')
 config.bind('gj', 'scroll-to-perc 100')
 
-config.bind(',m', 'hint links spawn mpv {hint-url} --ytdl-raw-options=cookies-from-browser=chromium:~/.local/share/qutebrowser')
-config.bind(',M', 'spawn mpv {url} --ytdl-raw-options=cookies-from-browser=chromium:~/.local/share/qutebrowser')
-config.bind(',t', 'hint links spawn webtorrent --mpv {hint-url}')
+config.bind(',m', 'hint links spawn " (if (string= (gethostname) "austrat")
+                                          "env __NV_PRIME_RENDER_OFFLOAD=1"
+                                          "") " mpv {hint-url} --ytdl-raw-options=cookies-from-browser=chromium:~/.local/share/qutebrowser')
+config.bind(',M', 'spawn " (if (string= (gethostname) "austrat")
+                               "env __NV_PRIME_RENDER_OFFLOAD=1"
+                               "") " mpv {url} --ytdl-raw-options=cookies-from-browser=chromium:~/.local/share/qutebrowser')
+config.bind(',t', 'hint links spawn " (if (string= (gethostname) "austrat")
+                                          "env __NV_PRIME_RENDER_OFFLOAD=1"
+                                          "") " webtorrent --mpv {hint-url}')
 
 config.bind('<Ctrl-z>', 'config-cycle tabs.position right top')
 
@@ -226,11 +233,13 @@ config.bind('-', 'zoom-out')
 "))
 
 (define-public packages
-  (list
-   (if (or (string= (gethostname) "okarthel")
-           (string= (gethostname) "austrat"))
-       (replace-mesa qutebrowser)
-       qutebrowser)))
+  (let ((lst (list
+              qutebrowser
+              qtwayland)))              ; for QT_QPA_PLATFORM=wayland-egl
+    (if (or (string= (gethostname) "okarthel")
+            (string= (gethostname) "austrat"))
+        (map replace-mesa lst)
+        lst)))
 
 (define-public services
   (list

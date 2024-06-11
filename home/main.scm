@@ -14,14 +14,17 @@
 
   #:use-module ((nongnu packages mozilla) #:select (firefox))
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvda))
 
   #:use-module (gnu services)
+  #:use-module ((gnu services shepherd) #:select (shepherd-service))
 
   #:use-module (gnu home)
   #:use-module (gnu home services)
   #:use-module (gnu home services guix)
+  #:use-module ((gnu home services shepherd) #:select (home-shepherd-service-type))
   #:use-module ((gnu home services desktop) #:select (home-dbus-service-type))
+  #:use-module ((gnu home services mcron) #:select (home-mcron-service-type home-mcron-configuration))
   #:use-module ((gnu home services sound) #:select (home-pipewire-service-type))
   #:use-module (rde home services desktop)
 
@@ -135,17 +138,56 @@
                         ("HISTFILE" . "$HOME/.local/share/shell/history")
                         ("LESS" . "-R --use-color -Dd+r$Du+b")
                         ("_JAVA_AWT_WM_NONREPARENTING" . "1")
-                        ("QT_QPA_PLATFORM" . "xcb") ; wayland
-                        ;; ("XDG_SESSION_TYPE" . "wayland")
-                        ;; ("XDG_CURRENT_DESKTOP" . "sway")
-                        ;; ("WLR_NO_HARDWARE_CURSORS" . "1")
-                        ;; ("WLR_RENDERER" . "vulkan")
                         ("TERM" . "xterm-256color"))))
+     (if (string= (gethostname) "okarthel")
+         (list
+          (simple-service 'okarthel-env-vars
+                          home-environment-variables-service-type
+                          '(("XDG_SESSION_TYPE" . "xcb"))))
+         '())
      (if (string= (gethostname) "austrat")
          (list
-          (simple-service 'austrat-env-vars
-                          home-environment-variables-service-type
-                          '(("MOZ_USE_XINPUT2" . "1"))))
+          (simple-service
+           'austrat-color-scheme-shepherd
+           home-shepherd-service-type
+           (list
+            (shepherd-service
+             (documentation "Change the color-scheme based on the current time when the system starts up.")
+             (provision '(color-scheme))
+             (requirement '(dbus))
+             (one-shot? #t)
+             (start
+              #~(make-forkexec-constructor
+                 (list
+                  #$(program-file
+                     "austrat-color-scheme"
+                     #~(begin
+                         (let ((current-hour (tm:hour (localtime (current-time)))))
+                           (if (or (>= current-hour 20) (< current-hour 7))
+                               (system* "/run/current-system/profile/bin/gsettings"
+                                        "set" "org.gnome.desktop.interface"
+                                        "color-scheme" "'prefer-dark'")
+                               (system* "/run/current-system/profile/bin/gsettings"
+                                        "set" "org.gnome.desktop.interface"
+                                        "color-scheme" "'prefer-light'"))))))))
+             (stop  #~(make-kill-destructor)))))
+          (service
+           home-mcron-service-type
+           (home-mcron-configuration
+            (jobs
+             (list #~(job '(next-hour '(20))
+                          "/run/current-system/profile/bin/gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'")
+                   #~(job '(next-hour '(7))
+                          "/run/current-system/profile/bin/gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'")))))
+          (simple-service
+           'austrat-env-vars
+           home-environment-variables-service-type
+           `(("QT_QPA_PLATFORM" . "wayland-egl")
+             ("XDG_SESSION_TYPE" . "wayland")
+             ("XDG_CURRENT_DESKTOP" . "sway")
+             ("MOZ_ENABLE_WAYLAND" . "1")
+             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvda "/share/glvnd/egl_vendor.d/50_mesa.x86_64.json"))
+             ("__GLX_VENDOR_LIBRARY_NAME" . "mesa"))))
          '())))))
 
 main-home

@@ -13,6 +13,7 @@
 
   #:use-module ((gnu packages version-control) #:select (git))
   #:use-module ((gnu packages ssh) #:select (openssh))
+  #:use-module ((gnu packages glib) #:select (glib))
   #:use-module ((gnu packages base) #:select (glibc-utf8-locales))
   #:use-module ((gnu packages selinux) #:select (libselinux))
   #:use-module ((gnu packages gnome) #:select (libsecret))
@@ -40,7 +41,7 @@
   #:use-module ((system udev) #:prefix udev:)
   #:use-module ((system network) #:prefix network:)
   #:use-module ((system syncthing) #:prefix syncthing:)
-  #:use-module ((system xorg) #:prefix xorg:)
+  #:use-module ((system wayland) #:prefix wayland:)
   #:use-module ((home main) #:select (main-home)))
 
 (define etc-sudoers-config
@@ -54,6 +55,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
   (kernel linux)
   (kernel-arguments (append '("mitigations=off" ; Live a little
                               "modprobe.blacklist=nouveau,pcspkr"
+                              "nvidia.NVreg_DynamicPowerManagement=0x02"
                               "quiet")
                             %default-kernel-arguments))
   (initrd microcode-initrd)
@@ -89,6 +91,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
     (list
      git
      openssh
+     `(,glib "bin")
 
      glibc-utf8-locales
      dbus-glib
@@ -102,16 +105,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
     udev:services
     network:services
     syncthing:services
-    (modify-services xorg:services
-      (slim-service-type
-       config =>
-       (slim-configuration
-        (inherit config)
-        (xorg-configuration
-         (xorg-configuration
-          (keyboard-layout keyboard-layout)
-          (modules (cons* nvda %default-xorg-modules))
-          (extra-config (list xorg:%libinput-config)))))))
+    wayland:services
     (list
      (service earlyoom-service-type)
      (service fstrim-service-type)

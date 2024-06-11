@@ -9,7 +9,7 @@
   #:use-module ((guix licenses) #:select (gpl3+))
 
   #:use-module (gnu packages)
-  #:use-module ((gnu packages emacs) #:select (emacs-next))
+  #:use-module ((gnu packages emacs) #:select (emacs-next emacs-next-pgtk))
   #:use-module ((gnu packages rust-apps) #:select (ripgrep))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
@@ -48,9 +48,11 @@
   #:use-module ((trowel) #:select (aggressively-optimize)))
 
 (define-public emacs-package
-  (if (string= (gethostname) "okarthel")
-      (replace-mesa (aggressively-optimize emacs-next))
-      (aggressively-optimize emacs-next)))
+  (cond ((string= (gethostname) "okarthel")
+         (replace-mesa (aggressively-optimize emacs-next)))
+        ((string= (gethostname) "austrat")
+         (aggressively-optimize emacs-next-pgtk))
+        (else (emacs-next))))
 
 (define emacs-nerd-icons-completion
   (let ((commit "c2db8557a3c1a9588d111f8c8e91cae96ee85010"))
