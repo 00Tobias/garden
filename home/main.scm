@@ -2,6 +2,11 @@
   #:use-module (guix gexp)
   #:use-module (guix channels)
 
+  #:use-module ((gnu packages compression) #:select (atool
+                                                     unrar-free
+                                                     zip
+                                                     unzip
+                                                     p7zip))
   #:use-module ((gnu packages vpn) #:select (wireguard-tools))
   #:use-module ((gnu packages admin) #:select (htop))
   #:use-module ((gnu packages gnupg) #:select (pinentry))
@@ -55,6 +60,12 @@
               ;; games:packages
               vile:packages
               (let ((lst (list
+                          atool
+                          unrar-free
+                          zip
+                          unzip
+                          p7zip
+
                           pinentry
                           password-store
                           wireguard-tools
