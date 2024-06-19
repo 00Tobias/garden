@@ -41,8 +41,8 @@
   #:use-module ((home qutebrowser qutebrowser) #:prefix qutebrowser:)
   #:use-module ((home mpv mpv) #:prefix mpv:)
   #:use-module ((home creative) #:prefix creative:)
-  ;; #:use-module ((home ai) #:prefix ai:)
-  ;; #:use-module ((home games) #:prefix games:)
+  #:use-module ((home ai) #:prefix ai:)
+  #:use-module ((home games) #:prefix games:)
   #:use-module ((home vile) #:prefix vile:))
 
 (define-public main-home
@@ -56,8 +56,8 @@
               qutebrowser:packages
               mpv:packages
               creative:packages
-              ;; ai:packages
-              ;; games:packages
+              ai:packages
+              games:packages
               vile:packages
               (let ((lst (list
                           atool
@@ -103,6 +103,11 @@
 [user]
 	email = tobias@nights.rest
 	name = tobias
+[filter.lfs]
+	required = true
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	clean = git-lfs clean -- %f
 "))))
       (simple-service 'channels home-channels-service-type
                       (list
