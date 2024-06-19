@@ -71,6 +71,27 @@
 
 ;;; package: ellama
 (require 'ellama)
+(require 'llm-openai)
+
+(setq llm-warn-on-nonfree nil
+      ellama-auto-scroll t
+      ellama-spinner-type 'rotating-line
+      ellama-keymap-prefix "C-c e"
+      ellama-provider (make-llm-openai-compatible :url "http://127.0.0.1:8385"))
+
+(defun start-llama ()
+  (interactive)
+  (when (string= (system-name) "okarthel")
+    (setq llama-server-process
+          (start-process-shell-command
+           "llama-server-process"
+           "*Llama server*"
+           "llama-server -m ~/ai/models/deepseek-coder-6.7b-instruct.Q6_K.gguf -c 2048 -ngl 99 --chat-template deepseek --port 8385 --embeddings --log-disable"
+           nil 0))))
+
+(defun kill-llama ()
+  (interactive)
+  (delete-process llama-server-process))
 
 ;;; package: aggressive-indent
 (global-aggressive-indent-mode 1)
