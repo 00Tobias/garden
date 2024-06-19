@@ -1,6 +1,8 @@
 (define-module (home main)
   #:use-module (guix gexp)
   #:use-module (guix channels)
+  #:use-module (guix utils)
+  #:use-module (guix packages)
 
   #:use-module ((gnu packages compression) #:select (atool
                                                      unrar-free
@@ -8,7 +10,7 @@
                                                      unzip
                                                      p7zip))
   #:use-module ((gnu packages vpn) #:select (wireguard-tools))
-  #:use-module ((gnu packages admin) #:select (htop))
+  #:use-module ((gnu packages admin) #:select (btop))
   #:use-module ((gnu packages gnupg) #:select (pinentry))
   #:use-module ((gnu packages password-utils) #:select (password-store))
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
@@ -18,8 +20,8 @@
                                                font-google-noto-emoji))
 
   #:use-module ((nongnu packages mozilla) #:select (firefox))
-
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+  #:use-module ((nongnu packages wine) #:select (winetricks))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvidia-driver))
 
   #:use-module (gnu services)
 
@@ -45,6 +47,25 @@
   #:use-module ((home games) #:prefix games:)
   #:use-module ((home vile) #:prefix vile:))
 
+(define btop-nvidia
+  (package
+    (inherit btop)
+    (inputs
+     (modify-inputs (package-inputs btop)
+       (prepend nvidia-driver)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments btop)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'fix-libnvidia
+              (lambda _
+                (substitute* "src/linux/btop_collect.cpp"
+                  (("libnvidia-ml.so.1")
+                   (string-append #$(this-package-input "nvidia-driver")
+                                  "/lib/libnvidia-ml.so.1")))))))
+       ((#:make-flags flags #~'())
+        #~(append #$flags (list "GPU_SUPPORT=true")))))))
+
 (define-public main-home
   (home-environment
    (packages (append
@@ -69,10 +90,13 @@
                           pinentry
                           password-store
                           wireguard-tools
-                          htop
                           zathura
                           zathura-pdf-mupdf
                           firefox
+                          (if (or (string= (gethostname) "okarthel")
+                                  (string= (gethostname) "austrat"))
+                              (aggressively-optimize btop-nvidia)
+                              btop)
 
                           ;; Fonts
                           font-google-noto
