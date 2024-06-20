@@ -180,15 +180,15 @@
 (require \"asdf\")
 (let ((guix-profile (format nil \"~a/.guix-profile/lib/\" (uiop:getenv \"HOME\")))
       (guix-home (format nil \"~a/.guix-home/profile/lib/\" (uiop:getenv \"HOME\"))))
-  (when (and (probe-file guix-profile)
-             (probe-file guix-home)
-             (ignore-errors (asdf:load-system \"cffi\")))
-    (push guix-profile
-          (symbol-value (find-symbol (string '*foreign-library-directories*)
-                                     (find-package 'cffi))))
-    (push guix-home
-          (symbol-value (find-symbol (string '*foreign-library-directories*)
-                                     (find-package 'cffi))))))
+  (when (ignore-errors (asdf:load-system \"cffi\"))
+    (when (probe-file guix-profile)
+      (push guix-profile
+            (symbol-value (find-symbol (string '*foreign-library-directories*)
+                                       (find-package 'cffi)))))
+    (when (probe-file guix-home)
+      (push guix-home
+            (symbol-value (find-symbol (string '*foreign-library-directories*)
+                                       (find-package 'cffi)))))))
 "))
 
 (define elisp-packages
