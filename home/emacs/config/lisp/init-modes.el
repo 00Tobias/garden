@@ -31,8 +31,7 @@
   (interactive)
   (start-process "mpv" nil "mpv" url))
 
-(setq browse-url-handlers
-      '(("https://www.youtube.com/\.*" . mpv-play-link)))
+(with-eval-after-load 'browse-url (add-to-list 'browse-url-handlers '("https://www.youtube.com/\.*" . mpv-play-link)))
 
 ;;; gnus
 

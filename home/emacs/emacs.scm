@@ -38,6 +38,7 @@
 
   #:use-module ((rde packages fonts) #:select (font-iosevka-nerd))
 
+  #:use-module ((nongnu packages emacs) #:select (clhs))
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
@@ -269,6 +270,7 @@
    binutils                             ; Fixes odd missing 'as' native comp error
    python
    sbcl
+   clhs
    clojure
    clojure-tools
    `(,openjdk21 "jdk")

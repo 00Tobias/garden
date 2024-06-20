@@ -138,6 +138,7 @@
 (put 'define-configuration 'lisp-indent-function 'defun)
 
 (setq inferior-lisp-program "sbcl")
+(with-eval-after-load 'browse-url (add-to-list 'browse-url-handlers '("hyperspec" . eww-browse-url)))
 ;;; package: sly
 (defun sly-eval-sexp-overlay ()
   (interactive)
@@ -149,6 +150,10 @@
       :where (point)
       :duration eros-eval-result-duration)))
 ;;; package: sly-asdf
+
+;;; package: clhs
+(require 'clhs)
+(clhs-setup)
 
 ;;; Emacs lisp
 (add-hook 'emacs-lisp-mode-hook 'flymake-mode)
