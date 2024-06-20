@@ -9,7 +9,9 @@
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa)))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+
+  #:use-module ((trowel) #:select (aggressively-optimize)))
 
 (define ffmpeg-git
   (package
@@ -38,7 +40,7 @@
 
 (define-public packages
   (let ((lst (list
-              mpv-git
+              (aggressively-optimize mpv-git)
               yt-dlp
               curl                      ; sponsorblock_minimal.lua
               )))
@@ -49,9 +51,6 @@
 
 (define-public services
   (list
-   (simple-service 'mpv-env-vars-service
-                   home-environment-variables-service-type
-                   `(("WHISPER_CMD" . "1")))
    (simple-service 'mpv-config
                    home-xdg-configuration-files-service-type
                    `(("mpv/mpv.conf"                ,(local-file "files/mpv.conf"))
