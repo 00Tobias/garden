@@ -109,8 +109,7 @@
                           font-google-noto
                           font-google-noto-sans-cjk
                           font-google-noto-emoji)))
-                (if (or (string= (gethostname) "okarthel")
-                        (string= (gethostname) "austrat"))
+                (if (string= (gethostname) "okarthel")
                     (map replace-mesa lst)
                     lst))))
 
