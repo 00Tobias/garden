@@ -14,6 +14,7 @@
   #:use-module ((gnu packages gnupg) #:select (pinentry))
   #:use-module ((gnu packages password-utils) #:select (password-store))
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
+  #:use-module ((gnu packages wine) #:select (wine64-staging))
 
   #:use-module ((gnu packages fonts) #:select (font-google-noto
                                                font-google-noto-sans-cjk
@@ -32,6 +33,7 @@
   #:use-module ((gnu home services sound) #:select (home-pipewire-service-type))
   #:use-module (rde home services desktop)
 
+  #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home bash) #:prefix bash:)
   #:use-module ((home gtk) #:prefix gtk:)
   #:use-module ((home xorg xresources) #:prefix xresources:)
@@ -92,6 +94,8 @@
                           wireguard-tools
                           zathura
                           zathura-pdf-mupdf
+                          wine64-staging
+                          winetricks
                           firefox
                           (if (or (string= (gethostname) "okarthel")
                                   (string= (gethostname) "austrat"))
