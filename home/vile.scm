@@ -68,13 +68,16 @@
    (description "Screenshare with audio on Discord with Linux.")
    (license license:expat)))
 
-;; --ozone-platform-hint=auto --use-angle=vulkan
 (define discord-desktop-entry (mixed-text-file "discord-desktop-entry" "
 [Desktop Entry]
 Name=Discord (Chrome)
 Exec=" (if (string= (gethostname) "okarthel")
            (replace-mesa google-chrome-stable)
-           google-chrome-stable) "/bin/google-chrome --app=https://canary.discord.com/channels/@me --new-window --process-per-site --enable-features=WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation
+           google-chrome-stable) "/bin/google-chrome --app=https://canary.discord.com/channels/@me --new-window "
+           (if (string= (gethostname) "austrat")
+               "--ozone-platform-hint=auto"
+               "")
+           " --process-per-site --enable-features=WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation
 Type=Application
 Terminal=false"))
 
@@ -83,7 +86,11 @@ Terminal=false"))
 Name=Spotify (Chrome)
 Exec=" (if (string= (gethostname) "okarthel")
            (replace-mesa google-chrome-stable)
-           google-chrome-stable) "/bin/google-chrome --app=https://open.spotify.com/ --new-window --process-per-site --enable-features=WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation
+           google-chrome-stable) "/bin/google-chrome --app=https://open.spotify.com/ --new-window "
+           (if (string= (gethostname) "austrat")
+               "--ozone-platform-hint=auto"
+               "")
+           " --process-per-site --enable-features=WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation
 Type=Application
 Terminal=false"))
 
@@ -91,7 +98,8 @@ Terminal=false"))
   (let ((lst (list
               google-chrome-stable
               virtmic
-              (if (string= (gethostname) "okarthel")
+              (if (or (string= (gethostname) "okarthel")
+                      (string= (gethostname) "austrat"))
                   steam-nvidia
                   steam)
               protonup-ng
@@ -102,11 +110,15 @@ Terminal=false"))
         lst)))
 
 (define-public services
-  (list
-   (simple-service 'vile-desktop-entries
-                   home-xdg-data-files-service-type
-                   `(("applications/discord.desktop" ,discord-desktop-entry)
-                     ("applications/spotify.desktop" ,spotify-desktop-entry)))
-   (simple-service 'vile-env-vars
-                   home-environment-variables-service-type
-                   `(("GUIX_SANDBOX_EXTRA_SHARES" . "/bulk/games")))))
+  (append
+   (list
+    (simple-service 'vile-desktop-entries
+                    home-xdg-data-files-service-type
+                    `(("applications/discord.desktop" ,discord-desktop-entry)
+                      ("applications/spotify.desktop" ,spotify-desktop-entry))))
+   (if (string= (gethostname) "okarthel")
+       (list
+        (simple-service 'okarthel-vile-env-vars
+                        home-environment-variables-service-type
+                        `(("GUIX_SANDBOX_EXTRA_SHARES" . "/bulk/games"))))
+       '())))

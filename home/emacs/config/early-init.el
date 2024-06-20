@@ -14,12 +14,7 @@
 
 (setq load-prefer-newer t)
 
-(set-face-background 'default "#000000")
-(set-face-foreground 'default "#FFFFFF")
-
-(setq default-frame-alist '((foreground-color . "#FFFFFF")
-                            (background-color . "#000000")
-                            (width . 0.8)
+(setq default-frame-alist '((width . 0.8)
                             (height . 0.25)
                             (menu-bar-lines . nil)
                             (tool-bar-lines . nil)
