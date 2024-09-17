@@ -74,12 +74,36 @@
 
 ;;; eshell
 
-(setq eshell-banner-message ""
-      eshell-scroll-to-bottom-on-input 'this
-      comint-scroll-to-bottom-on-input 'this
-      comint-prompt-read-only t)
+(setq
+ eshell-hist-ignoredups t
+ eshell-history-size 1024
+ eshell-prompt-function
+ (lambda ()
+   (concat
+    (propertize (concat " " (abbreviate-file-name (eshell/pwd)) " ")
+                'face `(:weight bold :background ,(face-foreground 'default) :foreground ,(face-background 'default)))
+    (propertize (format-time-string "(%H:%M:%S)" (current-time))
+                'face `(:background ,(face-foreground 'default) :foreground ,(face-background 'default)))
+    (propertize (if-let ((status eshell-last-command-status))
+                    (if (= status 0) " " (format " [%s] " status)))
+                'face `(:weight bold :background ,(face-foreground 'default) :inherit error))
+    "\n"))
+ eshell-highlight-prompt nil
+ eshell-banner-message ""
+ eshell-scroll-to-bottom-on-input 'this
+ comint-scroll-to-bottom-on-input 'this
+ comint-prompt-read-only t)
+
+(setenv "PAGER" "cat")
 
 (add-hook 'eshell-mode-hook (lambda () (display-line-numbers-mode 0)))
+
+(defun eshell-insert-history ()
+  "Displays the eshell history to select and insert back into your eshell."
+  (interactive)
+  (insert (completing-read "Eshell history: "
+                           (delete-dups
+                            (ring-elements eshell-history-ring)))))
 
 ;; Aliases from https://github.com/howardabrams/hamacs/blob/main/ha-eshell.org
 
@@ -114,7 +138,20 @@ Call FUN2 on all the rest of the elements in ARGS."
 (defalias 'eshell/more 'eshell/less)
 (defalias 'eshell/view 'eshell/less)
 
+(with-eval-after-load 'eshell (keymap-set eshell-mode-map "M-r" 'eshell-insert-history))
+
 ;;; package: pcmpl-args
+
+;;; package: eshell-syntax-highlighting
+(eshell-syntax-highlighting-global-mode 1)
+
+;;; package: esh-autosuggest
+(add-hook 'eshell-mode-hook (lambda () (esh-autosuggest-mode 1)))
+
+;;; package: fish-completion
+(when (and (executable-find "fish")
+           (require 'fish-completion nil t))
+  (global-fish-completion-mode))
 
 (provide 'init-modes)
 ;;; init-modes.el ends here
