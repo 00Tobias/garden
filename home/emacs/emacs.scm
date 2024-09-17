@@ -190,64 +190,74 @@
                                      (find-package 'cffi))))))
 "))
 
+
+(define without-tests
+  (options->transformation
+   '((without-tests . "emacs-buttercup")))) ; FIXME: tests fail on emacs-next, disable them for now
+
 (define elisp-packages
-  (list
-   ;; init-ui.el
-   emacs-diff-hl
-   emacs-vundo
-   emacs-svg-tag-mode
-   emacs-hide-lines
-   emacs-transient-posframe
-   emacs-flymake-popon
-   emacs-eldoc-box
-   emacs-nerd-icons
-   emacs-nerd-icons-dired
-   emacs-nerd-icons-completion
-   emacs-nerd-icons-corfu
+  (map without-tests
+       (list
+        ;; init-ui.el
+        emacs-diff-hl
+        emacs-vundo
+        emacs-svg-tag-mode
+        emacs-hide-lines
+        emacs-transient-posframe
+        emacs-flymake-popon
+        emacs-eldoc-box
+        emacs-nerd-icons
+        emacs-nerd-icons-dired
+        emacs-nerd-icons-completion
+        emacs-nerd-icons-corfu
 
-   ;; init-completion.el
-   emacs-hotfuzz
-   emacs-vertico
-   emacs-marginalia
-   emacs-consult
-   emacs-embark
-   emacs-corfu
-   emacs-cape
-   emacs-kind-icon
+        ;; init-completion.el
+        emacs-hotfuzz
+        emacs-vertico
+        emacs-marginalia
+        emacs-consult
+        emacs-embark
+        emacs-corfu
+        emacs-cape
+        emacs-kind-icon
 
-   ;; init-prog.el
-   emacs-combobulate
-   emacs-tempel
-   emacs-llm
-   emacs-ellama
-   emacs-aggressive-indent
-   emacs-avy
-   emacs-expand-region
-   emacs-paredit
-   ;; Langs
-   emacs-eros
-   emacs-cider
-   emacs-sly
-   emacs-sly-asdf
-   emacs-geiser
-   emacs-geiser-guile
-   emacs-guix
-   emacs-web-mode
+        ;; init-prog.el
+        emacs-combobulate
+        emacs-tempel
+        emacs-llm
+        emacs-ellama
+        emacs-aggressive-indent
+        emacs-avy
+        emacs-expand-region
+        emacs-paredit
+        emacs-devdocs
+        ;; Langs
+        emacs-eros
+        emacs-cider
+        emacs-sly
+        emacs-sly-asdf
+        emacs-geiser
+        emacs-geiser-guile
+        emacs-guix
+        emacs-web-mode
 
-   ;; init-text.el
-   emacs-jinx
-   emacs-org-block-capf
-   emacs-org-bullets
+        ;; init-text.el
+        emacs-jinx
+        emacs-org-block-capf
+        emacs-org-bullets
 
-   ;; init-modes.el
-   emacs-elpher
-   emacs-libgit
-   emacs-magit
-   emacs-vterm
-   emacs-pcmpl-args
+        ;; init-modes.el
+        emacs-elpher
+        emacs-libgit
+        emacs-magit
+        emacs-vterm
+        emacs-pcmpl-args
+        emacs-eshell-syntax-highlighting
+        emacs-esh-autosuggest
+        emacs-fish-completion
 
-   ;; init-frames.el
-   emacs-frames-only-mode))
+        ;; init-frames.el
+        emacs-frames-only-mode)))
 
 (define-public packages
   (list
