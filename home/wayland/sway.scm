@@ -1,7 +1,13 @@
 (define-module (home wayland sway)
   #:use-module (guix gexp)
+  #:use-module (guix utils)
+  #:use-module (guix packages)
 
-  #:use-module ((gnu packages wm) #:select (sway dunst))
+  #:use-module ((gnu packages wm) #:select (sway dunst wlroots))
+  #:use-module ((gnu packages vulkan) #:select (vulkan-loader
+                                                vulkan-headers
+                                                vulkan-tools
+                                                glslang))
   #:use-module ((gnu packages terminals) #:select (foot))
   #:use-module ((gnu packages base) #:select (coreutils findutils))
   #:use-module ((gnu packages xdisorg) #:select (tofi
@@ -28,8 +34,30 @@
   #:use-module (gnu home services)
   #:use-module (rde home services wm)
 
+  #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home emacs emacs) #:select (emacs-package))
   #:use-module ((home theme) #:prefix theme:))
+
+(define wlroots-vulkan
+  (package
+    (inherit wlroots)
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs wlroots)
+       (prepend vulkan-loader vulkan-headers glslang)))
+    (arguments
+     (substitute-keyword-arguments
+         (package-arguments wlroots)
+       ((#:configure-flags flags #~'())
+        #~(append #$flags
+                  (list "-Drenderers=vulkan"
+                        "-Dbackends=drm,libinput")))))))
+
+(define sway-vulkan
+  (package
+    (inherit sway)
+    (inputs
+     (modify-inputs (package-inputs sway)
+       (replace "wlroots" wlroots-vulkan)))))
 
 (define foot-config (mixed-text-file "foot-config" "
 term=xterm-256color
@@ -41,7 +69,7 @@ foreground=" (substring theme:fg 1 (string-length theme:fg)) "
 
 (define-public sway-package
   (if (string= (gethostname) "okarthel")
-      (replace-mesa sway)
+      (replace-mesa (aggressively-optimize sway-vulkan))
       sway))
 
 (define-public services
