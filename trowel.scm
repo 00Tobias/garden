@@ -7,8 +7,7 @@
   #:use-module (guix build-system gnu)
 
   #:use-module ((gnu packages mold) #:select (mold-as-ld-wrapper))
-  #:use-module ((gnu packages commencement) #:select (make-gcc-toolchain))
-  #:use-module ((gnu packages gcc) #:select (gcc-13))
+  #:use-module ((gnu packages gcc) #:select (gcc-14))
   #:use-module ((gnu packages bash) #:select (bash))
 
   #:export (aggressively-optimize))
@@ -21,47 +20,52 @@
       (modify-inputs (package-native-inputs p)
         (prepend mold-as-ld-wrapper))))
    `(("gcc-toolchain-optimized"
-      ,(make-gcc-toolchain
+      ,((@@ (gnu packages commencement) make-gcc-toolchain)
         (package
-          (inherit gcc-13)
+          (inherit gcc-14)
           (inputs
-           (modify-inputs (package-inputs gcc-13)
+           (modify-inputs (package-inputs gcc-14)
              (prepend bash)))
           (arguments
-           (substitute-keyword-arguments (package-arguments gcc-13)
+           (substitute-keyword-arguments (package-arguments gcc-14)
              ((#:phases phases)
               #~(modify-phases #$phases
-                  (add-after 'install 'wrap-gcc
+                  (add-after 'install 'wrap-executables
                     (lambda* (#:key inputs outputs #:allow-other-keys)
                       (let* ((out (assoc-ref outputs "out"))
-                             (bash (string-append (assoc-ref inputs "bash") "/bin/bash"))
-                             (gcc (string-append out "/bin/gcc"))
-                             (gcc-real (string-append out "/bin/.gcc-real")))
-                        (rename-file gcc gcc-real)
-                        (call-with-output-file gcc
-                          (lambda (port)
-                            (format port
-                                    "#!~a~%exec \"~a\" \"$@\" ~a~%"
-                                    bash
-                                    gcc-real
-                                    #$(string-append
-                                       "-O3 "
-                                       "-march=native "
-                                       "-pipe "
+                             (bash (string-append (assoc-ref inputs "bash") "/bin/bash")))
+                        (for-each
+                         (lambda (name)
+                           (let ((name-real (string-append name "-real")))
+                             (rename-file name name-real)
+                             (call-with-output-file name
+                               (lambda (port)
+                                 (format port
+                                         "#!~a~%exec \"~a\" \"$@\" ~a~%"
+                                         bash
+                                         name-real
+                                         #$(string-append
+                                            "-O3 "
+                                            "-march=native "
+                                            "-pipe "
 
-                                       "-fuse-linker-plugin "
-                                       "-flto=" (number->string (total-processor-count))
-                                       " -fno-plt "
+                                            "-fuse-linker-plugin "
+                                            "-flto=" (number->string (total-processor-count))
+                                            " -fno-plt "
 
-                                       "-fgraphite-identity "
-                                       "-floop-nest-optimize "
+                                            "-fgraphite-identity "
+                                            "-floop-nest-optimize "
 
-                                       "-fipa-pta "
-                                       "-fno-semantic-interposition "
-                                       "-fdevirtualize-at-ltrans "
+                                            "-fipa-pta "
+                                            "-fno-semantic-interposition "
+                                            "-fdevirtualize-at-ltrans "
 
-                                       "-fno-signed-zeros "
-                                       "-fno-trapping-math "
-                                       "-fassociative-math "
-                                       "-freciprocal-math"))))
-                        (chmod gcc #o555))))))))))))))
+                                            "-fno-signed-zeros "
+                                            "-fno-trapping-math "
+                                            "-fassociative-math "
+                                            "-freciprocal-math"))))
+                             (chmod name #o555)))
+                         `(,(string-append out "/bin/gcc")
+                           ,(string-append out "/bin/g++")
+                           ,(string-append out "/bin/cpp")
+                           ,(string-append out "/bin/c++"))))))))))))))))
