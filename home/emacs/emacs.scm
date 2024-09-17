@@ -38,6 +38,7 @@
 
   #:use-module ((rde packages fonts) #:select (font-iosevka-nerd))
 
+  #:use-module ((nongnu packages emacs) #:select (clhs))
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
@@ -188,15 +189,15 @@
 (require \"asdf\")
 (let ((guix-profile (format nil \"~a/.guix-profile/lib/\" (uiop:getenv \"HOME\")))
       (guix-home (format nil \"~a/.guix-home/profile/lib/\" (uiop:getenv \"HOME\"))))
-  (when (and (probe-file guix-profile)
-             (probe-file guix-home)
-             (ignore-errors (asdf:load-system \"cffi\")))
-    (push guix-profile
-          (symbol-value (find-symbol (string '*foreign-library-directories*)
-                                     (find-package 'cffi))))
-    (push guix-home
-          (symbol-value (find-symbol (string '*foreign-library-directories*)
-                                     (find-package 'cffi))))))
+  (when (ignore-errors (asdf:load-system \"cffi\"))
+    (when (probe-file guix-profile)
+      (push guix-profile
+            (symbol-value (find-symbol (string '*foreign-library-directories*)
+                                       (find-package 'cffi)))))
+    (when (probe-file guix-home)
+      (push guix-home
+            (symbol-value (find-symbol (string '*foreign-library-directories*)
+                                       (find-package 'cffi)))))))
 "))
 
 
@@ -288,6 +289,7 @@
    binutils                         ; Fixes odd missing 'as' native comp error
    python
    sbcl
+   clhs
    (package
      (inherit clojure-tools)
      (inputs (modify-inputs (package-inputs clojure-tools)
