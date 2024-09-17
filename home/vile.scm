@@ -1,12 +1,13 @@
 (define-module (home vile)
   #:use-module (guix gexp)
+  #:use-module (guix utils)
   #:use-module (guix packages)
   #:use-module (guix git-download)
   #:use-module ((guix licenses) #:prefix license:)
 
   #:use-module (nonguix build-system binary)
 
-  #:use-module ((gnu packages java) #:select (icedtea))
+  #:use-module ((gnu packages java) #:select (openjdk21))
   #:use-module ((gnu packages qt) #:select (qtbase
                                             qt5compat
                                             qtnetworkauth))
@@ -32,13 +33,26 @@
               (uri (git-reference
                     (url "https://github.com/PrismLauncher/PrismLauncher")
                     (recursive? #t)
-                    (commit "0ecdceccd2ea7432ae6810a7e41afe848ccc452f")))
-              (sha256 (base32 "1vfpyb4vrl7h3ms2bjgf2xpzmjzkm4y8vddryldbcrfpsk8rjwql"))))
-    (propagated-inputs (list `(,icedtea "jdk")))
+                    (commit "3aaa36a2bc334b8a85a17b04da4629c9f70394c0")))
+              (sha256 (base32 "0nwdanwapjvz36gljhdlzm5vfph1akj11p8kzpw7qs1g8j8dlhs7"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments prismlauncher)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'bump-java-version
+              ;; NOTE: This breaks old minecraft versions
+              (lambda _
+                (substitute* "libraries/launcher/CMakeLists.txt"
+                  (("-target 7 -source 7") "-target 8 -source 8")
+                  (("Java 1.7") "Java 1.8"))
+                (substitute* "libraries/javacheck/CMakeLists.txt"
+                  (("-target 7 -source 7") "-target 8 -source 8")
+                  (("Java 1.7") "Java 1.8"))))))))
+    (propagated-inputs '())
     (inputs
      (modify-inputs (package-inputs prismlauncher)
        (replace "qtbase" qtbase)
-       (prepend qt5compat qtnetworkauth libusb)))))
+       (prepend `(,openjdk21 "jdk") qt5compat qtnetworkauth libusb)))))
 
 (define-public virtmic
   (package
