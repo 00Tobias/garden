@@ -3,6 +3,7 @@
 
   #:use-module (guix gexp)
   #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module (guix build-system linux-module)
   #:use-module (guix build-system copy)
@@ -18,12 +19,15 @@
   #:use-module (gnu bootloader grub)
 
   #:use-module ((gnu packages linux) #:select (linux-pam))
+  #:use-module ((gnu packages commencement) #:select (gcc-toolchain-13))
+  #:use-module ((gnu packages shells) #:select (fish))
   #:use-module ((gnu packages selinux) #:select (libselinux))
   #:use-module ((gnu packages bootloaders) #:select (grub))
   #:use-module ((gnu packages display-managers) #:select (slim))
   #:use-module ((gnu packages xorg) #:select (xorg-server))
   #:use-module ((gnu packages version-control) #:select (git))
   #:use-module ((gnu packages ssh) #:select (openssh))
+  #:use-module ((gnu packages avahi) #:select (nss-mdns))
   #:use-module ((gnu packages base) #:select (glibc-utf8-locales))
   #:use-module ((gnu packages gnome) #:select (libsecret))
   #:use-module ((gnu packages glib) #:select (dbus-glib))
@@ -46,6 +50,7 @@
 
   #:use-module ((nongnu system linux-initrd) #:select (microcode-initrd))
 
+  #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((system common) #:prefix common:)
   #:use-module ((system udev) #:prefix udev:)
   #:use-module ((system network) #:prefix network:)
@@ -203,8 +208,33 @@ root      ALL=(ALL) ALL
 %wheel    ALL=(ALL) NOPASSWD:ALL
 tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/current-system/profile/bin/nmtui"))
 
+(define make-linux-xanmod
+  (@@ (nongnu packages linux) make-linux-xanmod))
+
 (operating-system
-  (kernel linux-xanmod)
+  (kernel
+   (package-with-c-toolchain
+    (let ((p (make-linux-xanmod linux-xanmod-version
+                                linux-xanmod-revision
+                                linux-xanmod-source
+                                #:xanmod-defconfig "okarthel")))
+      (package
+        (inherit p)
+        (arguments
+         (substitute-keyword-arguments (package-arguments p)
+           ((#:make-flags flags #~'())
+            #~(append
+               #$flags
+               (let ((f "-O3 -march=native -fgraphite-identity -floop-nest-optimize -fno-semantic-interposition"))
+                 (list
+                  (string-append "KCFLAGS=" f)
+                  (string-append "KCPPFLAGS=" f)))))
+           ((#:phases phases)
+            #~(modify-phases #$phases
+                (add-before 'add-xanmod-defconfig 'add-okarthel-defconfig
+                  (lambda _
+                    (copy-file #$(local-file "defconfigs/okarthel") "CONFIGS/xanmod/gcc/okarthel")))))))))
+    `(("gcc-toolchain" ,gcc-toolchain-13)))) ; NOTE: Limited by nvidia-module from nonguix
   (kernel-arguments (append '("mitigations=off" ; Live a little
                               "modprobe.blacklist=nouveau,pcspkr"
                               "nvidia_drm.modeset=1"
@@ -222,6 +252,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                  (name "tobias")
                  (comment "Tobias")
                  (group "users")
+                 (shell (file-append fish "/bin/fish"))
                  (home-directory "/home/tobias")
 		 (password "$6$2iVqBpcHrXOuNbJc$CRvuQT7LX0ArLQXV.JMhsCuEaOaBIcWbyol9ugcHFSZdriINStBP/iwXqaFau.DR09x2P4f.ew.j7yeelsH5m/")
                  (supplementary-groups
@@ -240,6 +271,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
          (list
           git
           openssh
+          nss-mdns
 
           glibc-utf8-locales
           dbus-glib
