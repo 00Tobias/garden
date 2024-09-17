@@ -32,7 +32,7 @@
 (defun gsr ()
   "Reconfigure system profile"
   (interactive)
-  (compile "sudo guix system reconfigure -c $(nproc) -L ~/garden ~/garden/system/hosts/$HOSTNAME.scm"))
+  (compile "sudo guix system reconfigure -c $(nproc) -L ~/garden ~/garden/system/hosts/(hostname).scm"))
 
 (defun ghr ()
   "Reconfigure home profile"
