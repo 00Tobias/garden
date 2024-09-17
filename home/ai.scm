@@ -73,10 +73,10 @@
      (substitute-keyword-arguments (package-arguments llama-cpp)
        ((#:phases phases)
         #~(modify-phases #$phases
-            (replace 'install
+            (add-after 'install 'install-server
               (lambda _
-                (copy-file "bin/main" (string-append #$output "/bin/llama"))
-                (copy-file "bin/server" (string-append #$output "/bin/llama-server"))))))
+                (with-directory-excursion (string-append #$output "/bin")
+                  (symlink "server" "llama-server"))))))
        ((#:configure-flags flags)
         #~(list "-DLLAMA_BUILD_SERVER=ON"))))))
 
