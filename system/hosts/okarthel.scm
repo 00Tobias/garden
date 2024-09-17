@@ -156,32 +156,42 @@
 
 (define %home-subvolumes
   (map get-btrfs-file-system
-       '((ai             . "/home/tobias/ai")
-         (common-lisp    . "/home/tobias/common-lisp")
-         (documents      . "/home/tobias/Documents")
-         (garden         . "/home/tobias/garden")
-         (git            . "/home/tobias/git")
-         (irthir         . "/home/tobias/irthir")
-         (music          . "/home/tobias/Music")
-         (pictures       . "/home/tobias/Pictures")
-         (projects       . "/home/tobias/projects")
+       '((ai                   . "/home/tobias/ai")
+         (common-lisp          . "/home/tobias/common-lisp")
+         (documents            . "/home/tobias/Documents")
+         (garden               . "/home/tobias/garden")
+         (git                  . "/home/tobias/git")
+         (irthir               . "/home/tobias/irthir")
+         (music                . "/home/tobias/Music")
+         (pictures             . "/home/tobias/Pictures")
+         (projects             . "/home/tobias/projects")
 
-         (cache          . "/home/tobias/.cache")
-         (gnupg          . "/home/tobias/.gnupg")
-         (local-bin      . "/home/tobias/.local/bin")
-         (local-lib      . "/home/tobias/.local/lib")
-         (local-state    . "/home/tobias/.local/state")
-         (mozilla        . "/home/tobias/.mozilla")
-         (password-store . "/home/tobias/.password-store")
-         (ssh-home       . "/home/tobias/.ssh")
+         (cache                . "/home/tobias/.cache")
+         (gnupg                . "/home/tobias/.gnupg")
+         (local-bin            . "/home/tobias/.local/bin")
+         (local-lib            . "/home/tobias/.local/lib")
+         (local-state          . "/home/tobias/.local/state")
+         (m2                   . "/home/tobias/.m2")
+         (mozilla              . "/home/tobias/.mozilla")
+         (password-store       . "/home/tobias/.password-store")
+         (ssh-home             . "/home/tobias/.ssh")
+         (wine                 . "/home/tobias/.wine")
 
          (blender-config       . "/home/tobias/.config/blender")
+         (btop-config          . "/home/tobias/.config/btop")
          (gimp-config          . "/home/tobias/.config/GIMP")
          (google-chrome-config . "/home/tobias/.config/google-chrome")
          (kdeconnect-config    . "/home/tobias/.config/kdeconnect")
+         (nethack-config       . "/home/tobias/.config/nethack")
+         (wesnoth-config       . "/home/tobias/.config/wesnoth")
+
+         (nyxt-local           . "/home/tobias/.local/share/nyxt")
+         (prismlauncher-local  . "/home/tobias/.local/share/PrismLauncher")
          (qutebrowser-local    . "/home/tobias/.local/share/qutebrowser")
          (steam-local          . "/home/tobias/.local/share/guix-sandbox-home")
+         (wesnoth-local        . "/home/tobias/.local/share/wesnoth")
          (zrythm-local         . "/home/tobias/.local/share/zrythm")
+
          (auto-save-list-emacs . "/home/tobias/.emacs.d/auto-save-list")
          (eln-cache-emacs      . "/home/tobias/.emacs.d/eln-cache")
          (eshell-emacs         . "/home/tobias/.emacs.d/eshell"))))
@@ -258,7 +268,10 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
           (extra-config (list xorg:%libinput-config
                               xorg:%nvidia-config)))))))
     (list
-     (service earlyoom-service-type)
+     (service earlyoom-service-type
+              (earlyoom-configuration
+               (minimum-available-memory 5)
+               (minimum-free-swap 100)))
      (service pcscd-service-type)
      (service nvidia-service-type)
      ;; (udev-rules-service 'leetmouse leetmouse-udev-rules)
@@ -270,14 +283,14 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
      (service pam-limits-service-type
               (list (pam-limits-entry "*" 'both 'memlock 'unlimited)))
 
-     (simple-service 'home-permissions activation-service-type
-		     (with-imported-modules
-		         '((guix build utils))
+     (simple-service 'fixup-home activation-service-type
+		     (with-imported-modules '((guix build utils))
                        #~(begin
                            (use-modules (guix build utils))
                            (let* ((user (getpw "tobias"))
                                   (directories '("/home/tobias"
                                                  "/home/tobias/.config"
+                                                 "/home/tobias/.config/guix"
                                                  "/home/tobias/.local"
                                                  "/home/tobias/.local/share"
                                                  "/home/tobias/.local/state"
@@ -285,7 +298,10 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                              (for-each mkdir-p directories)
                              (for-each (lambda (dir)
                                          (chown dir (passwd:uid user) (passwd:gid user)))
-                                       directories)))))
+                                       directories)
+                             (if (not (file-exists? "/home/tobias/.config/guix/current"))
+                                 (symlink "/var/guix/profiles/per-user/tobias/current-guix"
+                                          "/home/tobias/.config/guix/current"))))))
 
      (service guix-home-service-type
      	      `(("tobias" ,main-home)))
@@ -306,7 +322,6 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                                  "--strip-paths"
                                  "--verbose=0"
                                  "7d0ea08e-b8ea-44b3-9d0e-3d48165cae9e")
-                           #:user "root" #:group "root"
                            #:environment-variables
                            (list "PATH=/run/setuid-programs:/run/current-system/profile/bin:/run/current-system/profile/sbin")))
                        (stop #~(make-kill-destructor))))))))
@@ -331,7 +346,8 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
        (device "none")
        (needed-for-boot? #t)
        (check? #f)
-       (flags '(no-atime)))
+       (flags '(no-atime))
+       (options "size=12G"))
 
      (file-system
        (mount-point "/boot/efi")
