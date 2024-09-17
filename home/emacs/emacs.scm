@@ -23,7 +23,7 @@
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
-  #:use-module ((gnu packages java) #:select (openjdk21))
+  #:use-module ((gnu packages java) #:select (openjdk21 icedtea java-slf4j-simple))
   #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
   #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
@@ -175,6 +175,15 @@
       (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
       (license gpl3+))))
 
+(define clojure-config (plain-file "clojure-config" "
+{:aliases {:nrepl {:jvm-opts [\"--add-opens=java.base/java.nio=ALL-UNNAMED\"
+                              \"--add-opens=java.base/sun.nio.ch=ALL-UNNAMED\"]
+                   :extra-deps {nrepl/nrepl       {:mvn/version \"1.2.0\"}
+                                cider/cider-nrepl {:mvn/version \"0.49.0\"}}
+                   :main-opts  [\"--main\" \"nrepl.cmdline\"
+                                \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}
+"))
+
 (define sbcl-config (plain-file "sbcl-config" "
 (require \"asdf\")
 (let ((guix-profile (format nil \"~a/.guix-profile/lib/\" (uiop:getenv \"HOME\")))
@@ -276,11 +285,13 @@
    texlive-ulem
    texlive-capt-of
    ;; Langs
-   binutils                             ; Fixes odd missing 'as' native comp error
+   binutils                         ; Fixes odd missing 'as' native comp error
    python
    sbcl
-   clojure
-   clojure-tools
+   (package
+     (inherit clojure-tools)
+     (inputs (modify-inputs (package-inputs clojure-tools)
+               (append java-slf4j-simple))))
    `(,openjdk21 "jdk")
    rust
    rust-cargo
@@ -328,13 +339,17 @@
      (emacs emacs-package)
      (native-comp? #t)
      (elisp-packages elisp-packages)))
-   (simple-service 'prog-config
+   (simple-service 'prog-home-config
                    home-files-service-type
                    `((".sbclrc" ,sbcl-config)
                      (".npmrc"  ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
+   (simple-service 'prog-xdg-config
+                   home-xdg-configuration-files-service-type
+                   `(("clojure/deps.edn" ,clojure-config)))
    (simple-service 'prog-env-vars
                    home-environment-variables-service-type
                    `(("CC" . ,#~(string-append #$gcc-toolchain "/bin/gcc"))
                      ("SBCL_HOME" . "$HOME/.guix-home/profile/lib/sbcl")
+                     ("JAVA_HOME" . ,openjdk21)
                      ("CARGO_HOME" . "$HOME/.local/lib/cargo/")
                      ("XTDB_ENABLE_BYTEUTILS_SHA1" . "true")))))
