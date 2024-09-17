@@ -27,7 +27,7 @@
 (push '(minibuffer . nil) default-frame-alist)
 (push '(minibuffer . nil) initial-frame-alist)
 (setq minibuffer-frame-alist
-      (append '((name . "minibuffer")
+      (append '((name . "dedicated-minibuffer-frame")
                 (width . 150)
                 (height . 11))
               minibuffer-frame-alist))
@@ -35,19 +35,19 @@
 (defun pull-minibuffer-frame (&rest ignored)
   (if (string= (system-name) "austrat")
       (call-process-shell-command
-       "SWAYSOCK=/run/user/$(id -u)/sway-ipc.$(id -u).$(pgrep -x sway).sock swaymsg [title='^minibuffer$'] move workspace current"
+       "SWAYSOCK=/run/user/$(id -u)/sway-ipc.$(id -u).$(pgrep -x sway).sock swaymsg [title='^dedicated-minibuffer-frame$'] move workspace current"
        nil 0)
     (call-process-shell-command
-     "i3-msg [title='^minibuffer$'] move workspace current"
+     "i3-msg [title='^dedicated-minibuffer-frame$'] move workspace current"
      nil 0)))
 
 (defun push-minibuffer-frame (&rest ignored)
   (if (string= (system-name) "austrat")
       (call-process-shell-command
-       "SWAYSOCK=/run/user/$(id -u)/sway-ipc.$(id -u).$(pgrep -x sway).sock swaymsg [title='^minibuffer$'] move workspace 10"
+       "SWAYSOCK=/run/user/$(id -u)/sway-ipc.$(id -u).$(pgrep -x sway).sock swaymsg [title='^dedicated-minibuffer-frame$'] move workspace 10"
        nil 0)
     (call-process-shell-command
-     "i3-msg [title='^minibuffer$'] move workspace 10"
+     "i3-msg [title='^dedicated-minibuffer-frame$'] move workspace 10"
      nil 0)))
 
 (add-hook 'minibuffer-setup-hook 'pull-minibuffer-frame)
