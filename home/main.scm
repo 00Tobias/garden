@@ -10,6 +10,7 @@
                                                      unzip
                                                      p7zip))
   #:use-module ((gnu packages vpn) #:select (wireguard-tools))
+  #:use-module ((gnu packages rust-apps) #:select (tealdeer))
   #:use-module ((gnu packages admin) #:select (btop))
   #:use-module ((gnu packages gnupg) #:select (pinentry))
   #:use-module ((gnu packages password-utils) #:select (password-store))
@@ -37,7 +38,7 @@
   #:use-module (rde home services desktop)
 
   #:use-module ((trowel) #:select (aggressively-optimize))
-  #:use-module ((home bash) #:prefix bash:)
+  #:use-module ((home shell) #:prefix shell:)
   #:use-module ((home gtk) #:prefix gtk:)
   #:use-module ((home xorg xresources) #:prefix xresources:)
   #:use-module ((home xorg i3) #:prefix i3:)
@@ -95,6 +96,7 @@
                           pinentry
                           password-store
                           wireguard-tools
+                          tealdeer
                           zathura
                           zathura-pdf-mupdf
                           wine64-staging
@@ -116,7 +118,7 @@
 
    (services
     (append
-     bash:services
+     shell:services
      gtk:services
      xresources:services
      i3:services
@@ -180,7 +182,6 @@
                         ("HISTCONTROL" . "ignoredups:ignorespace")
                         ("HISTSIZE" . "10000")
                         ("HISTFILE" . "$HOME/.local/state/shell/history")
-                        ("LESS" . "-R --use-color -Dd+r$Du+b")
                         ("_JAVA_AWT_WM_NONREPARENTING" . "1")
                         ("TERM" . "xterm-256color"))))
      (if (string= (gethostname) "okarthel")
