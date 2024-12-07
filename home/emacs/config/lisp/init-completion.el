@@ -121,7 +121,7 @@
 
 ;;; package: corfu
 (setq corfu-auto t
-      corfu-auto-delay 0
+      corfu-auto-delay 0.1
       corfu-auto-prefix 1
       corfu-quit-no-match 'separator
       completion-style '(hotfuzz)

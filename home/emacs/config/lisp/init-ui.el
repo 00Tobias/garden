@@ -11,39 +11,7 @@
         (border-mode-line-active unspecified)
         (border-mode-line-inactive unspecified)))
 
-;; Change theme based on current dbus color-scheme on austrat, otherwise just use modus-vivendi
-;; Adapted from https://old.reddit.com/r/emacs/comments/o49v2w/automatically_switch_emacs_theme_when_changing/i5ibcyv/
-(if (string= (system-name) "austrat")
-    (progn (require 'dbus)
-           (require-theme 'modus-themes)
-
-           (defun dbus-set-theme (value)
-             (if (equal value '1)
-                 (modus-themes-load-theme 'modus-vivendi)
-               (modus-themes-load-theme 'modus-operandi)))
-
-           (defun dbus-color-scheme-changed (path var value)
-             (when (and (string-equal path "org.freedesktop.appearance")
-                        (string-equal var "color-scheme"))
-               (dbus-set-theme (car value))))
-
-           (dbus-call-method-asynchronously
-            :session
-            "org.freedesktop.portal.Desktop"
-            "/org/freedesktop/portal/desktop"
-            "org.freedesktop.portal.Settings"
-            "Read"
-            (lambda (value) (dbus-set-theme (caar value)))
-            "org.freedesktop.appearance" "color-scheme")
-
-           (dbus-register-signal
-            :session
-            "org.freedesktop.portal.Desktop"
-            "/org/freedesktop/portal/desktop"
-            "org.freedesktop.portal.Settings"
-            "SettingChanged"
-            #'dbus-color-scheme-changed))
-  (load-theme 'modus-vivendi t))
+(load-theme 'modus-vivendi t)
 
 (add-to-list 'default-frame-alist '(font . "Sarasa Mono SC-10"))
 

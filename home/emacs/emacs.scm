@@ -13,7 +13,6 @@
   #:use-module ((gnu packages rust-apps) #:select (ripgrep))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
-  #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic))
   #:use-module ((gnu packages compression) #:select (zip unzip))
   #:use-module ((gnu packages tex) #:select (texlive-scheme-basic
                                              texlive-wrapfig
@@ -39,14 +38,14 @@
   #:use-module ((rde packages fonts) #:select (font-iosevka-nerd))
 
   #:use-module ((nongnu packages emacs) #:select (clhs))
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (rde home services emacs)
   #:use-module (gnu home-services-utils)
 
-  #:use-module ((trowel) #:select (aggressively-optimize)))
+  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
+  #:use-module ((home theme) #:prefix theme:))
 
 (define-public emacs-package
   (cond ((string= (gethostname) "okarthel")
@@ -128,7 +127,7 @@
       (license gpl3+))))
 
 (define emacs-hotfuzz
-  (let ((commit "622329477d893a9fc2528a75935cfe1f8614f4bc"))
+  (let ((commit "e41827ef0226de7874e60b2f6c7ceb13116cd4ee"))
     (package
       (name "emacs-hotfuzz")
       (version (git-version "0" "1" commit))
@@ -138,7 +137,7 @@
                       (url "https://github.com/axelf4/hotfuzz")
                       (commit commit)))
                 (file-name (git-file-name name version))
-                (sha256 (base32 "1ax98352dl7mbgz7xphdj5xwxxxpmmnvhysic4ccpmrkgim1y7s4"))))
+                (sha256 (base32 "06vhls7yz7gnzvmplvla5l697bj3r9rhn4aa9h0sm2whny5vzhs5"))))
       (build-system emacs-build-system)
       (arguments
        `(#:modules ((guix build emacs-build-system)
@@ -276,7 +275,7 @@
    aspell
    aspell-dict-en
    aspell-dict-sv
-   font-sarasa-gothic
+   theme:font-package
    font-iosevka-nerd
    ;; Org mode
    zip
