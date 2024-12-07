@@ -12,7 +12,8 @@
              (default-cursor "Bibata-Original-Ice")
              (settings-ini
               '((Settings
-                 ((gtk-menu-popup-delay . 0)
+                 ((gtk-application-prefer-dark-theme . #t)
+                  (gtk-menu-popup-delay . 0)
                   (gtk-decoration-layout . "menu")
                   (gtk-cursor-theme-size . 16)
                   (gtk-icon-sizes . "panel-menu=16,16:panel=16,16:gtk-menu=16,16:gtk-large-toolbar=16,16:gtk-small-toolbar=16,16:gtk-button=16,16")))))))))
