@@ -168,6 +168,15 @@
                           (openpgp-fingerprint
                            "50F3 3E2E 5B0C 3D90 0424  ABE8 9BDC F497 A4BB CC7F"))))
                        (channel
+                        (name 'saayix)
+                        (url "https://codeberg.org/look/saayix.git")
+                        (branch "entropy")
+                        (introduction
+                         (make-channel-introduction
+                          "12540f593092e9a177eb8a974a57bb4892327752"
+                          (openpgp-fingerprint
+                           "3FFA 7335 973E 0A49 47FC  0A8C 38D5 96BE 07D3 34AB"))))
+                       (channel
                         (name 'rde)
                         (url "https://git.sr.ht/~abcdw/rde")
                         (introduction
