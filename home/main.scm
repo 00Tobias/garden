@@ -201,38 +201,6 @@
      (if (string= (gethostname) "austrat")
          (list
           (simple-service
-           'austrat-color-scheme-shepherd
-           home-shepherd-service-type
-           (list
-            (shepherd-service
-             (documentation "Change the color-scheme based on the current time when the system starts up.")
-             (provision '(color-scheme))
-             (requirement '(dbus))
-             (one-shot? #t)
-             (start
-              #~(make-forkexec-constructor
-                 (list
-                  #$(program-file
-                     "austrat-color-scheme"
-                     #~(begin
-                         (let ((current-hour (tm:hour (localtime (current-time)))))
-                           (if (or (>= current-hour 20) (< current-hour 7))
-                               (system* "/run/current-system/profile/bin/gsettings"
-                                        "set" "org.gnome.desktop.interface"
-                                        "color-scheme" "'prefer-dark'")
-                               (system* "/run/current-system/profile/bin/gsettings"
-                                        "set" "org.gnome.desktop.interface"
-                                        "color-scheme" "'prefer-light'"))))))))
-             (stop  #~(make-kill-destructor)))))
-          (service
-           home-mcron-service-type
-           (home-mcron-configuration
-            (jobs
-             (list #~(job '(next-hour '(20))
-                          "/run/current-system/profile/bin/gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'")
-                   #~(job '(next-hour '(7))
-                          "/run/current-system/profile/bin/gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'")))))
-          (simple-service
            'austrat-env-vars
            home-environment-variables-service-type
            `(("QT_QPA_PLATFORM" . "wayland-egl")
