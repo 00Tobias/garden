@@ -1,5 +1,7 @@
-(define-module (home theme))
+(define-module (home theme)
+  #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic)))
 
+(define-public font-package font-sarasa-gothic)
 (define-public font "Sarasa UI SC")
 (define-public font-mono "Sarasa Mono SC")
 (define-public font-term "Sarasa Term SC")
