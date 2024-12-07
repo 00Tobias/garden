@@ -20,6 +20,7 @@
   #:use-module ((gnu packages music) #:select (playerctl))
   #:use-module ((gnu packages linux) #:select (brightnessctl))
   #:use-module ((gnu packages kde) #:select (kdeconnect))
+  #:use-module ((gnu packages monitoring) #:select (batsignal))
   #:use-module ((gnu packages glib) #:select (glib))
   #:use-module ((gnu packages gnome) #:select (gsettings-desktop-schemas
                                                xdg-desktop-portal-gnome))
@@ -65,6 +66,26 @@ background=" (substring theme:bg 1 (string-length theme:bg)) "
 foreground=" (substring theme:fg 1 (string-length theme:fg)) "
 "))
 
+(define tofi-config (mixed-text-file "tofi-config" "
+text-cursor = true
+prompt-text = \"\"
+font = " theme:font-package "/share/fonts/truetype/Sarasa-Regular.ttc
+font-size = 12
+border-width = 1
+outline-width = 1
+width = 272
+height = 266
+padding-top = 4
+padding-bottom = 4
+padding-left = 4
+padding-right = 4
+scale = false
+background-color = " theme:bg "
+border-color = " theme:fg "
+outline-color = " theme:bg "
+selection-color = " theme:highlight "
+"))
+
 (define-public sway-package
   (if (string= (gethostname) "okarthel")
       (replace-mesa (aggressively-optimize sway-vulkan))
@@ -73,7 +94,8 @@ foreground=" (substring theme:fg 1 (string-length theme:fg)) "
 (define-public services
   (list
    (simple-service 'foot-xdg-config home-xdg-configuration-files-service-type
-                   `(("foot/foot.ini" ,foot-config)))
+                   `(("foot/foot.ini" ,foot-config)
+                     ("tofi/config" ,tofi-config)))
    (service
     home-sway-service-type
     (home-sway-configuration
@@ -88,18 +110,30 @@ foreground=" (substring theme:fg 1 (string-length theme:fg)) "
         (default_floating_border pixel 1)
 
         (seat * xcursor_theme Bibata-Original-Ice 16)
-        (seat * hide_cursor 8000)
-        (seat * hide_cursor when-typing enable)
 
-        (input type:keyboard ((xkb_layout "se(nodeadkeys)")
+        ;; Austrat
+        (input type:keyboard ((xkb_layout "us(altgr-intl)")
                               (xkb_options ctrl:nocaps)))
         (input type:touchpad ((tap enabled)
                               (natural_scroll enabled)
-                              (middle_emulation enabled)))
+                              (middle_emulation enabled)
+                              (accel_profile flat)
+                              (pointer_accel 1.0)))
+        (input 1267:11350:ELAN9008:00_04F3:2C56 map_to_output eDP-1)
+        (input 1267:11299:ELAN9009:00_04F3:2C23 map_to_output DP-3)
 
         (output * bg "#000000 solid_color")
+
+        ;; Okarthel
         (output DP-1 mode 3440x1440@144Hz)
         (output HDMI-A-2 transform 90)
+        ;; Austrat
+        (output eDP-1 position 0 0)
+        (output eDP-1 scale 2)
+        (output DP-3 position 0 1080)
+        (output DP-3 scale 2)
+        (workspace 1 output eDP-1)
+        (workspace 9 output DP-3)
 
         (font ,(string-append theme:font " " theme:font-size))
         (client.focused ,theme:fg ,theme:fg ,theme:bg ,theme:fg)
@@ -201,8 +235,9 @@ foreground=" (substring theme:fg 1 (string-length theme:fg)) "
 
           (Mod4+b exec ,(file-append libnotify "/bin/notify-send")
                   -h string:x-canonical-private-synchronous:anything
-                  "$(",(file-append coreutils "/bin/cat") /sys/class/power_supply/BAT0/status")"
-                  "$(",(file-append coreutils "/bin/cat") /sys/class/power_supply/BAT0/capacity")%")
+                  "\"$(",(file-append coreutils "/bin/cat") "'/sys/class/power_supply/BAT0/status')\""
+                  "\"$(",(file-append coreutils "/bin/cat") "'/sys/class/power_supply/BAT0/capacity')%"
+                  "($(",(file-append coreutils "/bin/cat") "'/sys/bus/pci/devices/0000:01:00.0/power/runtime_status'))\"")
 
           (Mod4+v exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append pulsemixer "/bin/pulsemixer"))
           (Mod4+Shift+v exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append network-manager "/bin/nmtui"))
@@ -219,7 +254,7 @@ foreground=" (substring theme:fg 1 (string-length theme:fg)) "
           (XF86MonBrightnessUp exec ,(file-append brightnessctl "/bin/brightnessctl") s 10%+)
           (XF86MonBrightnessDown exec ,(file-append brightnessctl "/bin/brightnessctl") s 10%-)))
 
-        (for_window "[title=\"^minibuffer$\"]" floating enable, border pixel 1)
+        (for_window "[title=\"^dedicated-minibuffer-frame$\"]" floating enable, border pixel 1)
         (for_window "[app_id=\"floating-terminal\"]" floating enable, border pixel 1)
         (for_window "[class=\"steam\"]" floating enable)
         (for_window "[title=\"^notificationtoasts.*\"]" floating enable)
@@ -230,7 +265,8 @@ foreground=" (substring theme:fg 1 (string-length theme:fg)) "
         (assign "[class=\"hl2_linux\"]" 6)
 
         (exec ,(file-append dunst "/bin/dunst"))
-        (exec ,(file-append kdeconnect "/libexec/kdeconnectd"))
+        (exec ,(file-append kdeconnect "/bin/kdeconnectd"))
+        (exec ,(file-append batsignal "/bin/batsignal") -e -f 100 -w 30 -c 25 -d 10)
         (exec /run/current-system/profile/bin/gsettings set org.gnome.desktop.interface cursor-theme Bibata-Original-Ice)
         (exec /run/current-system/profile/bin/gsettings set org.gnome.desktop.interface cursor-size 16)))))))
 
