@@ -21,6 +21,7 @@
   #:use-module ((gnu packages python-xyz) #:select (python-numpy)) ; Blender python libraries
   #:use-module ((gnu packages gimp) #:select (gimp-next))
   #:use-module ((gnu packages inkscape) #:select (inkscape))
+  #:use-module ((gnu packages libreoffice) #:select (libreoffice))
 
   #:use-module ((trowel) #:select (replace-mesa)))
 
@@ -100,7 +101,8 @@ pattern-based sequencer (tracker). Features:
               blender
               python-numpy
               gimp-next
-              inkscape)))
+              inkscape
+              libreoffice)))
     (if (or (string= (gethostname) "okarthel")
             (string= (gethostname) "austrat"))
         (map replace-mesa lst)
