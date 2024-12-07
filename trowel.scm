@@ -6,11 +6,20 @@
   #:use-module (guix packages)
   #:use-module (guix build-system gnu)
 
+  #:use-module ((gnu packages gl) #:select (mesa))
   #:use-module ((gnu packages mold) #:select (mold-as-ld-wrapper))
   #:use-module ((gnu packages gcc) #:select (gcc-14))
   #:use-module ((gnu packages bash) #:select (bash))
 
-  #:export (aggressively-optimize))
+  #:use-module ((nongnu packages nvidia) #:select (nvdb))
+
+  #:export (replace-mesa
+            aggressively-optimize))
+
+(define replace-mesa
+  (package-input-rewriting `((,mesa . ,(package
+                                         (inherit mesa)
+                                         (replacement nvdb))))))
 
 (define (aggressively-optimize p)
   (package-with-c-toolchain

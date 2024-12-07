@@ -22,7 +22,7 @@
   #:use-module ((gnu packages gimp) #:select (gimp-next))
   #:use-module ((gnu packages inkscape) #:select (inkscape))
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa)))
+  #:use-module ((trowel) #:select (replace-mesa)))
 
 ;; FIXME: From https://gitlab.com/nonguix/nonguix/-/merge_requests/323, remove when merged
 (define-public sunvox

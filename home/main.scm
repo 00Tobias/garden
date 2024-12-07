@@ -23,7 +23,7 @@
 
   #:use-module ((nongnu packages mozilla) #:select (firefox))
   #:use-module ((nongnu packages wine) #:select (winetricks))
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvda nvidia-driver))
+  #:use-module ((nongnu packages nvidia) #:select (nvdb nvidia-driver-beta))
 
   #:use-module (gnu services)
   #:use-module ((gnu services shepherd) #:select (shepherd-service))
@@ -37,7 +37,7 @@
   #:use-module ((gnu home services sound) #:select (home-pipewire-service-type))
   #:use-module (rde home services desktop)
 
-  #:use-module ((trowel) #:select (aggressively-optimize))
+  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
   #:use-module ((home shell) #:prefix shell:)
   #:use-module ((home gtk) #:prefix gtk:)
   #:use-module ((home xorg xresources) #:prefix xresources:)
@@ -58,7 +58,7 @@
     (inherit btop)
     (inputs
      (modify-inputs (package-inputs btop)
-       (prepend nvidia-driver)))
+       (prepend nvidia-driver-beta)))
     (arguments
      (substitute-keyword-arguments (package-arguments btop)
        ((#:phases phases)
@@ -67,7 +67,7 @@
               (lambda _
                 (substitute* "src/linux/btop_collect.cpp"
                   (("libnvidia-ml.so.1")
-                   (string-append #$(this-package-input "nvidia-driver")
+                   (string-append #$(this-package-input "nvidia-driver-beta")
                                   "/lib/libnvidia-ml.so.1")))))))
        ((#:make-flags flags #~'())
         #~(append #$flags (list "GPU_SUPPORT=true")))))))
@@ -230,7 +230,7 @@
              ("XDG_SESSION_TYPE" . "wayland")
              ("XDG_CURRENT_DESKTOP" . "sway")
              ("MOZ_ENABLE_WAYLAND" . "1")
-             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvda "/share/glvnd/egl_vendor.d/50_mesa.x86_64.json"))
+             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/50_mesa.x86_64.json"))
              ("__GLX_VENDOR_LIBRARY_NAME" . "mesa"))))
          '())))))
 

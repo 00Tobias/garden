@@ -28,13 +28,11 @@
   #:use-module ((gnu packages freedesktop) #:select (xdg-desktop-portal
                                                      xdg-desktop-portal-wlr))
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
-
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (rde home services wm)
 
-  #:use-module ((trowel) #:select (aggressively-optimize))
+  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
   #:use-module ((home emacs emacs) #:select (emacs-package))
   #:use-module ((home theme) #:prefix theme:))
 

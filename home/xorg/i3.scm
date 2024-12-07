@@ -31,8 +31,7 @@
   #:use-module (gnu home services)
   #:use-module (rde home services wm)
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
-
+  #:use-module ((trowel) #:select (replace-mesa))
   #:use-module ((home theme) #:prefix theme:))
 
 (define xsession

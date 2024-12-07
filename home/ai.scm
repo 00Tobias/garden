@@ -11,14 +11,14 @@
   #:use-module ((gnu packages machine-learning) #:select (llama-cpp))
   #:use-module ((gnu packages gcc) #:select (gcc))
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvidia-driver))
+  #:use-module ((nongnu packages nvidia) #:select (nvidia-driver-beta))
 
   #:use-module ((guix-science-nonfree packages cuda) #:select (cuda))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((trowel) #:select (aggressively-optimize)))
+  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize)))
 
 (define whisper-cpp
   (package
@@ -60,7 +60,7 @@
     (inherit whisper-cpp)
     (inputs
      (modify-inputs (package-inputs whisper-cpp)
-       (prepend nvidia-driver cuda)))
+       (prepend nvidia-driver-beta cuda)))
     (arguments
      (substitute-keyword-arguments (package-arguments whisper-cpp)
        ((#:configure-flags flags #~'())

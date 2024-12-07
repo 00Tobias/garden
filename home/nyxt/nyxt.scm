@@ -9,7 +9,7 @@
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa)))
+  #:use-module ((trowel) #:select (replace-mesa)))
 
 (define-public packages
   (let ((lst (list

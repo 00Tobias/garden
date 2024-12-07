@@ -4,14 +4,13 @@
   #:use-module (guix git-download)
 
   #:use-module ((gnu packages video) #:select (ffmpeg mpv yt-dlp))
+  #:use-module ((gnu packages gl) #:select (mesa))
   #:use-module ((gnu packages curl) #:select (curl))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
-
-  #:use-module ((trowel) #:select (aggressively-optimize)))
+  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize)))
 
 (define ffmpeg-git
   (package
@@ -34,8 +33,12 @@
              (url "https://github.com/mpv-player/mpv")
              (commit "17be6e1990a92e9b43f5f49cca9c4dd3da24a1e8")))
        (sha256 (base32 "1pr698qw5l6awfrc61j5hxcw2l56sxfq6ymd36ccpxhpnlzr3sgd"))))
+    (inputs
+     (modify-inputs (package-inputs mpv)
+       (prepend mesa)))
     (propagated-inputs
      (modify-inputs (package-propagated-inputs mpv)
+       (delete "mesa")
        (replace "ffmpeg" ffmpeg-git)))))
 
 (define-public packages

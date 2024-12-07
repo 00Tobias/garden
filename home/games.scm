@@ -5,9 +5,9 @@
                                                wesnoth
                                                nethack))
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+  #:use-module ((games packages dwarf-fortress) #:select (dwarf-fortress))
 
-  #:use-module ((games packages dwarf-fortress) #:select (dwarf-fortress)))
+  #:use-module ((trowel) #:select (replace-mesa)))
 
 (define-public packages
   (let ((lst (list

@@ -6,11 +6,10 @@
   #:use-module ((gnu packages web-browsers) #:select (qutebrowser))
   #:use-module ((gnu packages qt) #:select (qtwayland))
 
-  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
-
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
+  #:use-module ((trowel) #:select (replace-mesa))
   #:use-module ((home theme) #:prefix theme:))
 
 (define user-stylesheet (mixed-text-file "user-stylesheet" "
