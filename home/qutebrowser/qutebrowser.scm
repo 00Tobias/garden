@@ -62,7 +62,7 @@ import operator
 config.load_autoconfig()
 
 c.url.searchengines = {
-    'DEFAULT': 'https://sift.nights.rest/search.php?q={}'
+    'DEFAULT': 'https://search.brave.com/search?q={}'
 }
 
 c.completion.web_history.exclude = ['duckduckgo.com', 'twitter.com', '*.reddit.com', '*.discord.com']
@@ -93,9 +93,9 @@ c.content.blocking.adblock.lists = [
     'https://secure.fanboy.co.nz/fanboy-antifonts.txt',
     'https://secure.fanboy.co.nz/fanboy-antifacebook.txt',
     'https://secure.fanboy.co.nz/enhancedstats.txt',
+    'https://raw.githubusercontent.com/laylavish/uBlockOrigin-HUGE-AI-Blocklist/main/list.txt',
     'https://raw.githubusercontent.com/yokoffing/filterlists/main/block_third_party_fonts.txt',
     'https://raw.githubusercontent.com/yokoffing/filterlists/main/annoyance_list.txt',
-    'https://raw.githubusercontent.com/yokoffing/filterlists/main/click2load.txt',
     'https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Dandelion%20Sprout%27s%20Anti-Malware%20List.txt',
     'https://raw.githubusercontent.com/DandelionSprout/adfilt/master/LegitimateURLShortener.txt',
     'https://raw.githubusercontent.com/DandelionSprout/adfilt/master/BrowseWebsitesWithoutLoggingIn.txt'
@@ -126,10 +126,6 @@ s = 'setHost'
 m = {
     \"reddit.com\" : o(s, 'old.reddit.com'),
     \"www.reddit.com\" : o(s, 'old.reddit.com'),
-
-    \"youtu.be\" : o(s, 'piped.garudalinux.org'),
-    \"youtube.com\" : o(s, 'piped.garudalinux.org'),
-    \"www.youtube.com\" : o(s, 'piped.garudalinux.org')
 }
 
 def rewrite(info: interceptor.Request):
