@@ -9,13 +9,16 @@
                                                      zip
                                                      unzip
                                                      p7zip))
+  #:use-module ((gnu packages pciutils) #:select (pciutils))
+  #:use-module ((gnu packages gl) #:select (mesa-utils))
   #:use-module ((gnu packages vpn) #:select (wireguard-tools))
   #:use-module ((gnu packages rust-apps) #:select (tealdeer))
   #:use-module ((gnu packages admin) #:select (btop))
   #:use-module ((gnu packages gnupg) #:select (pinentry))
-  #:use-module ((gnu packages password-utils) #:select (password-store))
+  #:use-module ((gnu packages password-utils) #:select (password-store keepassxc))
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
   #:use-module ((gnu packages wine) #:select (wine64-staging))
+  #:use-module ((gnu packages librewolf) #:select (librewolf))
 
   #:use-module ((gnu packages fonts) #:select (font-google-noto
                                                font-google-noto-sans-cjk
@@ -95,13 +98,20 @@
 
                           pinentry
                           password-store
+                          keepassxc
                           wireguard-tools
                           tealdeer
                           zathura
                           zathura-pdf-mupdf
                           wine64-staging
                           winetricks
+                          (package
+                            (inherit mesa-utils)
+                            (inputs
+                             (modify-inputs (package-inputs mesa-utils)
+                               (prepend pciutils))))
                           firefox
+                          librewolf
                           (if (or (string= (gethostname) "okarthel")
                                   (string= (gethostname) "austrat"))
                               (aggressively-optimize btop-nvidia)
