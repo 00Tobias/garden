@@ -5,15 +5,12 @@
                                                wesnoth
                                                nethack))
 
-  #:use-module ((games packages dwarf-fortress) #:select (dwarf-fortress))
-
   #:use-module ((trowel) #:select (replace-mesa)))
 
 (define-public packages
   (let ((lst (list
               0ad
               wesnoth
-              dwarf-fortress
               nethack)))
     (if (string= (gethostname) "okarthel")
         (map replace-mesa lst)
