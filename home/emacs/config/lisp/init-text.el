@@ -70,5 +70,11 @@
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 (setq org-bullets-bullet-list '("∙"))
 
+;;; package: denote
+(setq denote-directory "~/irthir/caesin/")
+
+;;; package: consult-denote
+(setq consult-denote-grep-command #'consult-ripgrep)
+
 (provide 'init-text)
 ;;; init-text.el ends here

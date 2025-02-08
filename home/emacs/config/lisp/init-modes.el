@@ -137,7 +137,7 @@ Call FUN2 on all the rest of the elements in ARGS."
 (defalias 'eshell/more 'eshell/less)
 (defalias 'eshell/view 'eshell/less)
 
-(with-eval-after-load 'eshell (keymap-set eshell-mode-map "M-r" 'eshell-insert-history))
+(with-eval-after-load 'esh-mode (keymap-set eshell-mode-map "M-r" 'eshell-insert-history))
 
 ;;; package: pcmpl-args
 

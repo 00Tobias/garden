@@ -125,8 +125,8 @@
   "8" "M-8"
   "9" "M-9"
   "<escape>" 'keyboard-escape-quit
-  "g" 'keyboard-escape-quit
-  "G" 'exchange-point-and-mark
+  "g" 'exchange-point-and-mark
+  "G" 'keyboard-escape-quit
   "," 'fake-C-c
 
   ;; Movement Colemak and QWERTY
@@ -174,8 +174,8 @@
   "t" 'consult-buffer
   "T" 'project-find-file
 
-  "v" 'delete-indentation
-  "V" 'delete-indentation-below
+  "v" 'delete-indentation-below
+  "V" 'delete-indentation
 
   ;; Deleting
   "d" 'modal-dynamic-kill

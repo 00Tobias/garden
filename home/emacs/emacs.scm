@@ -13,6 +13,7 @@
   #:use-module ((gnu packages rust-apps) #:select (ripgrep))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
+  #:use-module ((gnu packages imagemagick) #:select (imagemagick))
   #:use-module ((gnu packages compression) #:select (zip unzip))
   #:use-module ((gnu packages tex) #:select (texlive-scheme-basic
                                              texlive-wrapfig
@@ -21,6 +22,7 @@
   #:use-module ((gnu packages base) #:select (binutils))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
+  #:use-module ((gnu packages readline) #:select (rlwrap))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
   #:use-module ((gnu packages java) #:select (openjdk21 icedtea java-slf4j-simple))
   #:use-module ((gnu packages cpp) #:select (ccls))
@@ -38,6 +40,7 @@
   #:use-module ((rde packages fonts) #:select (font-iosevka-nerd))
 
   #:use-module ((nongnu packages emacs) #:select (clhs))
+  #:use-module ((nongnu packages clojure) #:select (clj-kondo))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
@@ -175,14 +178,6 @@
       (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
       (license gpl3+))))
 
-(define clojure-config (plain-file "clojure-config" "
-{:aliases {:nrepl {:jvm-opts [\"--add-opens=java.base/java.nio=ALL-UNNAMED\"
-                              \"--add-opens=java.base/sun.nio.ch=ALL-UNNAMED\"]
-                   :extra-deps {nrepl/nrepl       {:mvn/version \"1.2.0\"}
-                                cider/cider-nrepl {:mvn/version \"0.49.0\"}}
-                   :main-opts  [\"--main\" \"nrepl.cmdline\"
-                                \"--middleware\" \"[cider.nrepl/cider-middleware]\"]}}}
-"))
 
 (define sbcl-config (plain-file "sbcl-config" "
 (require \"asdf\")
@@ -254,9 +249,12 @@
         emacs-jinx
         emacs-org-block-capf
         emacs-org-bullets
+        emacs-denote
+        emacs-consult-denote
 
         ;; init-modes.el
         emacs-elpher
+        emacs-pdf-tools
         emacs-libgit
         emacs-magit
         emacs-vterm
@@ -277,6 +275,7 @@
    aspell-dict-sv
    theme:font-package
    font-iosevka-nerd
+   imagemagick                          ; Needed for image-dired
    ;; Org mode
    zip
    unzip
@@ -285,14 +284,17 @@
    texlive-ulem
    texlive-capt-of
    ;; Langs
-   binutils                         ; Fixes odd missing 'as' native comp error
+   binutils                             ; Fixes odd missing 'as' native comp error
    python
    sbcl
    clhs
-   (package
-     (inherit clojure-tools)
-     (inputs (modify-inputs (package-inputs clojure-tools)
-               (append java-slf4j-simple))))
+   ;; FIXME: https://issues.guix.gnu.org/73432
+   rlwrap
+   ;; (package
+   ;;   (inherit clojure-tools)
+   ;;   (inputs (modify-inputs (package-inputs clojure-tools)
+   ;;             (append java-slf4j-simple))))
+   clj-kondo
    `(,openjdk21 "jdk")
    rust
    rust-cargo
@@ -344,9 +346,6 @@
                    home-files-service-type
                    `((".sbclrc" ,sbcl-config)
                      (".npmrc"  ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
-   (simple-service 'prog-xdg-config
-                   home-xdg-configuration-files-service-type
-                   `(("clojure/deps.edn" ,clojure-config)))
    (simple-service 'prog-env-vars
                    home-environment-variables-service-type
                    `(("CC" . ,#~(string-append #$gcc-toolchain "/bin/gcc"))
