@@ -62,7 +62,7 @@ import operator
 config.load_autoconfig()
 
 c.url.searchengines = {
-    'DEFAULT': 'https://search.brave.com/search?q={}'
+    'DEFAULT': 'https://lite.duckduckgo.com/lite?q={}'
 }
 
 c.completion.web_history.exclude = ['duckduckgo.com', 'twitter.com', '*.reddit.com', '*.discord.com']
@@ -184,7 +184,7 @@ c.colors.completion.scrollbar.fg = '" theme:fg "'
 
 c.tabs.background = True
 c.tabs.show = 'multiple'
-c.tabs.position = 'top'
+c.tabs.position = 'right'
 c.tabs.indicator.width = 0
 c.tabs.padding = {'bottom': 2, 'left': 5, 'right': 5, 'top': 2}
 c.tabs.title.format = '{audio}{current_title} {private}' # {index}:
@@ -231,8 +231,7 @@ config.bind('-', 'zoom-out')
   (let ((lst (list
               qutebrowser
               qtwayland)))              ; for QT_QPA_PLATFORM=wayland-egl
-    (if (or (string= (gethostname) "okarthel")
-            (string= (gethostname) "austrat"))
+    (if (string= (gethostname) "okarthel")
         (map replace-mesa lst)
         lst)))
 
