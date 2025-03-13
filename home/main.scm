@@ -3,6 +3,9 @@
   #:use-module (guix channels)
   #:use-module (guix utils)
   #:use-module (guix packages)
+  #:use-module (guix git-download)
+  #:use-module (guix build-system gnu)
+  #:use-module ((guix licenses) #:prefix license:)
 
   #:use-module ((gnu packages compression) #:select (atool
                                                      unrar-free
@@ -19,6 +22,7 @@
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
   #:use-module ((gnu packages wine) #:select (wine64-staging))
   #:use-module ((gnu packages librewolf) #:select (librewolf))
+  #:use-module ((gnu packages llvm) #:select (make-lld-wrapper lld-18))
 
   #:use-module ((gnu packages fonts) #:select (font-google-noto
                                                font-google-noto-sans-cjk
@@ -29,14 +33,11 @@
   #:use-module ((nongnu packages nvidia) #:select (nvdb nvidia-driver-beta))
 
   #:use-module (gnu services)
-  #:use-module ((gnu services shepherd) #:select (shepherd-service))
 
   #:use-module (gnu home)
   #:use-module (gnu home services)
   #:use-module (gnu home services guix)
-  #:use-module ((gnu home services shepherd) #:select (home-shepherd-service-type))
   #:use-module ((gnu home services desktop) #:select (home-dbus-service-type))
-  #:use-module ((gnu home services mcron) #:select (home-mcron-service-type home-mcron-configuration))
   #:use-module ((gnu home services sound) #:select (home-pipewire-service-type))
   #:use-module (rde home services desktop)
 
@@ -75,6 +76,41 @@
        ((#:make-flags flags #~'())
         #~(append #$flags (list "GPU_SUPPORT=true")))))))
 
+(define legacyfox
+  (package
+    (name "legacyfox")
+    (version "0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://git.gir.st/LegacyFox.git")
+             (commit "312a791ae03bddd725dee063344801f959cfe44d")))
+       (sha256 (base32 "05ppc2053lacvrlab4fspxmmjmkryvvc6ndrzhyk06ivmm2nlyyx"))))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (add-before 'install 'mkdir
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out")))
+                (mkdir-p (string-append out))
+                #t)))
+          (add-before 'install 'rename-config-librewolf-cfg
+            (lambda _
+              (substitute* "defaults/pref/config-prefs.js"
+                (("config\\.js")
+                 "librewolf.cfg")))))
+      #:make-flags
+      #~(list (string-append "DESTDIR=" #$output))))
+    (home-page "https://git.gir.st/LegacyFox.git")
+    (synopsis "Legacy bootstrapped extensions for Firefox 65 and beyond")
+    (description "Legacy bootstrapped extensions for Firefox 65 and beyond.")
+    (license license:mpl2.0)))
+
 (define-public main-home
   (home-environment
    (packages (append
@@ -111,7 +147,65 @@
                              (modify-inputs (package-inputs mesa-utils)
                                (prepend pciutils))))
                           firefox
-                          librewolf
+
+                          ;; Librewolf with Legacyfox, optimizations from Mercury, and Mozilla addons repo
+                          (package
+                            (inherit librewolf)
+                            (arguments
+                             (substitute-keyword-arguments (package-arguments librewolf)
+                               ((#:configure-flags flags #~'())
+                                #~(append (list "--enable-lto"
+                                                "--enable-clang-plugin"
+                                                "--disable-debug-symbols"
+                                                "--disable-debug-js-modules"
+                                                "--enable-wasm-avx"
+                                                "--enable-optimize=\"-O3 -march=x86-64-v3\""
+                                                "--enable-eme=widevine")
+                                          (fold delete #$flags '("--enable-optimize"
+                                                                 "--disable-eme"))))
+                               ((#:phases phases)
+                                #~(modify-phases #$phases
+                                    (delete 'fix-addons-placeholder)
+                                    (delete 'patch-config)
+                                    (add-after 'install 'add-legacyfox
+                                      (lambda* (#:key inputs outputs #:allow-other-keys)
+                                        (let* ((out (assoc-ref outputs "out"))
+                                               (librewolf-dir (string-append out "/lib/librewolf/"))
+                                               (legacyfox (assoc-ref inputs "legacyfox")))
+                                          (mkdir-p (string-append librewolf-dir "defaults/pref"))
+
+                                          (copy-file (string-append legacyfox "/defaults/pref/config-prefs.js")
+                                                     (string-append librewolf-dir "defaults/pref/config-prefs.js"))
+
+                                          (copy-recursively (string-append legacyfox "/legacy")
+                                                            (string-append librewolf-dir "legacy"))
+
+                                          (copy-file (string-append legacyfox "/legacy.manifest")
+                                                     (string-append librewolf-dir "legacy.manifest"))
+
+                                          (let ((port (open-file (string-append librewolf-dir "librewolf.cfg") "a")))
+                                            (display (call-with-input-file
+                                                         (string-append legacyfox "/config.js")
+                                                       get-string-all)
+                                                     port)
+                                            (close-port port)))))
+                                    (add-before 'configure 'add-envvars
+                                      (lambda* (#:key inputs outputs #:allow-other-keys)
+                                        (let* ((flags "-O3 -ffp-contract=fast -march=x86-64-v3"))
+                                          (setenv "MOZ_OPTIMIZE" "1")
+                                          (setenv "OPT_LEVEL" "3")
+                                          (setenv "RUSTC_OPT_LEVEL" "3")
+                                          (setenv "MOZ_LTO" "1")
+                                          (setenv "CFLAGS" flags)
+                                          (setenv "CPPFLAGS" flags)
+                                          (setenv "CXXFLAGS" flags)
+                                          (setenv "LDFLAGS" "-Wl,-O3 -Wl,-mllvm,-fp-contract=fast -march=x86-64-v3")
+                                          (setenv "RUSTFLAGS" "-C target-cpu=x86-64-v3 -C target-feature=+avx2 -C codegen-units=1"))))))))
+                            (native-inputs
+                             (modify-inputs (package-native-inputs librewolf)
+                               (prepend
+                                (make-lld-wrapper lld-18 #:lld-as-ld? #t) ; Same version as clang in inputs
+                                legacyfox))))
                           (if (or (string= (gethostname) "okarthel")
                                   (string= (gethostname) "austrat"))
                               (aggressively-optimize btop-nvidia)
