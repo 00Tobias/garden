@@ -74,9 +74,6 @@
 (with-eval-after-load 'eldoc-box (setcar (alist-get 'eldoc-box-hover-at-point-mode minor-mode-alist) ""))
 (eldoc-box-hover-at-point-mode 1)
 
-;;; package: nerd-icons
-(setq nerd-icons-font-family "Iosevka Nerd Font Mono")
-
 ;;; package: nerd-icons-dired
 (add-hook 'dired-mode-hook #'nerd-icons-dired-mode)
 
