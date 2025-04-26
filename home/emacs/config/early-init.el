@@ -14,6 +14,8 @@
 
 (setq load-prefer-newer t)
 
+(setq-default pgtk-wait-for-event-timeout 0)
+
 (setq default-frame-alist '((width . 0.8)
                             (height . 0.25)
                             (menu-bar-lines . nil)
