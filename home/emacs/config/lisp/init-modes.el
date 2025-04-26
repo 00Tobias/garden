@@ -24,7 +24,7 @@
 
 (setq shr-width 80
       eww-search-prefix "https://html.duckduckgo.com/html/?q="
-      ;; browse-url-browser-function 'browse-url-default-browser
+      browse-url-browser-function 'eww-browse-url
       eww-use-external-browser-for-content-type "\\`\\(video/\\|audio/\\|application/ogg\\|application/pdf\\)")
 
 (defun mpv-play-link (url &rest args)
@@ -59,10 +59,32 @@
       message-send-mail-function 'message-use-send-mail-function
       send-mail-function 'smtpmail-send-it
       gnus-posting-styles '(("rainboards"
-	                           (address "tobias@rainboards.com")
-	                           ("X-Message-SMTP-Method" "smtp smtp.soverin.net 587 tobias@rainboards.com")))
+	                     (address "tobias@rainboards.com")
+	                     ("X-Message-SMTP-Method" "smtp smtp.soverin.net 587 tobias@rainboards.com")))
       gnus-parameters '(("rainboards"
-	                       (gcc-self . "nnimap+personal:Sent"))))
+	                 (gcc-self . "nnimap+personal:Sent"))))
+
+;;; Elfeed
+;;; package: elfeed
+(global-set-key (kbd "C-c e") 'elfeed)
+
+;;; package: elfeed-org
+(require 'elfeed-org)
+(elfeed-org)
+(setq rmh-elfeed-org-files (list "~/irthir/elfeed.org"))
+
+;;; package: elfeed-tube
+;; (with-eval-after-load 'elfeed-tube
+;;   (elfeed-tube-setup)
+;;   (define-key elfeed-show-mode-map (kbd "F") 'elfeed-tube-fetch)
+;;   (define-key elfeed-show-mode-map [remap save-buffer] 'elfeed-tube-save)
+;;   (define-key elfeed-search-mode-map (kbd "F") 'elfeed-tube-fetch)
+;;   (define-key elfeed-search-mode-map [remap save-buffer] 'elfeed-tube-save)
+
+;;   (require 'elfeed-tube-mpv)
+;;   (define-key elfeed-show-mode-map (kbd "C-c C-f") 'elfeed-tube-mpv-follow-mode)
+;;   (define-key elfeed-show-mode-map (kbd "C-c C-w") 'elfeed-tube-mpv-where))
+
 
 ;;; package: elpher
 
