@@ -37,7 +37,7 @@
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
 
-  #:use-module ((rde packages fonts) #:select (font-iosevka-nerd))
+  #:use-module ((saayix packages fonts) #:select (font-nerd-symbols))
 
   #:use-module ((nongnu packages emacs) #:select (clhs))
   #:use-module ((nongnu packages clojure) #:select (clj-kondo))
@@ -274,8 +274,8 @@
    aspell-dict-en
    aspell-dict-sv
    theme:font-package
-   font-iosevka-nerd
    imagemagick                          ; Needed for image-dired
+   font-nerd-symbols
    ;; Org mode
    zip
    unzip
