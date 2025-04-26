@@ -158,9 +158,9 @@
   "f" 'avy-goto-char-timer
   "F" 'consult-line
 
-  "z" 'move-beginning-of-line
+  "z" 'mwim-beginning
   "Z" "C-M-a"
-  "x" 'move-end-of-line
+  "x" 'mwim-end
   "X" "C-M-e"
 
   ">" 'end-of-buffer

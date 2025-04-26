@@ -263,6 +263,9 @@
         emacs-esh-autosuggest
         emacs-fish-completion
 
+        ;; init-modal.el
+        emacs-mwim
+
         ;; init-frames.el
         emacs-frames-only-mode)))
 
