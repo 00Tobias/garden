@@ -25,7 +25,8 @@
 
 (when (string= (system-name) "austrat")
   (pixel-scroll-mode 1)
-  (pixel-scroll-precision-mode 1))
+  (pixel-scroll-precision-mode 1)
+  (setq pixel-scroll-precision-interpolate-mice nil))
 
 (keymap-global-set "C-z" 'undo)
 (keymap-global-set "C-S-z" 'undo-redo)
