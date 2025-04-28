@@ -6,7 +6,7 @@
   #:use-module (guix git-download)
   #:use-module (guix build-system emacs)
   #:use-module ((gnu packages cmake) #:select (cmake-minimal))
-  #:use-module ((guix licenses) #:select (gpl3+))
+  #:use-module ((guix licenses) #:prefix license:)
 
   #:use-module (gnu packages)
   #:use-module ((gnu packages emacs) #:select (emacs-next emacs-next-pgtk))
@@ -14,6 +14,7 @@
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
   #:use-module ((gnu packages imagemagick) #:select (imagemagick))
+  #:use-module ((gnu packages curl) #:select (curl))
   #:use-module ((gnu packages compression) #:select (zip unzip))
   #:use-module ((gnu packages tex) #:select (texlive-scheme-basic
                                              texlive-wrapfig
@@ -26,13 +27,15 @@
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
   #:use-module ((gnu packages java) #:select (openjdk21 icedtea java-slf4j-simple))
   #:use-module ((gnu packages cpp) #:select (ccls))
+  #:use-module ((gnu packages golang) #:select (go))
+  #:use-module ((gnu packages golang-xyz) #:select (gopls))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
   #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
   #:use-module ((gnu packages rust-apps) #:select (rust-cargo))
   #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
   #:use-module ((gnu packages pkg-config) #:select (pkg-config))
   #:use-module ((gnu packages tls) #:select (openssl))
-  #:use-module ((gnu packages node) #:select (node-lts))
+  #:use-module ((gnu packages node) #:select (node))
   #:use-module ((contrib packages node-xyz) #:select (node-typescript node-typescript-language-server))
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
@@ -52,13 +55,13 @@
 
 (define-public emacs-package
   (cond ((string= (gethostname) "okarthel")
-         (replace-mesa (aggressively-optimize emacs-next)))
+         (replace-mesa emacs-next))
         ((string= (gethostname) "austrat")
-         (aggressively-optimize emacs-next-pgtk))
+         emacs-next-pgtk)
         (else (emacs-next))))
 
 (define emacs-nerd-icons-completion
-  (let ((commit "c2db8557a3c1a9588d111f8c8e91cae96ee85010"))
+  (let ((commit "8e5b995eb2439850ab21ba6062d9e6942c82ab9c"))
     (package
       (name "emacs-nerd-icons-completion")
       (version (git-version "0" "1" commit))
@@ -68,15 +71,15 @@
                 (uri (git-reference
                       (url "https://github.com/rainstormstudio/nerd-icons-completion")
                       (commit commit)))
-                (sha256 (base32 "10ll0dj6ym5prrkv6smj0ac2ail4b3rqcrh1lyr61y3cj422vn9z"))))
+                (sha256 (base32 "0nbyrzz5sscycbr1h65ggzrm1m9agfwig2mjg7jljzw8dk1bmmd2"))))
       (inputs (list emacs-nerd-icons))
       (build-system emacs-build-system)
       (synopsis "Use nerd-icons for completion")
       (description "Use nerd-icons for completion.")
-      (license gpl3+))))
+      (license license:gpl3+))))
 
 (define emacs-nerd-icons-dired
-  (let ((commit "c1c73488630cc1d19ce1677359f614122ae4c1b9"))
+  (let ((commit "c0b0cda2b92f831d0f764a7e8c0c6728d6a27774"))
     (package
       (name "emacs-nerd-icons-dired")
       (version (git-version "0" "1" commit))
@@ -86,15 +89,15 @@
                 (uri (git-reference
                       (url "https://github.com/rainstormstudio/nerd-icons-dired")
                       (commit commit)))
-                (sha256 (base32 "1ln73ii7c3chl4lvarwiwrdmx49q528wc0h6a7xbl68pc2pyyvq2"))))
+                (sha256 (base32 "1iwqzh32j6fsx0nl4y337iqkx6prbdv6j83490riraklzywv126a"))))
       (inputs (list emacs-nerd-icons))
       (build-system emacs-build-system)
       (synopsis "Use nerd-icons for Dired")
       (description "Use nerd-icons for Dired.")
-      (license gpl3+))))
+      (license license:gpl3+))))
 
 (define emacs-nerd-icons-corfu
-  (let ((commit "7077bb76fefc15aed967476406a19dc5c2500b3c"))
+  (let ((commit "41110180ceab9d0edaa856d19633b2b3fdf82e75"))
     (package
       (name "emacs-nerd-icons-corfu")
       (version (git-version "0" "1" commit))
@@ -104,33 +107,15 @@
                 (uri (git-reference
                       (url "https://github.com/LuigiPiucco/nerd-icons-corfu")
                       (commit commit)))
-                (sha256 (base32 "13m20k242zma6jw7pkbw89fk3dnbkwdajcpiyay5xx2l9241snb7"))))
+                (sha256 (base32 "0mwng5khhq6iqmr0ip8fv227cnkv0mv5664qz57r7sbjplqyabgf"))))
       (inputs (list emacs-nerd-icons))
       (build-system emacs-build-system)
       (synopsis "Icons for corfu via nerd-icons")
       (description "Nerd-icons-corfu.el is a library for adding icons to completions in Corfu.")
-      (license gpl3+))))
-
-(define emacs-org-block-capf
-  (let ((commit "9c1e5c63e38f94238dafeb6bbea312920b6e9901"))
-    (package
-      (name "emacs-org-block-capf")
-      (version (git-version "0" "1" commit))
-      (home-page "https://github.com/xenodium/org-block-capf")
-      (source (origin
-                (method git-fetch)
-                (uri (git-reference
-                      (url "https://github.com/xenodium/org-block-capf")
-                      (commit commit)))
-                (sha256 (base32 "0bvx693gxvy2f6j6rj9zmvy261cj5lxf0c50yklbcmh26hfibw7a"))))
-      (build-system emacs-build-system)
-      (synopsis "completion-at-point function for Org Mode blocks")
-      (description "This package adds a completion-at-point function for Org Mode blocks")
-      ;; FIXME: doesn't actually have a license
-      (license gpl3+))))
+      (license license:gpl3+))))
 
 (define emacs-hotfuzz
-  (let ((commit "e41827ef0226de7874e60b2f6c7ceb13116cd4ee"))
+  (let ((commit "48fcdae4b6aef1c9a92e600449e7a1e057b745d7"))
     (package
       (name "emacs-hotfuzz")
       (version (git-version "0" "1" commit))
@@ -140,7 +125,7 @@
                       (url "https://github.com/axelf4/hotfuzz")
                       (commit commit)))
                 (file-name (git-file-name name version))
-                (sha256 (base32 "06vhls7yz7gnzvmplvla5l697bj3r9rhn4aa9h0sm2whny5vzhs5"))))
+                (sha256 (base32 "0q96w0n30pfmnvr5ri0088m2fhb63qjcy6vahcn3ymjn4yjwkm8d"))))
       (build-system emacs-build-system)
       (arguments
        `(#:modules ((guix build emacs-build-system)
@@ -176,7 +161,7 @@
       (home-page "https://github.com/axelf4/hotfuzz")
       (synopsis "Fuzzy Emacs completion style")
       (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
-      (license gpl3+))))
+      (license license:gpl3+))))
 
 
 (define sbcl-config (plain-file "sbcl-config" "
@@ -203,6 +188,7 @@
   (map without-tests
        (list
         ;; init-ui.el
+        emacs-diminish
         emacs-diff-hl
         emacs-vundo
         emacs-svg-tag-mode
@@ -228,8 +214,6 @@
         ;; init-prog.el
         emacs-combobulate
         emacs-tempel
-        emacs-llm
-        emacs-ellama
         emacs-aggressive-indent
         emacs-avy
         emacs-expand-region
@@ -243,16 +227,16 @@
         emacs-geiser
         emacs-geiser-guile
         emacs-guix
+        emacs-fennel-mode
         emacs-web-mode
 
         ;; init-text.el
         emacs-jinx
-        emacs-org-block-capf
         emacs-org-bullets
-        emacs-denote
-        emacs-consult-denote
 
         ;; init-modes.el
+        emacs-elfeed
+        emacs-elfeed-org
         emacs-elpher
         emacs-pdf-tools
         emacs-libgit
@@ -260,7 +244,6 @@
         emacs-vterm
         emacs-pcmpl-args
         emacs-eshell-syntax-highlighting
-        emacs-esh-autosuggest
         emacs-fish-completion
 
         ;; init-modal.el
@@ -279,6 +262,7 @@
    theme:font-package
    imagemagick                          ; Needed for image-dired
    font-nerd-symbols
+   curl                                 ; For elfeed
    ;; Org mode
    zip
    unzip
@@ -299,6 +283,7 @@
    ;;             (append java-slf4j-simple))))
    clj-kondo
    `(,openjdk21 "jdk")
+   go
    rust
    rust-cargo
    ;; Libraries for cargo
@@ -307,18 +292,20 @@
    openssl
    ;; LSP
    ccls
+   gopls
    rust-analyzer
    python-lsp-server
-   node-lts                             ; Normal is at v10?
-   node-typescript
-   node-typescript-language-server
+   node
    ;; Treesitter
    tree-sitter-bash
    tree-sitter-c
    tree-sitter-clojure
    tree-sitter-cpp
    tree-sitter-css
+   tree-sitter-go
+   tree-sitter-gomod
    tree-sitter-html
+   tree-sitter-lua
    tree-sitter-rust
    tree-sitter-python
    tree-sitter-javascript
