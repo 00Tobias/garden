@@ -52,38 +52,42 @@
 (keymap-global-set "C-c h" 'hs-hide-all)
 (keymap-global-set "C-c H" 'hs-show-all)
 
-;;; package: diff-hl
-(setq-default left-fringe-width 5)
-(global-diff-hl-mode)
+(use-package diminish)
 
-;;; package: vundo
-(keymap-global-set "C-c u" 'vundo)
+(use-package diff-hl
+  :demand t
+  :init (setq-default left-fringe-width 5)
+  :config (global-diff-hl-mode 1))
 
-;;; package: transient-posframe
-(setq transient-posframe-poshandler 'posframe-poshandler-frame-bottom-center)
-(transient-posframe-mode)
+(use-package vundo
+  :bind ("C-c u" . vundo))
 
-;;; package: flymake-popon
-(require 'flymake-popon)
-(with-eval-after-load 'flymake-popon (setcar (alist-get 'flymake-popon-mode minor-mode-alist) ""))
-(setq flymake-popon-delay 0.5)
-(global-flymake-popon-mode 1)
+(use-package transient-posframe
+  :demand t
+  :init (setq transient-posframe-poshandler 'posframe-poshandler-frame-bottom-center)
+  :config (transient-posframe-mode 1))
 
-;;; package: eldoc-box
-(require 'eldoc-box)
-(with-eval-after-load 'eldoc-box (setcar (alist-get 'eldoc-box-hover-at-point-mode minor-mode-alist) ""))
-(eldoc-box-hover-at-point-mode 1)
+(use-package flymake-popon
+  :demand t
+  :diminish flymake-popon-mode
+  :init (setq flymake-popon-delay 0.5)
+  :config (global-flymake-popon-mode 1))
 
-;;; package: nerd-icons-dired
-(add-hook 'dired-mode-hook #'nerd-icons-dired-mode)
+(use-package eldoc-box
+  :diminish eldoc-box-hover-at-point-mode
+  :hook ((emacs-lisp-mode eglot-managed-mode) . eldoc-box-hover-at-point-mode))
 
-;;; package: nerd-icons-completion
-(nerd-icons-completion-mode)
-(add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup)
+(use-package nerd-icons-dired
+  :hook dired-mode)
 
-;;; package: nerd-icons-corfu
-(with-eval-after-load 'corfu
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+(use-package nerd-icons-completion
+  :demand t
+  :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
+  :config (nerd-icons-completion-mode 1))
+
+(use-package nerd-icons-corfu
+  :after corfu
+  :config (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (provide 'init-ui)
 ;;; init-ui.el ends here

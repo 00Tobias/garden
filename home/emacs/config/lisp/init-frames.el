@@ -55,12 +55,13 @@
 (advice-add 'read-key-sequence :before 'pull-minibuffer-frame)
 (advice-add 'read-key-sequence :after 'push-minibuffer-frame)
 
-;;; package: frames-only-mode
-(with-eval-after-load 'frames-only-mode
+(use-package frames-only-mode
+  :demand t
+  :config
   (add-to-list 'frames-only-mode-use-window-functions #'corfu-popupinfo--show)
   (add-to-list 'frames-only-mode-use-window-functions #'pcmpl-args-guess-display-width)
-  (add-to-list 'frames-only-mode-use-window-functions #'embark-act))
-(frames-only-mode 1)
+  (add-to-list 'frames-only-mode-use-window-functions #'embark-act)
+  (frames-only-mode 1))
 
 (provide 'init-frames)
 ;;; init-frames.el ends here

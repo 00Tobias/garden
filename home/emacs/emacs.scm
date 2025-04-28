@@ -191,8 +191,6 @@
         emacs-diminish
         emacs-diff-hl
         emacs-vundo
-        emacs-svg-tag-mode
-        emacs-hide-lines
         emacs-transient-posframe
         emacs-flymake-popon
         emacs-eldoc-box
@@ -209,7 +207,6 @@
         emacs-embark
         emacs-corfu
         emacs-cape
-        emacs-kind-icon
 
         ;; init-prog.el
         emacs-combobulate
@@ -220,10 +217,10 @@
         emacs-paredit
         emacs-devdocs
         ;; Langs
-        emacs-eros
         emacs-cider
         emacs-sly
         emacs-sly-asdf
+        emacs-eros
         emacs-geiser
         emacs-geiser-guile
         emacs-guix

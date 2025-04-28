@@ -30,8 +30,11 @@
                    (python-mode . python-ts-mode)))
   (add-to-list 'major-mode-remap-alist mapping))
 
-(add-to-list 'auto-mode-alist '("\\.js$" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.go$"  . go-ts-mode))
+(add-to-list 'auto-mode-alist '("/go\\.mod\\'"  . go-mod-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.js$"  . js-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.mjs$" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.lua$" . lua-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.tsx$" . tsx-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.ts$"  . typescript-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.rs$"  . rust-ts-mode))
@@ -40,101 +43,88 @@
 (setq eglot-events-buffer-size 0)
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
+(add-hook 'go-ts-mode-hook 'eglot-ensure)
 (add-hook 'python-ts-mode-hook 'eglot-ensure)
 (add-hook 'js-ts-mode-hook 'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook 'eglot-ensure)
 (add-hook 'typescript-ts-mode-hook 'eglot-ensure)
 (add-hook 'rust-ts-mode-hook 'eglot-ensure)
 
-;;; package: combobulate
-(add-hook 'bash-ts-mode-hook       #'combobulate-mode)
-(add-hook 'c-ts-mode-hook          #'combobulate-mode)
-(add-hook 'c++-ts-mode-hook        #'combobulate-mode)
-(add-hook 'css-ts-mode-hook        #'combobulate-mode)
-(add-hook 'html-ts-mode-hook       #'combobulate-mode)
-(add-hook 'js-ts-mode-hook         #'combobulate-mode)
-(add-hook 'json-ts-mode-hook       #'combobulate-mode)
-(add-hook 'python-ts-mode-hook     #'combobulate-mode)
-(add-hook 'typescript-ts-mode-hook #'combobulate-mode)
-(add-hook 'tsx-ts-mode-hook        #'combobulate-mode)
-(add-hook 'ruby-ts-mode-hook       #'combobulate-mode)
-(add-hook 'yaml-ts-mode-hook       #'combobulate-mode)
+(use-package combobulate
+  :hook (bash-ts-mode
+         c-ts-mode
+         c++-ts-mode
+         css-ts-mode
+         go-ts-mode
+         html-ts-mode
+         js-ts-mode
+         json-ts-mode
+         python-ts-mode
+         typescript-ts-mode
+         tsx-ts-mode
+         ruby-ts-mode
+         yaml-ts-mode))
 
-;;; package: tempel
-(with-eval-after-load 'tempel
+(use-package tempel
+  :bind (("M-+" . tempel-complete)
+         ("M-*" . tempel-insert))
+  :hook ((prog-mode text-mode) . (lambda ()
+                                   (setq-local
+                                    completion-at-point-functions
+                                    (cons #'tempel-expand completion-at-point-functions))))
+  :config
   (unless (listp 'tempel-path)
     (setq tempel-path (list tempel-path)))
   (add-to-list 'tempel-path "~/git/guix/etc/snippets/tempel/*"))
-(defun tempel-setup-capf ()
-  (setq-local completion-at-point-functions
-              (cons #'tempel-expand completion-at-point-functions)))
 
-(add-hook 'prog-mode-hook 'tempel-setup-capf)
-(add-hook 'text-mode-hook 'tempel-setup-capf)
+(use-package aggressive-indent
+  :demand t
+  :config
+  (global-aggressive-indent-mode 1)
+  (add-to-list 'aggressive-indent-excluded-modes 'shell-mode))
 
-;;; package: ellama
-(require 'ellama)
-(require 'llm-openai)
+(use-package avy
+  :demand t
+  :bind (("C-c C-j" . avy-resume)
+         ("C-r"     . avy-goto-char)
+         ("C-."     . avy-goto-char)
+         ("C-:"     . avy-goto-char-2)
+         ("M-g g"   . avy-goto-line)
+         ("M-g w"   . avy-goto-word-1)
+         ("M-g e"   . avy-goto-word-0)))
 
-(setq llm-warn-on-nonfree nil
-      ellama-auto-scroll t
-      ellama-spinner-type 'rotating-line
-      ellama-keymap-prefix "C-c e"
-      ellama-provider (make-llm-openai-compatible :url "http://127.0.0.1:8385"))
+(use-package expand-region
+  :demand t
+  :bind ("C-=" . er/expand-region))
 
-(defun start-llama ()
-  (interactive)
-  (when (string= (system-name) "okarthel")
-    (setq llama-server-process
-          (start-process-shell-command
-           "llama-server-process"
-           "*Llama server*"
-           "llama-server -m ~/ai/models/deepseek-coder-6.7b-instruct.Q6_K.gguf -c 2048 -ngl 99 --chat-template deepseek --port 8385 --embeddings --log-disable"
-           nil 0))))
+(use-package paredit
+  :after eldoc
+  :diminish paredit-mode
+  :hook ((paredit-mode . (lambda ()
+                           (electric-indent-local-mode 0)
+                           (electric-pair-local-mode 0)))
+         ((emacs-lisp-mode
+           eval-expression-minibuffer-setup
+           ielm-mode
+           lisp-mode
+           lisp-interaction-mode
+           scheme-mode
+           clojure-mode
+           fennel-mode)
+          . paredit-mode))
+  :config (eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
 
-(defun kill-llama ()
-  (interactive)
-  (delete-process llama-server-process))
-
-;;; package: aggressive-indent
-(global-aggressive-indent-mode 1)
-(add-to-list 'aggressive-indent-excluded-modes 'shell-mode)
-
-;;; package: avy
-(avy-setup-default)
-(keymap-global-set-keys "C-c C-j" 'avy-resume
-                        "C-r"     'avy-goto-char
-                        "C-."     'avy-goto-char
-                        "C-:"     'avy-goto-char-2
-                        "M-g g"   'avy-goto-line
-                        "M-g w"   'avy-goto-word-1
-                        "M-g e"   'avy-goto-word-0)
-
-;;; package: expand-region
-(require 'expand-region)
-(keymap-global-set "C-=" 'er/expand-region)
-
-;;; package: paredit
-(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
-(add-hook 'paredit-mode-hook (lambda () (electric-indent-local-mode 0)))
-(add-hook 'paredit-mode-hook (lambda () (electric-pair-local-mode 0)))
-(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
-(add-hook 'clojure-mode-hook          #'enable-paredit-mode)
-(eldoc-add-command 'paredit-backward-delete 'paredit-close-round)
-(with-eval-after-load 'paredit (setcar (alist-get 'paredit-mode minor-mode-alist) " ()"))
+(use-package devdocs
+  :bind ("C-c d" . devdocs-lookup))
 
 ;;; Language major modes
 
 ;;; Clojure
-;;; package: cider
-(setq cider-repl-display-help-banner nil
-      cider-use-overlays t
-      cider-use-tooltips nil)
+
+(use-package cider
+  :init (setq cider-repl-display-help-banner nil
+              cider-use-overlays t
+              cider-use-tooltips nil))
 
 ;;; Common lisp
 
@@ -142,51 +132,71 @@
 
 (setq inferior-lisp-program "sbcl")
 (with-eval-after-load 'browse-url (add-to-list 'browse-url-handlers '("hyperspec" . eww-browse-url)))
-;;; package: sly
-(defun sly-eval-sexp-overlay ()
-  (interactive)
-  (let ((result (->> `(slynk:pprint-eval ,(sly-sexp-at-point))
-                     sly-eval
-                     s-trim
-                     (s-replace "\n" ", "))))
-    (eros--make-result-overlay result
-      :where (point)
-      :duration eros-eval-result-duration)))
-;;; package: sly-asdf
 
-;;; package: clhs
-(require 'clhs)
-(clhs-setup)
+(use-package sly
+  :config
+  (defun sly-eval-sexp-overlay ()
+    (interactive)
+    (let ((result (->> `(slynk:pprint-eval ,(sly-sexp-at-point))
+                       sly-eval
+                       s-trim
+                       (s-replace "\n" ", "))))
+      (eros--make-result-overlay result
+        :where (point)
+        :duration eros-eval-result-duration))))
+
+(use-package sly-asdf)
+
+(use-package clhs
+  :if (file-exists-p "/gnu")
+  :demand t
+  :config (clhs-setup))
 
 ;;; Emacs lisp
+
 (add-hook 'emacs-lisp-mode-hook 'flymake-mode)
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'eldoc-mode)
 (add-hook 'ielm-mode-hook 'eldoc-mode)
 
-;;; package: eros
-(eros-mode 1)
+(use-package eros
+  :demand t
+  :config (eros-mode 1))
 
 ;;; Scheme
-;;; package: geiser
-(require 'geiser)
-(setq geiser-mode-auto-p t
-      geiser-repl-query-on-kill-p nil)
-;;; package: geiser-guile
-(with-eval-after-load 'geiser-guile
-  (add-to-list 'geiser-guile-load-path "~/git/guix"))
-;;; package: guix
+
+(use-package geiser
+  :init (setq geiser-default-implementation 'guile
+              geiser-active-implementations '(guile)
+              geiser-implementations-alist '(((regexp "\\.scm$") guile))
+              geiser-mode-auto-p t
+              geiser-repl-per-project-p t
+              geiser-repl-query-on-kill-p nil))
+
+(use-package geiser-guile
+  :if (file-exists-p "/gnu")
+  :after geiser
+  :config (add-to-list 'geiser-guile-load-path "~/git/guix"))
+
 ;; Broken package: https://issues.guix.gnu.org/55013
-(with-eval-after-load 'guix-repl
-  (setq guix-guile-program '("guix" "repl")))
+(use-package guix
+  :if (file-exists-p "/gnu")
+  :init (setq guix-guile-program '("guix" "repl")))
+
+;;; Fennel
+
+(use-package fennel-mode
+  :mode "\\.fnl\\'"
+  :interpreter "fennel")
 
 ;;; Web
-;;; package: web-mode
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(setq web-mode-part-padding 2
-      web-mode-code-indent-offset 4
-      web-mode-css-indent-offset 4
-      web-mode-indent-style 4)
+
+(use-package web-mode
+  :mode "\\.html\\'"
+  :init (setq web-mode-part-padding 2
+              web-mode-code-indent-offset 4
+              web-mode-css-indent-offset 4
+              web-mode-indent-style 4))
 
 (provide 'init-prog)
 ;;; init-prog.el ends here

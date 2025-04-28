@@ -113,6 +113,8 @@
 
 (keymap-global-set "C-c ," 'fake-C-c-apply-control)
 
+(use-package mwim :demand t)
+
 (keymap-set-keys modal-mode-map
   "0" "M-0"
   "1" "M-1"

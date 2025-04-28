@@ -43,55 +43,37 @@
       gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n"
 
       gnus-select-method '(nnnil nil)
-      gnus-secondary-select-methods '(;; (nntp "news.eternal-september.org")
+      gnus-secondary-select-methods '((nntp "news.gmane.io")
                                       (nnatom "fasterthanli.me/index.xml"
-                                              (nnatom-name "fasterthanli.me"))
-                                      ;; Recieving mail
-                                      (nnimap "rainboards"
-                                              (nnimap-address "imap.soverin.net")
-                                              (nnimap-server-port "imaps")
-                                              (nnimap-stream ssl)
-                                              (nnir-search-engine imap)
-                                              (nnmail-expiry-target "nnimap+home:[Example]/Trash")
-                                              (nnmail-expiry-wait 'immediate)))
+                                              (nnatom-name "fasterthanli.me")))
 
       ;; Sending mail
       message-send-mail-function 'message-use-send-mail-function
-      send-mail-function 'smtpmail-send-it
-      gnus-posting-styles '(("rainboards"
-	                     (address "tobias@rainboards.com")
-	                     ("X-Message-SMTP-Method" "smtp smtp.soverin.net 587 tobias@rainboards.com")))
-      gnus-parameters '(("rainboards"
-	                 (gcc-self . "nnimap+personal:Sent"))))
+      send-mail-function 'smtpmail-send-it)
 
-;;; Elfeed
-;;; package: elfeed
-(global-set-key (kbd "C-c e") 'elfeed)
+(use-package elfeed
+  :bind ("C-c e" . elfeed))
 
-;;; package: elfeed-org
-(require 'elfeed-org)
-(elfeed-org)
-(setq rmh-elfeed-org-files (list "~/irthir/elfeed.org"))
+(use-package elfeed-org
+  :demand t
+  :init (setq rmh-elfeed-org-files (list "~/irthir/elfeed.org"))
+  :config (elfeed-org))
 
-;;; package: elfeed-tube
-;; (with-eval-after-load 'elfeed-tube
-;;   (elfeed-tube-setup)
-;;   (define-key elfeed-show-mode-map (kbd "F") 'elfeed-tube-fetch)
-;;   (define-key elfeed-show-mode-map [remap save-buffer] 'elfeed-tube-save)
-;;   (define-key elfeed-search-mode-map (kbd "F") 'elfeed-tube-fetch)
-;;   (define-key elfeed-search-mode-map [remap save-buffer] 'elfeed-tube-save)
+(use-package elpher)
 
-;;   (require 'elfeed-tube-mpv)
-;;   (define-key elfeed-show-mode-map (kbd "C-c C-f") 'elfeed-tube-mpv-follow-mode)
-;;   (define-key elfeed-show-mode-map (kbd "C-c C-w") 'elfeed-tube-mpv-where))
+(use-package pdf-tools
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :bind (:map pdf-view-mode-map
+              ("C-s" . 'isearch-forward))
+  :init (setq-default pdf-view-display-size 'fit-page)
+  :config (pdf-tools-install))
 
+(use-package magit
+  :diminish auto-revert-mode
+  :bind ("C-c m" . magit))
 
-;;; package: elpher
-
-;;; package: magit
-
-(with-eval-after-load 'magit
-  (setcar (alist-get 'auto-revert-mode minor-mode-alist) ""))
+(use-package vterm
+  :if (file-exists-p "/gnu"))
 
 ;;; eshell
 
@@ -161,18 +143,16 @@ Call FUN2 on all the rest of the elements in ARGS."
 
 (with-eval-after-load 'esh-mode (keymap-set eshell-mode-map "M-r" 'eshell-insert-history))
 
-;;; package: pcmpl-args
+(use-package pcmpl-args :after eshell-mode)
 
-;;; package: eshell-syntax-highlighting
-(eshell-syntax-highlighting-global-mode 1)
+(use-package eshell-syntax-highlighting
+  :after eshell-mode
+  :config (eshell-syntax-highlighting-global-mode 1))
 
-;;; package: esh-autosuggest
-(add-hook 'eshell-mode-hook (lambda () (esh-autosuggest-mode 1)))
-
-;;; package: fish-completion
-(when (and (executable-find "fish")
-           (require 'fish-completion nil t))
-  (global-fish-completion-mode))
+(use-package fish-completion
+  :after eshell-mode
+  :config (when (executable-find "fish")
+            (global-fish-completion-mode 1)))
 
 (provide 'init-modes)
 ;;; init-modes.el ends here

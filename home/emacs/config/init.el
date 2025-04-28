@@ -44,6 +44,14 @@
 
 (setq package-native-compile t)
 
+(unless (file-exists-p "/gnu")
+  (require 'use-package-ensure)
+  (setq use-package-always-ensure t))
+
+(if (daemonp)
+    (setq use-package-always-demand t)
+  (setq use-package-always-defer t))
+
 ;; Write auto-saves and backups to separate directory.
 (make-directory "~/.cache/emacs/auto-save/" t)
 (setq auto-save-file-name-transforms '((".*" "~/.cache/emacs/auto-save/" t))
@@ -80,7 +88,8 @@
 (require 'init-text)
 (require 'init-modes)
 (require 'init-modal)
-(require 'init-frames)
+(when (daemonp)
+  (require 'init-frames))
 
 (provide 'init)
 ;;; init.el ends here
