@@ -163,6 +163,11 @@
   :demand t
   :config (eros-mode 1))
 
+;;; Haskell
+
+(use-package haskell-mode
+  :mode "\\.hs\\'")
+
 ;;; Scheme
 
 (use-package geiser

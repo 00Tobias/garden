@@ -26,6 +26,8 @@
   #:use-module ((gnu packages readline) #:select (rlwrap))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
   #:use-module ((gnu packages java) #:select (openjdk21 icedtea java-slf4j-simple))
+  #:use-module ((gnu packages haskell) #:select (ghc))
+  #:use-module ((gnu packages haskell-apps) #:select (cabal-install))
   #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages golang) #:select (go))
   #:use-module ((gnu packages golang-xyz) #:select (gopls))
@@ -221,6 +223,7 @@
         emacs-sly
         emacs-sly-asdf
         emacs-eros
+        emacs-haskell-mode
         emacs-geiser
         emacs-geiser-guile
         emacs-guix
@@ -269,9 +272,12 @@
    texlive-capt-of
    ;; Langs
    binutils                             ; Fixes odd missing 'as' native comp error
+   ;; Python
    python
+   ;; Common Lisp
    sbcl
    clhs
+   ;; Clojure
    ;; FIXME: https://issues.guix.gnu.org/73432
    rlwrap
    ;; (package
@@ -280,7 +286,12 @@
    ;;             (append java-slf4j-simple))))
    clj-kondo
    `(,openjdk21 "jdk")
+   ;; Haskell
+   ghc
+   cabal-install
+   ;; Go
    go
+   ;; Rust
    rust
    rust-cargo
    ;; Libraries for cargo
