@@ -28,6 +28,10 @@
   #:use-module ((gnu packages java) #:select (openjdk21 icedtea java-slf4j-simple))
   #:use-module ((gnu packages haskell) #:select (ghc))
   #:use-module ((gnu packages haskell-apps) #:select (cabal-install))
+  #:use-module ((gnu packages multiprecision) #:select (gmp))
+  #:use-module ((gnu packages ncurses) #:select (ncurses))
+  #:use-module ((gnu packages icu4c) #:select (icu4c))
+  #:use-module ((gnu packages compression) #:select (zlib))
   #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages golang) #:select (go))
   #:use-module ((gnu packages golang-xyz) #:select (gopls))
@@ -289,6 +293,12 @@
    ;; Haskell
    ghc
    cabal-install
+   ;; Libraries for cabal
+   gmp
+   ncurses
+   icu4c
+   zlib
+   ;; LD_LIBRARY_PATH="$HOME/.guix-home/profile/lib/" cabal install haskell-language-server-2.9.0.0 --constraint "alex == 3.2.7.4" --con nstraint="happy == 1.20.1.1"
    ;; Go
    go
    ;; Rust

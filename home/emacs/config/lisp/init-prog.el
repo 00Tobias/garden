@@ -44,6 +44,7 @@
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
 (add-hook 'go-ts-mode-hook 'eglot-ensure)
+(add-hook 'haskell-mode-hook 'eglot-ensure)
 (add-hook 'python-ts-mode-hook 'eglot-ensure)
 (add-hook 'js-ts-mode-hook 'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook 'eglot-ensure)

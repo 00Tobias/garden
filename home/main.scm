@@ -282,7 +282,8 @@
                            "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
       (simple-service 'main-env-vars
                       home-environment-variables-service-type
-                      `(("PATH" . "$PATH:$HOME/.local/bin/:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/")
+                      `(("PATH" . "$HOME/.cabal/bin/:$PATH:$HOME/.local/bin/:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/")
+                        ("LD_LIBRARY_PATH" . "$HOME/.guix-home/profile/lib/") ; NOTE: This fixes hls not finding libraries, hopefully shouldn't break other things
                         ("HISTCONTROL" . "ignoredups:ignorespace")
                         ("HISTSIZE" . "10000")
                         ("HISTFILE" . "$HOME/.local/state/shell/history")
