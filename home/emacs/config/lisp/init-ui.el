@@ -75,7 +75,7 @@
 
 (use-package eldoc-box
   :diminish eldoc-box-hover-at-point-mode
-  :hook ((emacs-lisp-mode eglot-managed-mode) . eldoc-box-hover-at-point-mode))
+  :bind ("C-c d" . eldoc-box-help-at-point))
 
 (use-package nerd-icons-dired
   :hook dired-mode)

@@ -73,7 +73,7 @@
          ("C-c ="   . consult-register-store)
          ("C-c g"   . consult-grep)
          ("C-c G"   . consult-ripgrep)
-         ("C-c d"   . consult-flymake))
+         ("C-c f"   . consult-flymake))
   :config
   (consult-customize
    consult-line :initial (thing-at-point 'region))

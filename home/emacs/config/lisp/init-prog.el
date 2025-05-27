@@ -40,7 +40,11 @@
 (add-to-list 'auto-mode-alist '("\\.rs$"  . rust-ts-mode))
 
 ;;; eglot
+(require 'eglot)
+(add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server" "--lsp")))
+(add-hook 'eglot-managed-mode-hook (lambda () (flymake-popon-mode 0)))
 (setq eglot-events-buffer-size 0)
+
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
 (add-hook 'go-ts-mode-hook 'eglot-ensure)
@@ -116,7 +120,7 @@
   :config (eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
 
 (use-package devdocs
-  :bind ("C-c d" . devdocs-lookup))
+  :bind ("C-c D" . devdocs-lookup))
 
 ;;; Language major modes
 

@@ -298,7 +298,7 @@
    ncurses
    icu4c
    zlib
-   ;; LD_LIBRARY_PATH="$HOME/.guix-home/profile/lib/" cabal install haskell-language-server-2.9.0.0 --constraint "alex == 3.2.7.4" --con nstraint="happy == 1.20.1.1"
+   ;; LD_LIBRARY_PATH="$HOME/.guix-home/profile/lib/" cabal install haskell-language-server-2.9.0.0 --constraint "alex == 3.2.7.4" --constraint="happy == 1.20.1.1" --enable-static --enable-library-stripping --enable-executable-stripping --enable-executable-static
    ;; Go
    go
    ;; Rust
