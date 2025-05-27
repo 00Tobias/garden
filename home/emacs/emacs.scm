@@ -25,7 +25,7 @@
   #:use-module ((gnu packages lisp) #:select (sbcl))
   #:use-module ((gnu packages readline) #:select (rlwrap))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
-  #:use-module ((gnu packages java) #:select (openjdk21 icedtea java-slf4j-simple))
+  #:use-module ((gnu packages java) #:select (openjdk23 icedtea java-slf4j-simple))
   #:use-module ((gnu packages haskell) #:select (ghc))
   #:use-module ((gnu packages haskell-apps) #:select (cabal-install))
   #:use-module ((gnu packages multiprecision) #:select (gmp))
@@ -49,7 +49,7 @@
   #:use-module ((saayix packages fonts) #:select (font-nerd-symbols))
 
   #:use-module ((nongnu packages emacs) #:select (clhs))
-  #:use-module ((nongnu packages clojure) #:select (clj-kondo))
+  #:use-module ((nongnu packages clojure) #:select (clj-kondo clojure-lsp))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
@@ -289,7 +289,8 @@
    ;;   (inputs (modify-inputs (package-inputs clojure-tools)
    ;;             (append java-slf4j-simple))))
    clj-kondo
-   `(,openjdk21 "jdk")
+   clojure-lsp
+   `(,openjdk23 "jdk")
    ;; Haskell
    ghc
    cabal-install
@@ -358,6 +359,6 @@
                    home-environment-variables-service-type
                    `(("CC" . ,#~(string-append #$gcc-toolchain "/bin/gcc"))
                      ("SBCL_HOME" . "$HOME/.guix-home/profile/lib/sbcl")
-                     ("JAVA_HOME" . ,openjdk21)
+                     ("JAVA_HOME" . ,openjdk23)
                      ("CARGO_HOME" . "$HOME/.local/lib/cargo/")
                      ("XTDB_ENABLE_BYTEUTILS_SHA1" . "true")))))

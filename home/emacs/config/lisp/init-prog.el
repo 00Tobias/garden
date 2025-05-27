@@ -46,6 +46,7 @@
 
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
+(add-hook 'clojure-mode-hook 'eglot-ensure)
 (add-hook 'go-ts-mode-hook 'eglot-ensure)
 (add-hook 'haskell-mode-hook 'eglot-ensure)
 (add-hook 'python-ts-mode-hook 'eglot-ensure)
@@ -85,7 +86,8 @@
   :demand t
   :config
   (global-aggressive-indent-mode 1)
-  (add-to-list 'aggressive-indent-excluded-modes 'shell-mode))
+  (add-to-list 'aggressive-indent-excluded-modes 'shell-mode)
+  (add-to-list 'aggressive-indent-excluded-modes 'cider-repl-mode))
 
 (use-package avy
   :demand t
@@ -128,7 +130,8 @@
 (use-package cider
   :init (setq cider-repl-display-help-banner nil
               cider-use-overlays t
-              cider-use-tooltips nil))
+              cider-use-tooltips nil
+              cider-font-lock-reader-conditionals nil))
 
 ;;; Common lisp
 
