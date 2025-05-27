@@ -176,8 +176,8 @@
   "t" 'consult-buffer
   "T" 'project-find-file
 
-  "v" 'delete-indentation-below
-  "V" 'delete-indentation
+  "v" 'delete-indentation
+  "V" 'delete-indentation-below
 
   ;; Deleting
   "d" 'modal-dynamic-kill
