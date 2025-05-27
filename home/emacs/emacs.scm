@@ -66,6 +66,23 @@
          emacs-next-pgtk)
         (else (emacs-next))))
 
+(define emacs-ultra-scroll
+  (let ((commit "93cd969c2ed1e75a950e6dec112a0ab1e4a6903b"))
+    (package
+      (name "emacs-ultra-scroll")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/jdtsmith/ultra-scroll")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/jdtsmith/ultra-scroll")
+                      (commit commit)))
+                (sha256 (base32 "1r9940l361jjrir59gvs5ivlpsgjhs13cwbhqy8j3zsmxf45z3qc"))))
+      (build-system emacs-build-system)
+      (synopsis "Scroll Emacs like lightning ")
+      (description "ultra-scroll is a smooth-scrolling package for emacs, with native support for standard builds as well as emacs-mac.")
+      (license license:gpl3+))))
+
 (define emacs-nerd-icons-completion
   (let ((commit "8e5b995eb2439850ab21ba6062d9e6942c82ab9c"))
     (package
@@ -195,6 +212,7 @@
        (list
         ;; init-ui.el
         emacs-diminish
+        emacs-ultra-scroll
         emacs-diff-hl
         emacs-vundo
         emacs-transient-posframe

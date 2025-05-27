@@ -26,7 +26,8 @@
 (when (string= (system-name) "austrat")
   (pixel-scroll-mode 1)
   (pixel-scroll-precision-mode 1)
-  (setq pixel-scroll-precision-interpolate-mice nil))
+  (setq touch-screen-precision-scroll t
+        pixel-scroll-precision-interpolate-mice nil))
 
 (keymap-global-set "C-z" 'undo)
 (keymap-global-set "C-S-z" 'undo-redo)
@@ -53,6 +54,12 @@
 (keymap-global-set "C-c H" 'hs-show-all)
 
 (use-package diminish)
+
+(use-package ultra-scroll
+  :demand t
+  :init (setq scroll-conservatively 3
+              scroll-margin 0)
+  :config (ultra-scroll-mode 1))
 
 (use-package diff-hl
   :demand t
