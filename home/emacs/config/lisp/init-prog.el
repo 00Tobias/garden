@@ -40,6 +40,8 @@
 (add-to-list 'auto-mode-alist '("\\.rs$"  . rust-ts-mode))
 
 ;;; eglot
+(require 'eglot)
+(add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server" "--lsp")))
 (setq eglot-events-buffer-size 0)
 
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
