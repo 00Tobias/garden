@@ -21,8 +21,6 @@
   #:use-module ((gnu packages shells) #:select (fish))
   #:use-module ((gnu packages selinux) #:select (libselinux))
   #:use-module ((gnu packages bootloaders) #:select (grub))
-  #:use-module ((gnu packages display-managers) #:select (slim))
-  #:use-module ((gnu packages xorg) #:select (xorg-server))
   #:use-module ((gnu packages version-control) #:select (git))
   #:use-module ((gnu packages ssh) #:select (openssh))
   #:use-module ((gnu packages avahi) #:select (nss-mdns))
@@ -38,7 +36,6 @@
   #:use-module (gnu services security-token)
   #:use-module (gnu services linux)
   #:use-module (gnu services desktop)
-  #:use-module (gnu services xorg)
   #:use-module (gnu services dbus)
   #:use-module (gnu services shepherd)
 
@@ -55,7 +52,6 @@
   #:use-module ((system udev) #:prefix udev:)
   #:use-module ((system network) #:prefix network:)
   #:use-module ((system syncthing) #:prefix syncthing:)
-  #:use-module ((system xorg) #:prefix xorg:)
   #:use-module ((system wayland) #:prefix wayland:)
   #:use-module ((home main) #:select (main-home)))
 
@@ -221,20 +217,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
     udev:services
     network:services
     syncthing:services
-    (modify-services xorg:services
-      (slim-service-type
-       config =>
-       (slim-configuration
-        (inherit config)
-        (slim (replace-mesa slim))
-        (xorg-configuration
-         (xorg-configuration
-          (keyboard-layout keyboard-layout)
-          (modules (cons* nvda %default-xorg-modules))
-          (server (replace-mesa xorg-server))
-          (drivers '("nvidia"))
-          (extra-config (list xorg:%libinput-config
-                              xorg:%nvidia-config)))))))
+    wayland:services
     (list
      (service earlyoom-service-type
               (earlyoom-configuration
