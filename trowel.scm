@@ -10,7 +10,7 @@
 
   #:use-module ((gnu packages gl) #:select (mesa))
   #:use-module ((gnu packages mold) #:select (mold-as-ld-wrapper))
-  #:use-module ((gnu packages gcc) #:select (gcc-14))
+  #:use-module ((gnu packages gcc) #:select (gcc-15))
   #:use-module ((gnu packages bash) #:select (bash))
 
   #:use-module ((nongnu packages nvidia) #:select (nvdb))
@@ -31,12 +31,12 @@
    `(("gcc-toolchain-optimized"
       ,((@@ (gnu packages commencement) make-gcc-toolchain)
         (package
-          (inherit gcc-14)
+          (inherit gcc-15)
           (inputs
-           (modify-inputs (package-inputs gcc-14)
+           (modify-inputs (package-inputs gcc-15)
              (prepend bash)))
           (arguments
-           (substitute-keyword-arguments (package-arguments gcc-14)
+           (substitute-keyword-arguments (package-arguments gcc-15)
              ((#:phases phases)
               #~(modify-phases #$phases
                   (add-after 'install 'wrap-executables
