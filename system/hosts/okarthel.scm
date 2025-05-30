@@ -16,8 +16,7 @@
   #:use-module (gnu bootloader)
   #:use-module (gnu bootloader grub)
 
-  #:use-module ((gnu packages linux) #:select (linux-pam))
-  #:use-module ((gnu packages commencement) #:select (gcc-toolchain-13))
+  #:use-module ((gnu packages commencement) #:select (gcc-toolchain-15))
   #:use-module ((gnu packages shells) #:select (fish))
   #:use-module ((gnu packages selinux) #:select (libselinux))
   #:use-module ((gnu packages bootloaders) #:select (grub))
@@ -40,13 +39,14 @@
   #:use-module (gnu services shepherd)
 
   #:use-module (nongnu packages linux)
-  #:use-module (nongnu packages nvidia)
+  #:use-module ((nongnu packages video) #:select (nvidia-vaapi-driver))
+  #:use-module ((nongnu packages nvidia) #:select (nvdb nvidia-firmware-beta nvidia-module-open-beta))
 
   #:use-module (nongnu services nvidia)
 
   #:use-module ((nongnu system linux-initrd) #:select (microcode-initrd))
 
-  #:use-module ((trowel) #:select (aggressively-optimize))
+  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
   #:use-module ((system common) #:prefix common:)
   #:use-module ((system impermanence) #:prefix impermanence:)
   #:use-module ((system udev) #:prefix udev:)
@@ -164,13 +164,13 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                 (add-before 'add-xanmod-defconfig 'add-okarthel-defconfig
                   (lambda _
                     (copy-file #$(local-file "defconfigs/okarthel") "CONFIGS/xanmod/gcc/okarthel")))))))))
-    `(("gcc-toolchain" ,gcc-toolchain-13)))) ; NOTE: Limited by nvidia-module from nonguix
+    `(("gcc-toolchain" ,gcc-toolchain-15))))
   (kernel-arguments (append '("mitigations=off" ; Live a little
                               "modprobe.blacklist=nouveau,pcspkr"
                               "nvidia_drm.modeset=1"
                               "quiet")
                             %default-kernel-arguments))
-  ;; (kernel-loadable-modules (list leetmouse-module))
+  (kernel-loadable-modules (list (replace-mesa nvidia-vaapi-driver)))
   (initrd microcode-initrd)
   (firmware (list linux-firmware amd-microcode))
   (locale "en_US.utf8")
@@ -224,7 +224,13 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                (minimum-available-memory 1)
                (minimum-free-swap 100)))
      (service pcscd-service-type)
-     (service nvidia-service-type)
+     (service nvidia-service-type
+              (nvidia-configuration
+               (driver nvdb)
+               (firmware nvidia-firmware-beta)
+               (module (package-with-c-toolchain
+                        nvidia-module-open-beta
+                        `(("gcc-toolchain" ,gcc-toolchain-15))))))
      ;; (udev-rules-service 'leetmouse leetmouse-udev-rules)
 
      fontconfig-file-system-service
