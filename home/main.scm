@@ -21,6 +21,12 @@
   #:use-module ((gnu packages password-utils) #:select (password-store keepassxc))
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
   #:use-module ((gnu packages wine) #:select (wine64-staging))
+  #:use-module ((gnu packages gstreamer) #:select (gstreamer
+                                                   gst-libav
+                                                   gst-plugins-base
+                                                   gst-plugins-good
+                                                   gst-plugins-bad
+                                                   gst-plugins-ugly))
   #:use-module ((gnu packages librewolf) #:select (librewolf))
   #:use-module ((gnu packages llvm) #:select (make-lld-wrapper lld-18))
 
@@ -139,6 +145,12 @@
                           zathura-pdf-mupdf
                           wine64-staging
                           winetricks
+                          gstreamer
+                          gst-libav
+                          gst-plugins-base
+                          gst-plugins-good
+                          gst-plugins-bad
+                          gst-plugins-ugly
                           (package
                             (inherit mesa-utils)
                             (inputs
