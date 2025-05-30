@@ -11,6 +11,7 @@
      (guix-service-type config =>
                         (guix-configuration
                          (inherit config)
+                         (extra-options '("--disable-deduplication")) ; Disable store deduplication, as I do my own with bees.
                          (substitute-urls
                           (append (list "https://substitutes.nonguix.org" "https://guix.bordeaux.inria.fr")
                                   %default-substitute-urls))
