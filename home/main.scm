@@ -49,7 +49,6 @@
   #:use-module ((home xorg dunst) #:prefix dunst:)
   #:use-module ((home wayland sway) #:prefix sway:)
   #:use-module ((home emacs emacs) #:prefix emacs:)
-  #:use-module ((home nyxt nyxt) #:prefix nyxt:)
   #:use-module ((home qutebrowser qutebrowser) #:prefix qutebrowser:)
   #:use-module ((home mpv mpv) #:prefix mpv:)
   #:use-module ((home creative) #:prefix creative:)
@@ -114,11 +113,10 @@
 (define-public main-home
   (home-environment
    (packages (append
+              shell:packages
               gtk:packages
-              xresources:packages
-              i3:packages
+              sway:packages
               emacs:packages
-              nyxt:packages
               qutebrowser:packages
               mpv:packages
               creative:packages
@@ -220,11 +218,9 @@
     (append
      shell:services
      gtk:services
-     xresources:services
-     i3:services
+     sway:services
      dunst:services
      emacs:services
-     nyxt:services
      qutebrowser:services
      mpv:services
      vile:services
