@@ -13,8 +13,6 @@
 
   #:use-module ((nongnu packages nvidia) #:select (nvidia-driver-beta))
 
-  #:use-module ((guix-science-nonfree packages cuda) #:select (cuda))
-
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
