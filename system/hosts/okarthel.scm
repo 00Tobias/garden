@@ -26,6 +26,7 @@
   #:use-module ((gnu packages version-control) #:select (git))
   #:use-module ((gnu packages ssh) #:select (openssh))
   #:use-module ((gnu packages avahi) #:select (nss-mdns))
+  #:use-module ((gnu packages package-management) #:select (flatpak))
   #:use-module ((gnu packages base) #:select (glibc-utf8-locales))
   #:use-module ((gnu packages gnome) #:select (libsecret))
   #:use-module ((gnu packages glib) #:select (dbus-glib))
@@ -205,6 +206,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
           git
           openssh
           nss-mdns
+          flatpak
 
           glibc-utf8-locales
           dbus-glib
