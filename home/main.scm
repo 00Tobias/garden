@@ -7,6 +7,8 @@
   #:use-module (guix build-system gnu)
   #:use-module ((guix licenses) #:prefix license:)
 
+  #:use-module (nonguix utils)
+
   #:use-module ((gnu packages compression) #:select (atool
                                                      unrar-free
                                                      zip
@@ -289,7 +291,19 @@
          (list
           (simple-service 'okarthel-env-vars
                           home-environment-variables-service-type
-                          '(("XDG_SESSION_TYPE" . "xcb"))))
+                          `(("QT_QPA_PLATFORM" . "wayland-egl")
+                            ("XDG_SESSION_TYPE" . "wayland")
+                            ("XDG_CURRENT_DESKTOP" . "sway")
+                            ("MOZ_ENABLE_WAYLAND" . "1")
+
+                            ;; Fix some issues with Wine and DXVK
+                            ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
+                            ("GST_AUDIO_SINK" . "pulsesink")
+
+                            ;; Variables for nvidia-vaapi-driver
+                            ("MOZ_DISABLE_RDD_SANDBOX" . "1")
+                            ("LIBVA_DRIVER_NAME" . "nvidia")
+                            ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
          '())
      (if (string= (gethostname) "austrat")
          (list
@@ -300,8 +314,15 @@
              ("XDG_SESSION_TYPE" . "wayland")
              ("XDG_CURRENT_DESKTOP" . "sway")
              ("MOZ_ENABLE_WAYLAND" . "1")
-             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/50_mesa.x86_64.json"))
-             ("__GLX_VENDOR_LIBRARY_NAME" . "mesa"))))
+
+             ;; Fix some issues with Wine and DXVK
+             ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
+             ("GST_AUDIO_SINK" . "pulsesink")
+
+             ;; Variables for nvidia-vaapi-driver
+             ("MOZ_DISABLE_RDD_SANDBOX" . "1")
+             ("LIBVA_DRIVER_NAME" . "nvidia")
+             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
          '())))))
 
 main-home
