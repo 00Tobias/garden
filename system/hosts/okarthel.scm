@@ -221,7 +221,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
     (list
      (service earlyoom-service-type
               (earlyoom-configuration
-               (minimum-available-memory 5)
+               (minimum-available-memory 1)
                (minimum-free-swap 100)))
      (service pcscd-service-type)
      (service nvidia-service-type)
