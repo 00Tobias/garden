@@ -63,7 +63,8 @@
 (define-public emacs-package
   (cond ((or (string= (gethostname) "austrat")
              (string= (gethostname) "okarthel"))
-         (replace-mesa (aggressively-optimize emacs-next-pgtk)))
+          ;; NOTE: Emacs currently has an error with incompatible pointer types in Fcomp_el_to_eln_rel_filename causing it to not compile with -O3
+         (replace-mesa emacs-next-pgtk))
         (else (emacs-next))))
 
 (define emacs-ultra-scroll

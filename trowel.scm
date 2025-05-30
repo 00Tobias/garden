@@ -24,7 +24,11 @@
 ;; TODO: Wrapper package that just has the scripts? To avoid compiling GCC
 (define (aggressively-optimize p)
   (package-with-c-toolchain
-   p
+   (package
+     (inherit p)
+     (native-inputs
+      (modify-inputs (package-native-inputs p)
+        (prepend mold-as-ld-wrapper))))
    `(("gcc-toolchain-optimized"
       ,((@@ (gnu packages commencement) make-gcc-toolchain)
         (package
@@ -53,7 +57,23 @@
                                          #$(string-append
                                             "-O3 "
                                             "-march=native "
-                                            "-pipe"))))
+                                            "-pipe "
+
+                                            "-fuse-linker-plugin "
+                                            "-flto=" (number->string (total-processor-count))
+                                            " -fno-plt "
+
+                                            "-fgraphite-identity "
+                                            "-floop-nest-optimize "
+
+                                            "-fipa-pta "
+                                            "-fno-semantic-interposition "
+                                            "-fdevirtualize-at-ltrans "
+
+                                            "-fno-signed-zeros "
+                                            "-fno-trapping-math "
+                                            "-fassociative-math "
+                                            "-freciprocal-math"))))
                              (chmod name #o555)))
                          `(,(string-append out "/bin/gcc")
                            ,(string-append out "/bin/g++")
