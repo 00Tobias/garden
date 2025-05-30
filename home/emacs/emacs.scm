@@ -61,10 +61,9 @@
   #:use-module ((home theme) #:prefix theme:))
 
 (define-public emacs-package
-  (cond ((string= (gethostname) "okarthel")
-         (replace-mesa emacs-next))
-        ((string= (gethostname) "austrat")
-         emacs-next-pgtk)
+  (cond ((or (string= (gethostname) "austrat")
+             (string= (gethostname) "okarthel"))
+         (replace-mesa (aggressively-optimize emacs-next-pgtk)))
         (else (emacs-next))))
 
 (define emacs-ultra-scroll
