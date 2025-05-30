@@ -20,22 +20,11 @@
                          (locate-dominating-file default-directory
                                                  ".dir-locals.el")))
 
-     ;; YASnippet
-     (eval . (with-eval-after-load
-                 'yasnippet
-               (let ((guix-yasnippets
-                      (expand-file-name
-                       "etc/snippets/yas"
-                       (locate-dominating-file default-directory
-                                               ".dir-locals.el"))))
-                 (unless (member guix-yasnippets yas-snippet-dirs)
-                   (add-to-list 'yas-snippet-dirs guix-yasnippets)
-                   (yas-reload-all)))))
-
      ;; Geiser
      ;; This allows automatically setting the `geiser-guile-load-path'
      ;; variable when using various Guix checkouts (e.g., via git worktrees).
-     (geiser-repl-per-project-p . t)))
+     (geiser-repl-per-project-p . t)
+     (geiser-insert-actual-lambda . nil)))
 
  (c-mode          . ((c-file-style . "gnu")))
  (scheme-mode
@@ -83,11 +72,14 @@
    (eval . (put 'bag 'scheme-indent-function 0))
    (eval . (put 'graft 'scheme-indent-function 0))
    (eval . (put 'operating-system 'scheme-indent-function 0))
+   (eval . (put 'home-environment 'scheme-indent-function 0))
    (eval . (put 'file-system 'scheme-indent-function 0))
+   (eval . (put 'swap-space 'scheme-indent-function 0))
    (eval . (put 'manifest-entry 'scheme-indent-function 0))
    (eval . (put 'manifest-pattern 'scheme-indent-function 0))
    (eval . (put 'substitute-keyword-arguments 'scheme-indent-function 1))
    (eval . (put 'with-store 'scheme-indent-function 1))
+   (eval . (put 'with-store/non-blocking 'scheme-indent-function 1))
    (eval . (put 'with-external-store 'scheme-indent-function 1))
    (eval . (put 'with-error-handling 'scheme-indent-function 0))
    (eval . (put 'with-mutex 'scheme-indent-function 1))
@@ -118,7 +110,8 @@
    (eval . (put 'munless 'scheme-indent-function 1))
    (eval . (put 'mlet* 'scheme-indent-function 2))
    (eval . (put 'mlet 'scheme-indent-function 2))
-   (eval . (put 'mparameterize 'scheme-indent-function 2))
+   (eval . (put 'state-parameterize 'scheme-indent-function 2))
+   (eval . (put 'store-parameterize 'scheme-indent-function 2))
    (eval . (put 'run-with-store 'scheme-indent-function 1))
    (eval . (put 'run-with-state 'scheme-indent-function 1))
    (eval . (put 'wrap-program 'scheme-indent-function 1))
