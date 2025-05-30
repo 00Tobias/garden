@@ -120,129 +120,130 @@
 
 (define-public main-home
   (home-environment
-   (packages (append
-              shell:packages
-              gtk:packages
-              sway:packages
-              emacs:packages
-              qutebrowser:packages
-              mpv:packages
-              creative:packages
-              ai:packages
-              games:packages
-              vile:packages
-              (let ((lst (list
-                          atool
-                          unrar-free
-                          zip
-                          unzip
-                          p7zip
+    (packages
+     (append
+      shell:packages
+      gtk:packages
+      sway:packages
+      emacs:packages
+      qutebrowser:packages
+      mpv:packages
+      creative:packages
+      ai:packages
+      games:packages
+      vile:packages
+      (let ((lst (list
+                  atool
+                  unrar-free
+                  zip
+                  unzip
+                  p7zip
 
-                          pinentry
-                          password-store
-                          keepassxc
-                          wireguard-tools
-                          tealdeer
-                          zathura
-                          zathura-pdf-mupdf
-                          wine64-staging
-                          winetricks
-                          gstreamer
-                          gst-libav
-                          gst-plugins-base
-                          gst-plugins-good
-                          gst-plugins-bad
-                          gst-plugins-ugly
-                          (package
-                            (inherit mesa-utils)
-                            (inputs
-                             (modify-inputs (package-inputs mesa-utils)
-                               (prepend pciutils))))
-                          firefox
+                  pinentry
+                  password-store
+                  keepassxc
+                  wireguard-tools
+                  tealdeer
+                  zathura
+                  zathura-pdf-mupdf
+                  wine64-staging
+                  winetricks
+                  gstreamer
+                  gst-libav
+                  gst-plugins-base
+                  gst-plugins-good
+                  gst-plugins-bad
+                  gst-plugins-ugly
+                  (package
+                    (inherit mesa-utils)
+                    (inputs
+                     (modify-inputs (package-inputs mesa-utils)
+                       (prepend pciutils))))
+                  firefox
 
-                          ;; Librewolf with Legacyfox, optimizations from Mercury, and Mozilla addons repo
-                          (package
-                            (inherit librewolf)
-                            (arguments
-                             (substitute-keyword-arguments (package-arguments librewolf)
-                               ((#:configure-flags flags #~'())
-                                #~(append (list "--enable-clang-plugin"
-                                                "--disable-debug-symbols"
-                                                "--disable-debug-js-modules"
-                                                "--enable-optimize=\"-O3 -march=native\""
-                                                "--enable-eme=widevine")
-                                          (fold delete #$flags '("--enable-optimize"
-                                                                 "--disable-eme"))))
-                               ((#:phases phases)
-                                #~(modify-phases #$phases
-                                    (delete 'fix-addons-placeholder)
-                                    (delete 'patch-config)
-                                    (add-after 'install 'add-legacyfox
-                                      (lambda* (#:key inputs outputs #:allow-other-keys)
-                                        (let* ((out (assoc-ref outputs "out"))
-                                               (librewolf-dir (string-append out "/lib/librewolf/"))
-                                               (legacyfox (assoc-ref inputs "legacyfox")))
-                                          (mkdir-p (string-append librewolf-dir "defaults/pref"))
+                  ;; Librewolf with Legacyfox, optimizations from Mercury, and Mozilla addons repo
+                  (package
+                    (inherit librewolf)
+                    (arguments
+                     (substitute-keyword-arguments (package-arguments librewolf)
+                       ((#:configure-flags flags #~'())
+                        #~(append (list "--enable-clang-plugin"
+                                        "--disable-debug-symbols"
+                                        "--disable-debug-js-modules"
+                                        "--enable-optimize=\"-O3 -march=native\""
+                                        "--enable-eme=widevine")
+                                  (fold delete #$flags '("--enable-optimize"
+                                                         "--disable-eme"))))
+                       ((#:phases phases)
+                        #~(modify-phases #$phases
+                            (delete 'fix-addons-placeholder)
+                            (delete 'patch-config)
+                            (add-after 'install 'add-legacyfox
+                              (lambda* (#:key inputs outputs #:allow-other-keys)
+                                (let* ((out (assoc-ref outputs "out"))
+                                       (librewolf-dir (string-append out "/lib/librewolf/"))
+                                       (legacyfox (assoc-ref inputs "legacyfox")))
+                                  (mkdir-p (string-append librewolf-dir "defaults/pref"))
 
-                                          (copy-file (string-append legacyfox "/defaults/pref/config-prefs.js")
-                                                     (string-append librewolf-dir "defaults/pref/config-prefs.js"))
+                                  (copy-file (string-append legacyfox "/defaults/pref/config-prefs.js")
+                                             (string-append librewolf-dir "defaults/pref/config-prefs.js"))
 
-                                          (copy-recursively (string-append legacyfox "/legacy")
-                                                            (string-append librewolf-dir "legacy"))
+                                  (copy-recursively (string-append legacyfox "/legacy")
+                                                    (string-append librewolf-dir "legacy"))
 
-                                          (copy-file (string-append legacyfox "/legacy.manifest")
-                                                     (string-append librewolf-dir "legacy.manifest"))
+                                  (copy-file (string-append legacyfox "/legacy.manifest")
+                                             (string-append librewolf-dir "legacy.manifest"))
 
-                                          (let ((port (open-file (string-append librewolf-dir "librewolf.cfg") "a")))
-                                            (display (call-with-input-file
-                                                         (string-append legacyfox "/config.js")
-                                                       get-string-all)
-                                                     port)
-                                            (close-port port)))))
-                                    (add-before 'configure 'add-envvars
-                                      (lambda* (#:key inputs outputs #:allow-other-keys)
-                                        (let* ((flags "-O3 -ffp-contract=fast -march=native"))
-                                          (setenv "MOZ_OPTIMIZE" "1")
-                                          (setenv "OPT_LEVEL" "3")
-                                          (setenv "RUSTC_OPT_LEVEL" "3")
-                                          (setenv "CFLAGS" flags)
-                                          (setenv "CPPFLAGS" flags)
-                                          (setenv "CXXFLAGS" flags)
-                                          (setenv "LDFLAGS" "-Wl,-O3")
-                                          (setenv "RUSTFLAGS" "-C target-cpu=native -C codegen-units=1"))))))))
-                            (native-inputs
-                             (modify-inputs (package-native-inputs librewolf)
-                               (prepend
-                                (make-lld-wrapper lld-18 #:lld-as-ld? #t) ; Same version as clang in inputs
-                                legacyfox))))
-                          (if (or (string= (gethostname) "okarthel")
-                                  (string= (gethostname) "austrat"))
-                              (aggressively-optimize btop-nvidia)
-                              btop)
+                                  (let ((port (open-file (string-append librewolf-dir "librewolf.cfg") "a")))
+                                    (display (call-with-input-file
+                                                 (string-append legacyfox "/config.js")
+                                               get-string-all)
+                                             port)
+                                    (close-port port)))))
+                            (add-before 'configure 'add-envvars
+                              (lambda* (#:key inputs outputs #:allow-other-keys)
+                                (let* ((flags "-O3 -ffp-contract=fast -march=native"))
+                                  (setenv "MOZ_OPTIMIZE" "1")
+                                  (setenv "OPT_LEVEL" "3")
+                                  (setenv "RUSTC_OPT_LEVEL" "3")
+                                  (setenv "CFLAGS" flags)
+                                  (setenv "CPPFLAGS" flags)
+                                  (setenv "CXXFLAGS" flags)
+                                  (setenv "LDFLAGS" "-Wl,-O3")
+                                  (setenv "RUSTFLAGS" "-C target-cpu=native -C codegen-units=1"))))))))
+                    (native-inputs
+                     (modify-inputs (package-native-inputs librewolf)
+                       (prepend
+                        (make-lld-wrapper lld-18 #:lld-as-ld? #t) ; Same version as clang in inputs
+                        legacyfox))))
+                  (if (or (string= (gethostname) "okarthel")
+                          (string= (gethostname) "austrat"))
+                      (aggressively-optimize btop-nvidia)
+                      btop)
 
-                          ;; Fonts
-                          font-google-noto
-                          font-google-noto-sans-cjk
-                          font-google-noto-emoji)))
-                (if (string= (gethostname) "okarthel")
-                    (map replace-mesa lst)
-                    lst))))
+                  ;; Fonts
+                  font-google-noto
+                  font-google-noto-sans-cjk
+                  font-google-noto-emoji)))
+        (if (string= (gethostname) "okarthel")
+            (map replace-mesa lst)
+            lst))))
 
-   (services
-    (append
-     shell:services
-     gtk:services
-     sway:services
-     dunst:services
-     emacs:services
-     qutebrowser:services
-     mpv:services
-     vile:services
-     (list
-      (service home-dbus-service-type)
-      (service home-pipewire-service-type)
-      (simple-service 'git-config home-files-service-type
-                      `((".gitconfig"  ,(plain-file "gitconfig" "
+    (services
+     (append
+      shell:services
+      gtk:services
+      sway:services
+      dunst:services
+      emacs:services
+      qutebrowser:services
+      mpv:services
+      vile:services
+      (list
+       (service home-dbus-service-type)
+       (service home-pipewire-service-type)
+       (simple-service 'git-config home-files-service-type
+                       `((".gitconfig"  ,(plain-file "gitconfig" "
 [user]
 	email = tobias@nights.rest
 	name = tobias
@@ -252,77 +253,77 @@
 	process = git-lfs filter-process
 	clean = git-lfs clean -- %f
 "))))
-      (simple-service 'channels home-channels-service-type
-                      (list
-                       (channel
-                        (name 'nonguix)
-                        (url "https://gitlab.com/nonguix/nonguix")
-                        (introduction
-                         (make-channel-introduction
-                          "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
-                          (openpgp-fingerprint
-                           "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
-                       (channel
-                        (name 'saayix)
-                        (url "https://codeberg.org/look/saayix.git")
-                        (branch "entropy")
-                        (introduction
-                         (make-channel-introduction
-                          "12540f593092e9a177eb8a974a57bb4892327752"
-                          (openpgp-fingerprint
-                           "3FFA 7335 973E 0A49 47FC  0A8C 38D5 96BE 07D3 34AB"))))
-                       (channel
-                        (name 'rde)
-                        (url "https://git.sr.ht/~abcdw/rde")
-                        (introduction
-                         (make-channel-introduction
-                          "257cebd587b66e4d865b3537a9a88cccd7107c95"
-                          (openpgp-fingerprint
-                           "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
-      (simple-service 'main-env-vars
-                      home-environment-variables-service-type
-                      `(("PATH" . "$HOME/.cabal/bin/:$PATH:$HOME/.local/bin/:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/")
-                        ("HISTCONTROL" . "ignoredups:ignorespace")
-                        ("HISTSIZE" . "10000")
-                        ("HISTFILE" . "$HOME/.local/state/shell/history")
-                        ("_JAVA_AWT_WM_NONREPARENTING" . "1")
-                        ("TERM" . "xterm-256color"))))
-     (if (string= (gethostname) "okarthel")
-         (list
-          (simple-service 'okarthel-env-vars
-                          home-environment-variables-service-type
-                          `(("QT_QPA_PLATFORM" . "wayland-egl")
-                            ("XDG_SESSION_TYPE" . "wayland")
-                            ("XDG_CURRENT_DESKTOP" . "sway")
-                            ("MOZ_ENABLE_WAYLAND" . "1")
+       (simple-service 'channels home-channels-service-type
+                       (list
+                        (channel
+                         (name 'nonguix)
+                         (url "https://gitlab.com/nonguix/nonguix")
+                         (introduction
+                          (make-channel-introduction
+                           "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
+                           (openpgp-fingerprint
+                            "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
+                        (channel
+                         (name 'saayix)
+                         (url "https://codeberg.org/look/saayix.git")
+                         (branch "entropy")
+                         (introduction
+                          (make-channel-introduction
+                           "12540f593092e9a177eb8a974a57bb4892327752"
+                           (openpgp-fingerprint
+                            "3FFA 7335 973E 0A49 47FC  0A8C 38D5 96BE 07D3 34AB"))))
+                        (channel
+                         (name 'rde)
+                         (url "https://git.sr.ht/~abcdw/rde")
+                         (introduction
+                          (make-channel-introduction
+                           "257cebd587b66e4d865b3537a9a88cccd7107c95"
+                           (openpgp-fingerprint
+                            "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
+       (simple-service 'main-env-vars
+                       home-environment-variables-service-type
+                       `(("PATH" . "$HOME/.cabal/bin/:$PATH:$HOME/.local/bin/:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/")
+                         ("HISTCONTROL" . "ignoredups:ignorespace")
+                         ("HISTSIZE" . "10000")
+                         ("HISTFILE" . "$HOME/.local/state/shell/history")
+                         ("_JAVA_AWT_WM_NONREPARENTING" . "1")
+                         ("TERM" . "xterm-256color"))))
+      (if (string= (gethostname) "okarthel")
+          (list
+           (simple-service 'okarthel-env-vars
+                           home-environment-variables-service-type
+                           `(("QT_QPA_PLATFORM" . "wayland-egl")
+                             ("XDG_SESSION_TYPE" . "wayland")
+                             ("XDG_CURRENT_DESKTOP" . "sway")
+                             ("MOZ_ENABLE_WAYLAND" . "1")
 
-                            ;; Fix some issues with Wine and DXVK
-                            ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
-                            ("GST_AUDIO_SINK" . "pulsesink")
+                             ;; Fix some issues with Wine and DXVK
+                             ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
+                             ("GST_AUDIO_SINK" . "pulsesink")
 
-                            ;; Variables for nvidia-vaapi-driver
-                            ("MOZ_DISABLE_RDD_SANDBOX" . "1")
-                            ("LIBVA_DRIVER_NAME" . "nvidia")
-                            ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
-         '())
-     (if (string= (gethostname) "austrat")
-         (list
-          (simple-service
-           'austrat-env-vars
-           home-environment-variables-service-type
-           `(("QT_QPA_PLATFORM" . "wayland-egl")
-             ("XDG_SESSION_TYPE" . "wayland")
-             ("XDG_CURRENT_DESKTOP" . "sway")
-             ("MOZ_ENABLE_WAYLAND" . "1")
+                             ;; Variables for nvidia-vaapi-driver
+                             ("MOZ_DISABLE_RDD_SANDBOX" . "1")
+                             ("LIBVA_DRIVER_NAME" . "nvidia")
+                             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
+          '())
+      (if (string= (gethostname) "austrat")
+          (list
+           (simple-service
+            'austrat-env-vars
+            home-environment-variables-service-type
+            `(("QT_QPA_PLATFORM" . "wayland-egl")
+              ("XDG_SESSION_TYPE" . "wayland")
+              ("XDG_CURRENT_DESKTOP" . "sway")
+              ("MOZ_ENABLE_WAYLAND" . "1")
 
-             ;; Fix some issues with Wine and DXVK
-             ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
-             ("GST_AUDIO_SINK" . "pulsesink")
+              ;; Fix some issues with Wine and DXVK
+              ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
+              ("GST_AUDIO_SINK" . "pulsesink")
 
-             ;; Variables for nvidia-vaapi-driver
-             ("MOZ_DISABLE_RDD_SANDBOX" . "1")
-             ("LIBVA_DRIVER_NAME" . "nvidia")
-             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
-         '())))))
+              ;; Variables for nvidia-vaapi-driver
+              ("MOZ_DISABLE_RDD_SANDBOX" . "1")
+              ("LIBVA_DRIVER_NAME" . "nvidia")
+              ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
+          '())))))
 
 main-home
