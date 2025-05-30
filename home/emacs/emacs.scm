@@ -28,6 +28,7 @@
   #:use-module ((gnu packages java) #:select (openjdk23 icedtea java-slf4j-simple))
   #:use-module ((gnu packages haskell) #:select (ghc))
   #:use-module ((gnu packages haskell-apps) #:select (cabal-install))
+  #:use-module ((gnu packages llvm) #:select (llvm-13))
   #:use-module ((gnu packages multiprecision) #:select (gmp))
   #:use-module ((gnu packages ncurses) #:select (ncurses))
   #:use-module ((gnu packages icu4c) #:select (icu4c))
@@ -312,6 +313,7 @@
    ;; Haskell
    ghc
    cabal-install
+   llvm-13                              ; For -fllvm
    ;; Libraries for cabal
    gmp
    ncurses
