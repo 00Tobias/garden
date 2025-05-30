@@ -1,14 +1,26 @@
 (define-module (home shell)
   #:use-module (guix gexp)
 
+  #:use-module ((gnu packages shellutils) #:select (direnv))
   #:use-module ((gnu packages terminals) #:select (fzf))
 
   #:use-module (gnu services)
 
+  #:use-module (gnu home services)
   #:use-module (gnu home services shells))
+
+(define-public packages
+  (list direnv))
 
 (define-public services
   (list
+   (simple-service 'shell-xdg-config home-xdg-configuration-files-service-type
+                   `(("direnv/direnv.toml" ,(mixed-text-file
+                                             "direnv-config"
+                                             "
+[whitelist]
+prefix = [ \"/home/tobias/projects/\" ]
+"))))
    (service
     home-fish-service-type
     (home-fish-configuration
@@ -26,4 +38,5 @@
      (config (list (mixed-text-file "fish-config" "
 set -g fish_greeting
 source " fzf "/share/fish/vendor_functions.d/fzf_key_bindings.fish
+" direnv "/bin/direnv hook fish | source
 ")))))))
