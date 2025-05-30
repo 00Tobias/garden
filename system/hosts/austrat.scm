@@ -12,7 +12,7 @@
   #:use-module (gnu bootloader)
   #:use-module (gnu bootloader grub)
 
-  #:use-module ((gnu packages commencement) #:select (gcc-toolchain-13))
+  #:use-module ((gnu packages commencement) #:select (gcc-toolchain-15))
   #:use-module ((gnu packages shells) #:select (fish))
   #:use-module ((gnu packages selinux) #:select (libselinux))
   #:use-module ((gnu packages bootloaders) #:select (grub))
@@ -34,7 +34,7 @@
   #:use-module (gnu services shepherd)
 
   #:use-module (nongnu packages linux)
-  #:use-module (nongnu packages nvidia)
+  #:use-module ((nongnu packages nvidia) #:select (nvdb nvidia-firmware-beta nvidia-module-open-beta))
 
   #:use-module (nongnu services nvidia)
 
@@ -186,7 +186,13 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
      (service upower-service-type)
      (service tlp-service-type)
      (service pcscd-service-type)
-     (service nvidia-service-type)
+     (service nvidia-service-type
+              (nvidia-configuration
+               (driver nvdb)
+               (firmware nvidia-firmware-beta)
+               (module (package-with-c-toolchain
+                        nvidia-module-open-beta
+                        `(("gcc-toolchain" ,gcc-toolchain-15))))))
 
      fontconfig-file-system-service
      (service udisks-service-type)
