@@ -102,7 +102,7 @@
           (add-before 'install 'rename-config-librewolf-cfg
             (lambda _
               (substitute* "defaults/pref/config-prefs.js"
-                (("config\\.js")
+                (("(config\\.js)")
                  "librewolf.cfg")))))
       #:make-flags
       #~(list (string-append "DESTDIR=" #$output))))
@@ -154,12 +154,10 @@
                             (arguments
                              (substitute-keyword-arguments (package-arguments librewolf)
                                ((#:configure-flags flags #~'())
-                                #~(append (list "--enable-lto"
-                                                "--enable-clang-plugin"
+                                #~(append (list "--enable-clang-plugin"
                                                 "--disable-debug-symbols"
                                                 "--disable-debug-js-modules"
-                                                "--enable-wasm-avx"
-                                                "--enable-optimize=\"-O3 -march=x86-64-v3\""
+                                                "--enable-optimize=\"-O3 -march=native\""
                                                 "--enable-eme=widevine")
                                           (fold delete #$flags '("--enable-optimize"
                                                                  "--disable-eme"))))
@@ -191,16 +189,15 @@
                                             (close-port port)))))
                                     (add-before 'configure 'add-envvars
                                       (lambda* (#:key inputs outputs #:allow-other-keys)
-                                        (let* ((flags "-O3 -ffp-contract=fast -march=x86-64-v3"))
+                                        (let* ((flags "-O3 -ffp-contract=fast -march=native"))
                                           (setenv "MOZ_OPTIMIZE" "1")
                                           (setenv "OPT_LEVEL" "3")
                                           (setenv "RUSTC_OPT_LEVEL" "3")
-                                          (setenv "MOZ_LTO" "1")
                                           (setenv "CFLAGS" flags)
                                           (setenv "CPPFLAGS" flags)
                                           (setenv "CXXFLAGS" flags)
-                                          (setenv "LDFLAGS" "-Wl,-O3 -Wl,-mllvm,-fp-contract=fast -march=x86-64-v3")
-                                          (setenv "RUSTFLAGS" "-C target-cpu=x86-64-v3 -C target-feature=+avx2 -C codegen-units=1"))))))))
+                                          (setenv "LDFLAGS" "-Wl,-O3")
+                                          (setenv "RUSTFLAGS" "-C target-cpu=native -C codegen-units=1"))))))))
                             (native-inputs
                              (modify-inputs (package-native-inputs librewolf)
                                (prepend
