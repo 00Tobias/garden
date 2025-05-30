@@ -19,6 +19,7 @@
   #:use-module ((gnu packages music) #:select (zrythm zplugins))
   #:use-module ((gnu packages graphics) #:select (blender))
   #:use-module ((gnu packages python-xyz) #:select (python-numpy)) ; Blender python libraries
+  #:use-module ((gnu packages game-development) #:select (godot))
   #:use-module ((gnu packages gimp) #:select (gimp-next))
   #:use-module ((gnu packages inkscape) #:select (inkscape))
   #:use-module ((gnu packages kde) #:select (krita))
@@ -101,6 +102,7 @@ pattern-based sequencer (tracker). Features:
               zplugins
               blender
               python-numpy
+              godot
               gimp-next
               inkscape
               krita
