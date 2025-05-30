@@ -1,6 +1,4 @@
 (define-module (system hosts okarthel)
-  #:use-module (ice-9 match)
-
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix utils)
@@ -52,6 +50,7 @@
 
   #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((system common) #:prefix common:)
+  #:use-module ((system impermanence) #:prefix impermanence:)
   #:use-module ((system udev) #:prefix udev:)
   #:use-module ((system network) #:prefix network:)
   #:use-module ((system syncthing) #:prefix syncthing:)
@@ -134,72 +133,6 @@
     (description "This contains the udev rules for leetmouse.")
     (license license:gpl2+)))
 
-;; Adapted from https://git.sr.ht/~ngraves/dotfiles/tree/main/item/make
-(define get-btrfs-file-system
-  (match-lambda
-    ((subvol . mount-point)
-     (file-system
-       (type "btrfs")
-       (device (file-system-label "system"))
-       (mount-point mount-point)
-       (create-mount-point? #t)
-       (flags '(no-atime))
-       (options (string-append "compress-force=zstd:1,discard=async,subvol=" (symbol->string subvol)))
-       (needed-for-boot? (or (string=? "/gnu/store" mount-point)
-                             (string=? "/var/guix"  mount-point)
-                             (string=? "/boot"      mount-point)))))))
-
-(define %root-subvolumes
-  (map get-btrfs-file-system
-       '((boot           . "/boot")
-         (store          . "/gnu/store")
-         (guix           . "/var/guix")
-         (log            . "/var/log")
-         (lib            . "/var/lib")
-         (networkmanager . "/etc/NetworkManager")
-         (ssh-etc        . "/etc/ssh"))))
-
-(define %home-subvolumes
-  (map get-btrfs-file-system
-       '((ai                   . "/home/tobias/ai")
-         (common-lisp          . "/home/tobias/common-lisp")
-         (documents            . "/home/tobias/Documents")
-         (garden               . "/home/tobias/garden")
-         (git                  . "/home/tobias/git")
-         (irthir               . "/home/tobias/irthir")
-         (music                . "/home/tobias/Music")
-         (pictures             . "/home/tobias/Pictures")
-         (projects             . "/home/tobias/projects")
-
-         (cache                . "/home/tobias/.cache")
-         (gnupg                . "/home/tobias/.gnupg")
-         (local-bin            . "/home/tobias/.local/bin")
-         (local-lib            . "/home/tobias/.local/lib")
-         (local-state          . "/home/tobias/.local/state")
-         (m2                   . "/home/tobias/.m2")
-         (mozilla              . "/home/tobias/.mozilla")
-         (password-store       . "/home/tobias/.password-store")
-         (ssh-home             . "/home/tobias/.ssh")
-         (wine                 . "/home/tobias/.wine")
-
-         (blender-config       . "/home/tobias/.config/blender")
-         (btop-config          . "/home/tobias/.config/btop")
-         (gimp-config          . "/home/tobias/.config/GIMP")
-         (google-chrome-config . "/home/tobias/.config/google-chrome")
-         (kdeconnect-config    . "/home/tobias/.config/kdeconnect")
-         (nethack-config       . "/home/tobias/.config/nethack")
-         (wesnoth-config       . "/home/tobias/.config/wesnoth")
-
-         (nyxt-local           . "/home/tobias/.local/share/nyxt")
-         (prismlauncher-local  . "/home/tobias/.local/share/PrismLauncher")
-         (qutebrowser-local    . "/home/tobias/.local/share/qutebrowser")
-         (steam-local          . "/home/tobias/.local/share/guix-sandbox-home")
-         (wesnoth-local        . "/home/tobias/.local/share/wesnoth")
-         (zrythm-local         . "/home/tobias/.local/share/zrythm")
-
-         (auto-save-list-emacs . "/home/tobias/.emacs.d/auto-save-list")
-         (eln-cache-emacs      . "/home/tobias/.emacs.d/eln-cache")
-         (eshell-emacs         . "/home/tobias/.emacs.d/eshell"))))
 
 (define etc-sudoers-config
   (plain-file "etc-sudoers-config"
@@ -282,6 +215,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
   (services
    (append
     common:services
+    impermanence:services
     udev:services
     network:services
     syncthing:services
@@ -315,25 +249,6 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
      (service pam-limits-service-type
               (list (pam-limits-entry "*" 'both 'memlock 'unlimited)))
 
-     (simple-service 'fixup-home activation-service-type
-		     (with-imported-modules '((guix build utils))
-                       #~(begin
-                           (use-modules (guix build utils))
-                           (let* ((user (getpw "tobias"))
-                                  (directories '("/home/tobias"
-                                                 "/home/tobias/.config"
-                                                 "/home/tobias/.config/guix"
-                                                 "/home/tobias/.local"
-                                                 "/home/tobias/.local/share"
-                                                 "/home/tobias/.local/state"
-                                                 "/home/tobias/.emacs.d")))
-                             (for-each mkdir-p directories)
-                             (for-each (lambda (dir)
-                                         (chown dir (passwd:uid user) (passwd:gid user)))
-                                       directories)
-                             (if (not (file-exists? "/home/tobias/.config/guix/current"))
-                                 (symlink "/var/guix/profiles/per-user/tobias/current-guix"
-                                          "/home/tobias/.config/guix/current"))))))
 
      (service guix-home-service-type
      	      `(("tobias" ,main-home)))
@@ -371,16 +286,8 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
 
   (file-systems
    (append
+    impermanence:file-systems
     (list
-     (file-system
-       (mount-point "/")
-       (type "tmpfs")
-       (device "none")
-       (needed-for-boot? #t)
-       (check? #f)
-       (flags '(no-atime))
-       (options "size=12G"))
-
      (file-system
        (mount-point "/boot/efi")
        (device (uuid "C1E3-56B8" 'fat32))
@@ -391,8 +298,5 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
        (device (uuid "2a2dd272-52f8-42b3-ba30-46aee21d75f4" 'ext4))
        (flags '(no-atime))
        (type "ext4")))
-
-    %root-subvolumes
-    %home-subvolumes
 
     %base-file-systems)))
