@@ -13,7 +13,7 @@
   #:use-module ((gnu packages xdisorg) #:select (tofi
                                                  wl-clipboard))
   #:use-module ((gnu packages image-viewers) #:select (imv))
-  #:use-module ((gnu packages image) #:select (grim slurp))
+  #:use-module ((gnu packages image) #:select (slurp flameshot))
   #:use-module ((gnu packages gnome) #:select (libnotify network-manager))
   #:use-module ((gnu packages pulseaudio) #:select (pulsemixer))
   #:use-module ((gnu packages admin) #:select (btop))
@@ -251,9 +251,8 @@ selection-color = " theme:highlight "
                        "|" ,(file-append findutils "/bin/xargs")
                        ,(file-append sway-package "/bin/swaymsg") "exec" "--")
 
-           (Mod4+p exec ,(file-append grim "/bin/grim")
-                   -g ,#~(string-append "$(" #$(file-append slurp "/bin/slurp") ")") "-"
-                   "|" ,(file-append wl-clipboard "/bin/wl-copy") -t image/png)
+           (Mod4+p exec ,(file-append flameshot "/bin/flameshot") gui --raw
+                   "|" ,(file-append wl-clipboard "/bin/wl-copy"))
 
            (Mod4+d exec ,(file-append libnotify "/bin/notify-send")
                    -h string:x-canonical-private-synchronous:anything
