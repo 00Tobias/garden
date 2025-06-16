@@ -32,6 +32,8 @@
   #:use-module ((gnu packages librewolf) #:select (librewolf))
   #:use-module ((gnu packages llvm) #:select (make-lld-wrapper lld-18))
 
+  #:use-module ((gnu packages qt) #:select (qtwayland-5))
+
   #:use-module ((gnu packages fonts) #:select (font-google-noto
                                                font-google-noto-sans-cjk
                                                font-google-noto-emoji))
@@ -287,7 +289,8 @@
                          ("HISTSIZE" . "10000")
                          ("HISTFILE" . "$HOME/.local/state/shell/history")
                          ("_JAVA_AWT_WM_NONREPARENTING" . "1")
-                         ("TERM" . "xterm-256color"))))
+                         ("TERM" . "xterm-256color")
+                         ("QT_PLUGIN_PATH" . ,(file-append qtwayland-5 "/lib/qt5/plugins:$QT_PLUGIN_PATH")))))
       (if (string= (gethostname) "okarthel")
           (list
            (simple-service 'okarthel-env-vars
