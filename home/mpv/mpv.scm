@@ -7,10 +7,12 @@
   #:use-module ((gnu packages gl) #:select (mesa))
   #:use-module ((gnu packages curl) #:select (curl))
 
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize)))
+  #:use-module ((trowel) #:select (aggressively-optimize)))
 
 (define ffmpeg-git
   (package

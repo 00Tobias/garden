@@ -8,18 +8,11 @@
 
   #:use-module (nonguix utils)
 
-  #:use-module ((gnu packages gl) #:select (mesa))
   #:use-module ((gnu packages mold) #:select (mold-as-ld-wrapper))
   #:use-module ((gnu packages gcc) #:select (gcc-15))
   #:use-module ((gnu packages bash) #:select (bash))
 
-  #:use-module ((nongnu packages nvidia) #:select (nvdb))
-
-  #:export (replace-mesa
-            aggressively-optimize))
-
-(define replace-mesa
-  (package-input-grafting `((,mesa . ,nvdb))))
+  #:export (aggressively-optimize))
 
 ;; TODO: Wrapper package that just has the scripts? To avoid compiling GCC
 (define (aggressively-optimize p)

@@ -39,14 +39,13 @@
   #:use-module (gnu services shepherd)
 
   #:use-module (nongnu packages linux)
-  #:use-module ((nongnu packages video) #:select (nvidia-vaapi-driver))
-  #:use-module ((nongnu packages nvidia) #:select (nvdb nvidia-firmware-beta nvidia-module-open-beta))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvidia-module))
 
   #:use-module (nongnu services nvidia)
 
   #:use-module ((nongnu system linux-initrd) #:select (microcode-initrd))
 
-  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
+  #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((system common) #:prefix common:)
   #:use-module ((system impermanence) #:prefix impermanence:)
   #:use-module ((system udev) #:prefix udev:)
@@ -170,7 +169,6 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                               "nvidia_drm.modeset=1"
                               "quiet")
                             %default-kernel-arguments))
-  (kernel-loadable-modules (list (replace-mesa nvidia-vaapi-driver)))
   (initrd microcode-initrd)
   (firmware (list linux-firmware amd-microcode))
   (locale "en_US.utf8")
@@ -225,12 +223,14 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                (minimum-free-swap 100)))
      (service pcscd-service-type)
      (service nvidia-service-type
-              (nvidia-configuration
-               (driver nvdb)
-               (firmware nvidia-firmware-beta)
-               (module (package-with-c-toolchain
-                        nvidia-module-open-beta
-                        `(("gcc-toolchain" ,gcc-toolchain-15))))))
+              ;; (nvidia-configuration
+              ;;  (module (package
+              ;;            (inherit nvidia-module)
+              ;;            (arguments
+              ;;             (substitute-keyword-arguments (package-arguments nvidia-module)
+              ;;               ((#:make-flags flags #~'())
+              ;;                #~(append #$flags (list "IGNORE_PREEMPT_RT_PRESENCE=1"))))))))
+              )
      ;; (udev-rules-service 'leetmouse leetmouse-udev-rules)
 
      fontconfig-file-system-service

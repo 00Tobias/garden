@@ -11,12 +11,12 @@
   #:use-module ((gnu packages machine-learning) #:select (llama-cpp))
   #:use-module ((gnu packages gcc) #:select (gcc))
 
-  #:use-module ((nongnu packages nvidia) #:select (nvidia-driver-beta))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
 
-  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize)))
+  #:use-module ((trowel) #:select (aggressively-optimize)))
 
 (define whisper-cpp
   (package

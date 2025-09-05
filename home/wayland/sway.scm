@@ -29,13 +29,15 @@
                                                      xdg-desktop-portal-gtk
                                                      xdg-desktop-portal-wlr))
 
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (rde home services wm)
 
   #:use-module (rde serializers ini)
 
-  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
+  #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home emacs emacs) #:select (emacs-package))
   #:use-module ((home theme) #:prefix theme:))
 
@@ -301,7 +303,7 @@ selection-color = " theme:highlight "
 
 (define-public packages
   (append
-   (list `(,glib "bin"))
+   (list `(,glib "bin") sway-package)
    (let ((lst (list
                gsettings-desktop-schemas
                bibata-cursor-theme
@@ -310,8 +312,7 @@ selection-color = " theme:highlight "
                obs-wlrobs
                xdg-desktop-portal
                xdg-desktop-portal-gtk
-               xdg-desktop-portal-wlr
-               sway-package)))
+               xdg-desktop-portal-wlr)))
      (if (string= (gethostname) "okarthel")
          (map replace-mesa lst)
          lst))))

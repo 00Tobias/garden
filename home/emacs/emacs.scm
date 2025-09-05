@@ -51,13 +51,14 @@
 
   #:use-module ((nongnu packages emacs) #:select (clhs))
   #:use-module ((nongnu packages clojure) #:select (clj-kondo clojure-lsp))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (rde home services emacs)
   #:use-module (gnu home-services-utils)
 
-  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
+  #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home theme) #:prefix theme:))
 
 (define-public emacs-package

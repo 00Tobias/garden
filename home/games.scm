@@ -4,8 +4,7 @@
   #:use-module ((gnu packages games) #:select (0ad
                                                wesnoth
                                                nethack))
-
-  #:use-module ((trowel) #:select (replace-mesa)))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa)))
 
 (define-public packages
   (let ((lst (list

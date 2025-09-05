@@ -16,13 +16,13 @@
 
   #:use-module ((nongnu packages chrome) #:select (google-chrome-stable))
   #:use-module ((nongnu packages game-client) #:select (steam steam-nvidia protonup-ng))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module ((saayix packages minecraft) #:select (prismlauncher))
 
   #:use-module (gnu services)
-  #:use-module (gnu home services)
+  #:use-module (gnu home services))
 
-  #:use-module ((trowel) #:select (replace-mesa)))
 
 (define prismlauncher-latest
   (package

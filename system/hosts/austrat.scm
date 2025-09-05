@@ -34,7 +34,7 @@
   #:use-module (gnu services shepherd)
 
   #:use-module (nongnu packages linux)
-  #:use-module ((nongnu packages nvidia) #:select (nvdb nvidia-firmware-beta nvidia-module-open-beta))
+  #:use-module ((nongnu packages nvidia) #:select (nvda nvidia-firmware nvidia-module))
 
   #:use-module (nongnu services nvidia)
 
@@ -186,13 +186,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
      (service upower-service-type)
      (service tlp-service-type)
      (service pcscd-service-type)
-     (service nvidia-service-type
-              (nvidia-configuration
-               (driver nvdb)
-               (firmware nvidia-firmware-beta)
-               (module (package-with-c-toolchain
-                        nvidia-module-open-beta
-                        `(("gcc-toolchain" ,gcc-toolchain-15))))))
+     (service nvidia-service-type)
 
      fontconfig-file-system-service
      (service udisks-service-type)

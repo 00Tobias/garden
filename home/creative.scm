@@ -25,7 +25,9 @@
   #:use-module ((gnu packages kde) #:select (krita))
   #:use-module ((gnu packages libreoffice) #:select (libreoffice))
 
-  #:use-module ((trowel) #:select (replace-mesa)))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
+
+  #:use-module ((trowel) #:select (aggressively-optimize)))
 
 ;; FIXME: From https://gitlab.com/nonguix/nonguix/-/merge_requests/323, remove when merged
 (define-public sunvox

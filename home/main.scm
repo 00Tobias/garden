@@ -40,7 +40,7 @@
 
   #:use-module ((nongnu packages mozilla) #:select (firefox))
   #:use-module ((nongnu packages wine) #:select (winetricks))
-  #:use-module ((nongnu packages nvidia) #:select (nvdb nvidia-driver-beta))
+  #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvda nvidia-driver))
 
   #:use-module (gnu services)
 
@@ -51,7 +51,7 @@
   #:use-module ((gnu home services sound) #:select (home-pipewire-service-type))
   #:use-module (rde home services desktop)
 
-  #:use-module ((trowel) #:select (replace-mesa aggressively-optimize))
+  #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home shell) #:prefix shell:)
   #:use-module ((home gtk) #:prefix gtk:)
   #:use-module ((home xorg xresources) #:prefix xresources:)
@@ -71,7 +71,7 @@
     (inherit btop)
     (inputs
      (modify-inputs (package-inputs btop)
-       (prepend nvidia-driver-beta)))
+       (prepend nvidia-driver)))
     (arguments
      (substitute-keyword-arguments (package-arguments btop)
        ((#:phases phases)
@@ -80,7 +80,7 @@
               (lambda _
                 (substitute* "src/linux/btop_collect.cpp"
                   (("libnvidia-ml.so.1")
-                   (string-append #$(this-package-input "nvidia-driver-beta")
+                   (string-append #$(this-package-input "nvidia-driver")
                                   "/lib/libnvidia-ml.so.1")))))))
        ((#:make-flags flags #~'())
         #~(append #$flags (list "GPU_SUPPORT=true")))))))
@@ -299,15 +299,12 @@
                              ("XDG_SESSION_TYPE" . "wayland")
                              ("XDG_CURRENT_DESKTOP" . "sway")
                              ("MOZ_ENABLE_WAYLAND" . "1")
-
-                             ;; Fix some issues with Wine and DXVK
-                             ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
                              ("GST_AUDIO_SINK" . "pulsesink")
 
                              ;; Variables for nvidia-vaapi-driver
                              ("MOZ_DISABLE_RDD_SANDBOX" . "1")
                              ("LIBVA_DRIVER_NAME" . "nvidia")
-                             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
+                             ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvda "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
           '())
       (if (string= (gethostname) "austrat")
           (list
@@ -318,15 +315,11 @@
               ("XDG_SESSION_TYPE" . "wayland")
               ("XDG_CURRENT_DESKTOP" . "sway")
               ("MOZ_ENABLE_WAYLAND" . "1")
-
-              ;; Fix some issues with Wine and DXVK
-              ("VK_DRIVER_FILES" . ,#~(string-append #$nvdb "/share/vulkan/icd.d/nvidia_icd.x86_64.json:" #$(to32 nvdb) "/share/vulkan/icd.d/nvidia_icd.i686.json"))
               ("GST_AUDIO_SINK" . "pulsesink")
 
               ;; Variables for nvidia-vaapi-driver
               ("MOZ_DISABLE_RDD_SANDBOX" . "1")
               ("LIBVA_DRIVER_NAME" . "nvidia")
-              ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvdb "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
+              ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvda "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
           '())))))
-
 main-home
