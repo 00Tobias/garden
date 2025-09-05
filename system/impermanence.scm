@@ -48,7 +48,6 @@
          (pictures             . "/home/tobias/Pictures")
          (projects             . "/home/tobias/projects")
 
-         (cabal                . "/home/tobias/.cabal")
          (cache                . "/home/tobias/.cache")
          (gnupg                . "/home/tobias/.gnupg")
          (librewolf            . "/home/tobias/.librewolf")

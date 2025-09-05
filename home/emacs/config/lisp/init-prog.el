@@ -30,8 +30,6 @@
                    (python-mode . python-ts-mode)))
   (add-to-list 'major-mode-remap-alist mapping))
 
-(add-to-list 'auto-mode-alist '("\\.go$"  . go-ts-mode))
-(add-to-list 'auto-mode-alist '("/go\\.mod\\'"  . go-mod-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.js$"  . js-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.mjs$" . js-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.lua$" . lua-ts-mode))
@@ -41,13 +39,11 @@
 
 ;;; eglot
 (require 'eglot)
-(add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server" "--lsp")))
 (setq eglot-events-buffer-size 0)
 
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'clojure-mode-hook 'eglot-ensure)
-(add-hook 'go-ts-mode-hook 'eglot-ensure)
 (add-hook 'haskell-mode-hook 'eglot-ensure)
 (add-hook 'js-ts-mode-hook 'eglot-ensure)
 (add-hook 'python-ts-mode-hook 'eglot-ensure)
@@ -61,7 +57,6 @@
          c-ts-mode
          c++-ts-mode
          css-ts-mode
-         go-ts-mode
          html-ts-mode
          js-ts-mode
          json-ts-mode
@@ -170,11 +165,6 @@
 (use-package eros
   :demand t
   :config (eros-mode 1))
-
-;;; Haskell
-
-(use-package haskell-mode
-  :mode "\\.hs\\'")
 
 ;;; OCaml
 

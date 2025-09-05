@@ -27,15 +27,7 @@
   #:use-module ((gnu packages readline) #:select (rlwrap))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
   #:use-module ((gnu packages java) #:select (openjdk23 icedtea java-slf4j-simple))
-  #:use-module ((gnu packages haskell) #:select (ghc))
-  #:use-module ((gnu packages haskell-apps) #:select (cabal-install))
-  #:use-module ((gnu packages llvm) #:select (llvm-13))
-  #:use-module ((gnu packages multiprecision) #:select (gmp))
-  #:use-module ((gnu packages ncurses) #:select (ncurses))
-  #:use-module ((gnu packages icu4c) #:select (icu4c))
-  #:use-module ((gnu packages compression) #:select (zlib))
   #:use-module ((gnu packages cpp) #:select (ccls))
-  #:use-module ((gnu packages golang) #:select (go))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
   #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
   #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
@@ -223,7 +215,6 @@
   ;; Disable the tests that fail on native-comp / emacs-next
   (options->transformation
    '((without-tests . "emacs-eldev")
-     (without-tests . "emacs-haskell-mode")
      (without-tests . "emacs-libgit"))))
 
 (define elisp-packages
@@ -264,7 +255,6 @@
         emacs-sly
         emacs-sly-asdf
         emacs-eros
-        emacs-haskell-mode
         emacs-tuareg
         emacs-geiser
         emacs-geiser-guile
@@ -329,18 +319,6 @@
    clj-kondo
    clojure-lsp
    `(,openjdk23 "jdk")
-   ;; Haskell
-   ghc
-   cabal-install
-   llvm-13                              ; For -fllvm
-   ;; Libraries for cabal
-   gmp
-   ncurses
-   icu4c
-   zlib
-   ;; LD_LIBRARY_PATH="$HOME/.guix-home/profile/lib/" cabal install haskell-language-server-2.9.0.0 --constraint "alex == 3.2.7.4" --constraint="happy == 1.20.1.1" --enable-static --enable-library-stripping --enable-executable-stripping --enable-executable-static
-   ;; Go
-   go
    ;; Ocaml
    coreutils
    gnu-make
@@ -362,8 +340,6 @@
    tree-sitter-clojure
    tree-sitter-cpp
    tree-sitter-css
-   tree-sitter-go
-   tree-sitter-gomod
    tree-sitter-html
    tree-sitter-lua
    tree-sitter-rust
