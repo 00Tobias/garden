@@ -45,4 +45,5 @@ prefix = [ \"/home/tobias/projects/\" ]
 set -g fish_greeting
 source " fzf "/share/fish/vendor_functions.d/fzf_key_bindings.fish
 " direnv "/bin/direnv hook fish | source
+test -r '/home/tobias/.opam/opam-init/init.fish' && source '/home/tobias/.opam/opam-init/init.fish' > /dev/null 2> /dev/null; or true
 ")))))))
