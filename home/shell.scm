@@ -2,6 +2,8 @@
   #:use-module (guix gexp)
 
   #:use-module ((gnu packages shellutils) #:select (direnv))
+  #:use-module ((gnu packages rust-apps) #:select (tealdeer fd ripgrep))
+  #:use-module ((gnu packages admin) #:select (du-dust))
   #:use-module ((gnu packages terminals) #:select (fzf))
 
   #:use-module (gnu services)
@@ -10,7 +12,11 @@
   #:use-module (gnu home services shells))
 
 (define-public packages
-  (list direnv))
+  (list direnv
+        tealdeer
+        du-dust
+        fd
+        ripgrep))
 
 (define-public services
   (list
