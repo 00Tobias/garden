@@ -44,16 +44,17 @@
 (add-to-list 'eglot-server-programs '(haskell-mode . ("haskell-language-server" "--lsp")))
 (setq eglot-events-buffer-size 0)
 
-(add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
+(add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'clojure-mode-hook 'eglot-ensure)
 (add-hook 'go-ts-mode-hook 'eglot-ensure)
 (add-hook 'haskell-mode-hook 'eglot-ensure)
-(add-hook 'python-ts-mode-hook 'eglot-ensure)
 (add-hook 'js-ts-mode-hook 'eglot-ensure)
-(add-hook 'tsx-ts-mode-hook 'eglot-ensure)
-(add-hook 'typescript-ts-mode-hook 'eglot-ensure)
+(add-hook 'python-ts-mode-hook 'eglot-ensure)
 (add-hook 'rust-ts-mode-hook 'eglot-ensure)
+(add-hook 'tsx-ts-mode-hook 'eglot-ensure)
+(add-hook 'tuareg-mode-hook 'eglot-ensure)
+(add-hook 'typescript-ts-mode-hook 'eglot-ensure)
 
 (use-package combobulate
   :hook (bash-ts-mode
@@ -174,6 +175,12 @@
 
 (use-package haskell-mode
   :mode "\\.hs\\'")
+
+;;; OCaml
+
+(use-package tuareg
+  :mode (("\\.ml[ily]?$" . tuareg-mode)
+         ("\\.topml$" . tuareg-mode)))
 
 ;;; Scheme
 

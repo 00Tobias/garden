@@ -290,7 +290,7 @@
                             "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
        (simple-service 'main-env-vars
                        home-environment-variables-service-type
-                       `(("PATH" . "$HOME/.cabal/bin/:$PATH:$HOME/.local/bin/:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/")
+                       `(("PATH" . "$HOME/.cabal/bin/:$PATH:$HOME/.local/bin/:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/:$HOME/.opam/default/bin/")
                          ("HISTCONTROL" . "ignoredups:ignorespace")
                          ("HISTSIZE" . "10000")
                          ("HISTFILE" . "$HOME/.local/state/shell/history")

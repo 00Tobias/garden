@@ -57,6 +57,7 @@
          (local-state          . "/home/tobias/.local/state")
          (m2                   . "/home/tobias/.m2")
          (mozilla              . "/home/tobias/.mozilla")
+         (opam                 . "/home/tobias/.opam")
          (password-store       . "/home/tobias/.password-store")
          (ssh-home             . "/home/tobias/.ssh")
          (var-home             . "/home/tobias/.var")

@@ -21,7 +21,7 @@
                                              texlive-wrapfig
                                              texlive-ulem
                                              texlive-capt-of))
-  #:use-module ((gnu packages base) #:select (binutils))
+  #:use-module ((gnu packages base) #:select (binutils coreutils gnu-make sed))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
   #:use-module ((gnu packages readline) #:select (rlwrap))
@@ -43,6 +43,7 @@
   #:use-module ((gnu packages tls) #:select (openssl))
   #:use-module ((gnu packages node) #:select (node))
   #:use-module ((contrib packages node-xyz) #:select (node-typescript node-typescript-language-server))
+  #:use-module ((gnu packages ocaml) #:select (emacs-tuareg))
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
 
@@ -264,6 +265,7 @@
         emacs-sly-asdf
         emacs-eros
         emacs-haskell-mode
+        emacs-tuareg
         emacs-geiser
         emacs-geiser-guile
         emacs-guix
@@ -339,6 +341,10 @@
    ;; LD_LIBRARY_PATH="$HOME/.guix-home/profile/lib/" cabal install haskell-language-server-2.9.0.0 --constraint "alex == 3.2.7.4" --constraint="happy == 1.20.1.1" --enable-static --enable-library-stripping --enable-executable-stripping --enable-executable-static
    ;; Go
    go
+   ;; Ocaml
+   coreutils
+   gnu-make
+   sed
    ;; Rust
    rust
    ;; Libraries for cargo
@@ -388,7 +394,8 @@
      (elisp-packages elisp-packages)))
    (simple-service 'prog-home-config
                    home-files-service-type
-                   `((".sbclrc" ,sbcl-config)
+                   `((".local/bin/cc" ,#~(string-append #$gcc-toolchain "/bin/gcc"))
+                     (".sbclrc" ,sbcl-config)
                      (".npmrc"  ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
    (simple-service 'prog-env-vars
                    home-environment-variables-service-type
