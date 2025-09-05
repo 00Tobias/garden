@@ -22,6 +22,8 @@
   #:use-module ((gnu packages gnupg) #:select (pinentry))
   #:use-module ((gnu packages password-utils) #:select (password-store keepassxc))
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
+  #:use-module ((gnu packages music) #:select (strawberry picard))
+  #:use-module ((gnu packages bittorrent) #:select (qbittorrent))
   #:use-module ((gnu packages wine) #:select (wine64-staging))
   #:use-module ((gnu packages gstreamer) #:select (gstreamer
                                                    gst-libav
@@ -32,7 +34,7 @@
   #:use-module ((gnu packages librewolf) #:select (librewolf))
   #:use-module ((gnu packages llvm) #:select (make-lld-wrapper lld-18))
 
-  #:use-module ((gnu packages qt) #:select (qtwayland-5))
+  #:use-module ((gnu packages qt) #:select (qtwayland-5 qt6ct))
 
   #:use-module ((gnu packages fonts) #:select (font-google-noto
                                                font-google-noto-sans-cjk
@@ -150,6 +152,10 @@
                   zathura-pdf-mupdf
                   wine64-staging
                   winetricks
+                  qt6ct
+                  qbittorrent
+                  strawberry
+                  picard
                   gstreamer
                   gst-libav
                   gst-plugins-base
@@ -290,7 +296,8 @@
                          ("HISTFILE" . "$HOME/.local/state/shell/history")
                          ("_JAVA_AWT_WM_NONREPARENTING" . "1")
                          ("TERM" . "xterm-256color")
-                         ("QT_PLUGIN_PATH" . ,(file-append qtwayland-5 "/lib/qt5/plugins:$QT_PLUGIN_PATH")))))
+                         ("QT_QPA_PLATFORMTHEME" . "qt6ct")
+                         ("QT_PLUGIN_PATH" . ,#~(string-append #$qtwayland-5 "/lib/qt5/plugins:" #$qt6ct "/lib/qt6/plugins:$QT_PLUGIN_PATH")))))
       (if (string= (gethostname) "okarthel")
           (list
            (simple-service 'okarthel-env-vars

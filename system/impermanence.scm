@@ -68,6 +68,8 @@
          (godot-config         . "/home/tobias/.config/godot")
          (kdeconnect-config    . "/home/tobias/.config/kdeconnect")
          (nethack-config       . "/home/tobias/.config/nethack")
+         (qt6ct-config         . "/home/tobias/.config/qt6ct")
+         (strawberry-config    . "/home/tobias/.config/strawberry")
          (vesktop-config       . "/home/tobias/.config/vesktop")
          (wesnoth-config       . "/home/tobias/.config/wesnoth")
 
@@ -78,6 +80,7 @@
          (prismlauncher-local  . "/home/tobias/.local/share/PrismLauncher")
          (qutebrowser-local    . "/home/tobias/.local/share/qutebrowser")
          (steam-local          . "/home/tobias/.local/share/guix-sandbox-home")
+         (strawberry-local     . "/home/tobias/.local/share/strawberry")
          (wesnoth-local        . "/home/tobias/.local/share/wesnoth")
          (zrythm-local         . "/home/tobias/.local/share/zrythm")
 
