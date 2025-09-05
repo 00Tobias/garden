@@ -1,7 +1,11 @@
 (define-module (system hosts okarthel)
+  #:use-module (ice-9 popen)
+  #:use-module (ice-9 textual-ports)
+
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module (guix build-system linux-module)
   #:use-module (guix build-system copy)
@@ -16,7 +20,7 @@
   #:use-module (gnu bootloader)
   #:use-module (gnu bootloader grub)
 
-  #:use-module ((gnu packages commencement) #:select (gcc-toolchain-15))
+  #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
   #:use-module ((gnu packages shells) #:select (fish))
   #:use-module ((gnu packages selinux) #:select (libselinux))
   #:use-module ((gnu packages bootloaders) #:select (grub))
@@ -24,10 +28,12 @@
   #:use-module ((gnu packages ssh) #:select (openssh))
   #:use-module ((gnu packages avahi) #:select (nss-mdns))
   #:use-module ((gnu packages package-management) #:select (flatpak))
-  #:use-module ((gnu packages base) #:select (glibc-utf8-locales))
+  #:use-module ((gnu packages base) #:select (patch glibc-utf8-locales))
+  #:use-module ((gnu packages compression) #:select (zstd lz4))
   #:use-module ((gnu packages gnome) #:select (libsecret))
   #:use-module ((gnu packages glib) #:select (dbus-glib))
   #:use-module ((gnu packages file-systems) #:select (bees))
+  #:use-module ((gnu packages linux) #:select (libinih v4l2loopback-linux-module customize-linux linux-libre-6.15))
 
   #:use-module (gnu services)
   #:use-module (gnu services guix)
@@ -35,6 +41,8 @@
   #:use-module (gnu services security-token)
   #:use-module (gnu services linux)
   #:use-module (gnu services desktop)
+  #:use-module (gnu services avahi)
+  #:use-module (gnu services cups)
   #:use-module (gnu services dbus)
   #:use-module (gnu services shepherd)
 
@@ -137,16 +145,42 @@ root      ALL=(ALL) ALL
 %wheel    ALL=(ALL) NOPASSWD:ALL
 tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/current-system/profile/bin/nmtui"))
 
-(define make-linux-xanmod
-  (@@ (nongnu packages linux) make-linux-xanmod))
+(define %upstream-linux-source
+  (@@ (gnu packages linux) %upstream-linux-source))
+
+(define kernel-version "6.15.6")
+(define kernel-source (%upstream-linux-source kernel-version (base32 "1z5l0b59q56qj6s56cxzv43lhfx9z9sp4vfziw60fz97ak4qdd9b")))
 
 (operating-system
   (kernel
    (package-with-c-toolchain
-    (let ((p (make-linux-xanmod linux-xanmod-version
-                                linux-xanmod-revision
-                                linux-xanmod-source
-                                #:xanmod-defconfig "okarthel")))
+    (let ((p (customize-linux
+              #:name "linux-zen"
+              #:extra-version "zen-okarthel"
+              #:linux (package
+                        (inherit linux-libre-6.15)
+                        (native-inputs
+                         (modify-inputs (package-native-inputs linux-libre-6.15)
+                           (prepend lz4))))
+              #:defconfig (local-file "defconfigs/okarthel")
+              #:source (origin
+                         (inherit kernel-source)
+                         (modules '((guix build utils)))
+                         (snippet
+                          #~(begin
+                              (let* ((zen-patch-origin #+(origin
+                                                           (method url-fetch)
+                                                           (uri (string-append
+                                                                 "https://github.com/zen-kernel/zen-kernel/releases/download/v"
+                                                                 kernel-version "-zen1/linux-v" kernel-version "-zen1.patch.zst"))
+                                                           (sha256 "02vb9g7z5gqk692a0jmwjdx50n96j3wnyq4xb24qnmrpcrmbznf4"))))
+                                (copy-file zen-patch-origin (basename zen-patch-origin))
+                                (invoke #+(file-append zstd "/bin/zstd") "-d" (basename zen-patch-origin))
+                                (invoke #+(file-append patch "/bin/patch")
+                                        "--force" "--no-backup-if-mismatch"
+                                        #+@(origin-patch-flags kernel-source)
+                                        "--input" (basename zen-patch-origin ".zst"))
+                                (delete-file (basename zen-patch-origin ".zst")))))))))
       (package
         (inherit p)
         (arguments
@@ -154,21 +188,17 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
            ((#:make-flags flags #~'())
             #~(append
                #$flags
-               (let ((f "-O3 -march=native -fgraphite-identity -floop-nest-optimize -fno-semantic-interposition"))
+               (let ((f "-pipe -O3 -march=native -fgraphite-identity -floop-nest-optimize -fno-semantic-interposition"))
                  (list
                   (string-append "KCFLAGS=" f)
-                  (string-append "KCPPFLAGS=" f)))))
-           ((#:phases phases)
-            #~(modify-phases #$phases
-                (add-before 'add-xanmod-defconfig 'add-okarthel-defconfig
-                  (lambda _
-                    (copy-file #$(local-file "defconfigs/okarthel") "CONFIGS/xanmod/gcc/okarthel")))))))))
-    `(("gcc-toolchain" ,gcc-toolchain-15))))
+                  (string-append "KCPPFLAGS=" f)))))))))
+    `(("gcc-toolchain" ,gcc-toolchain))))
   (kernel-arguments (append '("mitigations=off" ; Live a little
                               "modprobe.blacklist=nouveau,pcspkr"
                               "nvidia_drm.modeset=1"
                               "quiet")
                             %default-kernel-arguments))
+  (kernel-loadable-modules (list v4l2loopback-linux-module))
   (initrd microcode-initrd)
   (firmware (list linux-firmware amd-microcode))
   (locale "en_US.utf8")
@@ -182,7 +212,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
                  (group "users")
                  (shell (file-append fish "/bin/fish"))
                  (home-directory "/home/tobias")
-		 (password "$6$2iVqBpcHrXOuNbJc$CRvuQT7LX0ArLQXV.JMhsCuEaOaBIcWbyol9ugcHFSZdriINStBP/iwXqaFau.DR09x2P4f.ew.j7yeelsH5m/")
+		 (password (call-with-input-file "/home/tobias/irthir/irthos/okarthel" get-line))
                  (supplementary-groups
                   '("wheel"
                     "netdev"
@@ -217,6 +247,7 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
     syncthing:services
     wayland:services
     (list
+     (simple-service 'v4l2loopback-module kernel-module-loader-service-type '("v4l2loopback")) ;; FIXME: Dumb but fixes error: service 'nvidia' requires 'kernel-module-loader', which is not provided by any service
      (service earlyoom-service-type
               (earlyoom-configuration
                (minimum-available-memory 1)
@@ -235,6 +266,12 @@ tobias    ALL=(ALL) NOPASSWD:/run/current-system/profile/bin/loginctl,/run/curre
 
      fontconfig-file-system-service
      (service udisks-service-type)
+     (service avahi-service-type
+              (avahi-configuration
+               (wide-area? #t)))
+     (service cups-service-type
+              (cups-configuration
+               (web-interface? #t)))
      (service polkit-service-type)
      (service dbus-root-service-type)
      (service pam-limits-service-type
