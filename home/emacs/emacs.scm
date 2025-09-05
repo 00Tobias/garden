@@ -10,6 +10,7 @@
 
   #:use-module (gnu packages)
   #:use-module ((gnu packages emacs) #:select (emacs-next emacs-next-pgtk))
+  #:use-module ((gnu packages gtk) #:select (gtk+/fixed))
   #:use-module ((gnu packages rust-apps) #:select (ripgrep))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
@@ -35,10 +36,8 @@
   #:use-module ((gnu packages compression) #:select (zlib))
   #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages golang) #:select (go))
-  #:use-module ((gnu packages golang-xyz) #:select (gopls))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
   #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
-  #:use-module ((gnu packages rust-apps) #:select (rust-cargo))
   #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
   #:use-module ((gnu packages pkg-config) #:select (pkg-config))
   #:use-module ((gnu packages tls) #:select (openssl))
@@ -64,8 +63,23 @@
 (define-public emacs-package
   (cond ((or (string= (gethostname) "austrat")
              (string= (gethostname) "okarthel"))
-          ;; NOTE: Emacs currently has an error with incompatible pointer types in Fcomp_el_to_eln_rel_filename causing it to not compile with -O3
-         (replace-mesa emacs-next-pgtk))
+         ;; NOTE: Emacs currently has an error with incompatible pointer types in Fcomp_el_to_eln_rel_filename causing it to not compile with -O3
+         ;; NOTE: Emacs on the default Guix version of gtk+ segfaults when closing a frame on gdk_window_get_screen. Updating gtk seems to fix the issue.
+         (replace-mesa (package
+                         (inherit emacs-next-pgtk)
+                         (inputs (modify-inputs (package-inputs emacs-next-pgtk)
+                                   (replace "gtk+"
+                                     (package
+                                       (inherit gtk+/fixed)
+                                       (name "gtk+")
+                                       (version "3.24.51")
+                                       (source (origin
+                                                 (method git-fetch)
+                                                 (uri (git-reference
+                                                       (url "https://gitlab.gnome.org/GNOME/gtk")
+                                                       (commit "ef9abe706ac0e35590aa188b104ca55228f5d6b4")))
+                                                 (file-name (git-file-name name version))
+                                                 (sha256 (base32 "13r0l774k8qjp3ngsc9pbv9s3skmdxcw03z8fgyqm2dra947n0sb")))))))))))
         (else (emacs-next))))
 
 (define emacs-ultra-scroll
@@ -204,10 +218,12 @@
                                        (find-package 'cffi)))))))
 "))
 
-
 (define without-tests
+  ;; Disable the tests that fail on native-comp / emacs-next
   (options->transformation
-   '((without-tests . "emacs-buttercup")))) ; FIXME: tests fail on emacs-next, disable them for now
+   '((without-tests . "emacs-eldev")
+     (without-tests . "emacs-haskell-mode")
+     (without-tests . "emacs-libgit"))))
 
 (define elisp-packages
   (map without-tests
@@ -325,14 +341,12 @@
    go
    ;; Rust
    rust
-   rust-cargo
    ;; Libraries for cargo
    gcc-toolchain
    pkg-config
    openssl
    ;; LSP
    ccls
-   gopls
    rust-analyzer
    python-lsp-server
    node
