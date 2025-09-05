@@ -17,14 +17,13 @@
   #:use-module ((gnu packages pciutils) #:select (pciutils))
   #:use-module ((gnu packages gl) #:select (mesa-utils))
   #:use-module ((gnu packages vpn) #:select (wireguard-tools))
-  #:use-module ((gnu packages rust-apps) #:select (tealdeer))
+  #:use-module ((gnu packages xfce) #:select (thunar))
   #:use-module ((gnu packages admin) #:select (btop))
   #:use-module ((gnu packages gnupg) #:select (pinentry))
   #:use-module ((gnu packages password-utils) #:select (password-store keepassxc))
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
   #:use-module ((gnu packages music) #:select (strawberry picard))
   #:use-module ((gnu packages bittorrent) #:select (qbittorrent))
-  #:use-module ((gnu packages wine) #:select (wine64-staging))
   #:use-module ((gnu packages gstreamer) #:select (gstreamer
                                                    gst-libav
                                                    gst-plugins-base
@@ -40,8 +39,6 @@
                                                font-google-noto-sans-cjk
                                                font-google-noto-emoji))
 
-  #:use-module ((nongnu packages mozilla) #:select (firefox))
-  #:use-module ((nongnu packages wine) #:select (winetricks))
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvda nvidia-driver))
 
   #:use-module (gnu services)
@@ -147,11 +144,9 @@
                   password-store
                   keepassxc
                   wireguard-tools
-                  tealdeer
+                  thunar
                   zathura
                   zathura-pdf-mupdf
-                  wine64-staging
-                  winetricks
                   qt6ct
                   qbittorrent
                   strawberry
@@ -167,7 +162,6 @@
                     (inputs
                      (modify-inputs (package-inputs mesa-utils)
                        (prepend pciutils))))
-                  firefox
 
                   ;; Librewolf with Legacyfox, optimizations from Mercury, and Mozilla addons repo
                   (package
