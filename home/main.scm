@@ -62,8 +62,7 @@
   #:use-module ((home mpv mpv) #:prefix mpv:)
   #:use-module ((home creative) #:prefix creative:)
   #:use-module ((home ai) #:prefix ai:)
-  #:use-module ((home games) #:prefix games:)
-  #:use-module ((home vile) #:prefix vile:))
+  #:use-module ((home games) #:prefix games:))
 
 (define btop-nvidia
   (package
@@ -132,7 +131,6 @@
       creative:packages
       ai:packages
       games:packages
-      vile:packages
       (let ((lst (list
                   atool
                   unrar-free
@@ -240,7 +238,6 @@
       emacs:services
       qutebrowser:services
       mpv:services
-      vile:services
       (list
        (service home-dbus-service-type)
        (service home-pipewire-service-type)
