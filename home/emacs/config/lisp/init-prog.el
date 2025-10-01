@@ -39,8 +39,10 @@
 (add-to-list 'auto-mode-alist '("\\.rs$"  . rust-ts-mode))
 
 ;;; eglot
+
 (require 'eglot)
 (setq eglot-events-buffer-size 0)
+(add-to-list 'eglot-server-programs '(uiua-ts-mode . ("uiua" "lsp")))
 
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
@@ -50,6 +52,7 @@
 (add-hook 'rust-ts-mode-hook 'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook 'eglot-ensure)
 (add-hook 'typescript-ts-mode-hook 'eglot-ensure)
+(add-hook 'uiua-ts-mode-hook 'eglot-ensure)
 
 (use-package combobulate
   :hook (bash-ts-mode
@@ -60,9 +63,10 @@
          js-ts-mode
          json-ts-mode
          python-ts-mode
+         ruby-ts-mode
          typescript-ts-mode
          tsx-ts-mode
-         ruby-ts-mode
+         uiua-ts-mode
          yaml-ts-mode))
 
 (use-package tempel
@@ -201,6 +205,14 @@
 (use-package fennel-mode
   :mode "\\.fnl\\'"
   :interpreter "fennel")
+
+;;; Uiua
+
+(use-package reformatter)
+
+(use-package uiua-ts-mode
+  :after reformatter
+  :mode "\\.ua\\'")
 
 ;;; Web
 

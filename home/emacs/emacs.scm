@@ -206,6 +206,42 @@ enhance the experience of writing OCaml code by leveraging the Eglot Language
 Server Protocol (LSP) client.")
       (license license:x11))))          ; MIT
 
+(define emacs-uiua-mode
+  (let ((commit "8f9c8abb710b3f3ae8320e89e3c91612c7dd6f45"))
+    (package
+      (name "emacs-uiua-mode")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/crmsnbleyd/uiua-mode")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/crmsnbleyd/uiua-mode")
+                      (commit commit)))
+                (sha256 (base32 "09zlam421pkgv5y441k4f7j3wzrzwvdy1795slwvri437iipfscp"))))
+      (inputs (list emacs-reformatter))
+      (build-system emacs-build-system)
+      (synopsis "Emacs mode for uiua, a stack-based array language")
+      (description "Emacs mode for uiua, a stack-based array language.")
+      (license license:gpl3+))))
+
+(define emacs-uiua-ts-mode
+  (let ((commit "afa8e70ff3293182fc0412ba42e5733b80164c33"))
+    (package
+      (name "emacs-uiua-ts-mode")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/crmsnbleyd/uiua-ts-mode")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/crmsnbleyd/uiua-ts-mode")
+                      (commit commit)))
+                (sha256 (base32 "0xq3y93mn42m98zfgqb8w73z10fcd3z2p2lmsxvybb49b69rik1k"))))
+      (inputs (list emacs-uiua-mode emacs-reformatter))
+      (build-system emacs-build-system)
+      (synopsis "Emacs major mode for Uiua, a stack-based array language, powered by tree-sitter")
+      (description "Emacs major mode for Uiua, a stack-based array language, powered by tree-sitter.")
+      (license license:gpl3+))))
+
 (define emacs-hotfuzz
   (let ((commit "48fcdae4b6aef1c9a92e600449e7a1e057b745d7"))
     (package
@@ -255,6 +291,15 @@ Server Protocol (LSP) client.")
       (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
       (license license:gpl3+))))
 
+(define tree-sitter-grammar
+  (@@ (gnu packages tree-sitter) tree-sitter-grammar))
+
+(define tree-sitter-uiua
+  (tree-sitter-grammar
+   "uiua" "Uiua"
+   "1pwhdsvdi6p70r9iij3mqnpdl0m2vz242l2qxlanplfcasf58sf9"
+   "0.11.0"
+   #:repository-url "https://github.com/shnarazk/tree-sitter-uiua"))
 
 (define sbcl-config (mixed-text-file "sbcl-config" "
 (require \"asdf\")
@@ -343,6 +388,9 @@ open Base;;
         emacs-ocaml-eglot
         emacs-arei
         emacs-fennel-mode
+        emacs-reformatter
+        emacs-uiua-mode
+        emacs-uiua-ts-mode
         emacs-web-mode
 
         ;; init-text.el
@@ -434,7 +482,8 @@ open Base;;
    tree-sitter-python
    tree-sitter-javascript
    tree-sitter-json
-   tree-sitter-typescript))
+   tree-sitter-typescript
+   tree-sitter-uiua))
 
 (define-public services
   (list
