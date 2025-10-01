@@ -45,6 +45,8 @@
 (add-hook 'prog-mode-hook 'highlight-todo)
 
 (add-hook 'prog-mode-hook 'hs-minor-mode 1)
+(with-eval-after-load 'hideshow
+  (setcar (alist-get 'hs-minor-mode minor-mode-alist) ""))
 (keymap-global-set "C-c b" 'hs-toggle-hiding)
 (keymap-global-set "C-c h" 'hs-hide-all)
 (keymap-global-set "C-c H" 'hs-show-all)
@@ -65,16 +67,40 @@
 (use-package vundo
   :bind ("C-c u" . vundo))
 
+(use-package posframe)
+
 (use-package transient-posframe
   :demand t
   :init (setq transient-posframe-poshandler 'posframe-poshandler-frame-bottom-center)
   :config (transient-posframe-mode 1))
 
-(use-package flymake-popon
-  :demand t
-  :diminish flymake-popon-mode
-  :init (setq flymake-popon-delay 0.5)
-  :config (global-flymake-popon-mode 1))
+(use-package flymake-posframe
+  :after posframe
+  :hook flymake-mode
+  :init (setq flymake-posframe-max-width 80
+              flymake-posframe-internal-border-width 1
+              flymake-posframe-error-prefix "   "
+              flymake-posframe-warning-prefix "   "
+              flymake-posframe-note-prefix "   ")
+  :custom-face
+  (flymake-posframe-face ((t (:foreground
+                              ,(modus-themes-get-color-value 'fg-main)
+                              :background
+                              ,(modus-themes-get-color-value 'bg-dim)))))
+  (flymake-posframe-border-face ((t (:background
+                                     ,(modus-themes-get-color-value 'bg-mode-line-active)))))
+  (flymake-posframe-prefix-error-face ((t (:foreground
+                                           ,(modus-themes-get-color-value 'err)
+                                           :background
+                                           ,(modus-themes-get-color-value 'bg-red-subtle)))))
+  (flymake-posframe-prefix-warning-face ((t (:foreground
+                                             ,(modus-themes-get-color-value 'warning)
+                                             :background
+                                             ,(modus-themes-get-color-value 'bg-yellow-subtle)))))
+  (flymake-posframe-prefix-note-face ((t (:foreground
+                                          ,(modus-themes-get-color-value 'green)
+                                          :background
+                                          ,(modus-themes-get-color-value 'bg-green-subtle))))))
 
 (use-package eldoc-box
   :diminish eldoc-box-hover-at-point-mode

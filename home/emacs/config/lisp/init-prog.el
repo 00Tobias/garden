@@ -13,8 +13,13 @@
 
 (electric-pair-mode 1)
 
+;;; flymake
+(setq flymake-mode-line-lighter ""
+      flymake-diagnostic-format-alist
+      '((t . (origin code message))))
 
-;;; treesit
+;;; tree-sitter
+
 (setq treesit-extra-load-path '("~/.guix-home/profile/lib/tree-sitter"))
 (dolist (mapping '((bash-mode . bash-ts-mode)
                    (c-mode . c-ts-mode)

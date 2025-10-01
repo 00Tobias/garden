@@ -88,8 +88,35 @@
                       (commit commit)))
                 (sha256 (base32 "1r9940l361jjrir59gvs5ivlpsgjhs13cwbhqy8j3zsmxf45z3qc"))))
       (build-system emacs-build-system)
-      (synopsis "Scroll Emacs like lightning ")
-      (description "ultra-scroll is a smooth-scrolling package for emacs, with native support for standard builds as well as emacs-mac.")
+      (synopsis "Scroll Emacs like lightning")
+      (description "ultra-scroll is a smooth-scrolling package for emacs, with
+native support for standard builds as well as emacs-mac.")
+      (license license:gpl3+))))
+
+(define emacs-flymake-posframe
+  (let ((commit "fadf75a51a9ab479e3ad00e23b7f38cbadaec460"))
+    (package
+      (name "emacs-flymake-posframe")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/Ladicle/flymake-posframe")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/Ladicle/flymake-posframe")
+                      (commit commit)))
+                (sha256 (base32 "0css70ncc9ygv932mf89schh86ybcw5qx4fg897lrbrma99fc9w2"))))
+      (inputs (list emacs-posframe))
+      (build-system emacs-build-system)
+      (arguments
+       (list
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'unpack 'patch-for-flymake-1.4
+              (lambda _
+                (substitute* "flymake-posframe.el"
+                  (("flymake--diag-text") "flymake-diagnostic-text")))))))
+      (synopsis "Showing flymake diagnostics at point using posframe")
+      (description "Showing flymake diagnostics at point using posframe.")
       (license license:gpl3+))))
 
 (define emacs-nerd-icons-completion
@@ -225,8 +252,9 @@
         emacs-ultra-scroll
         emacs-diff-hl
         emacs-vundo
+        emacs-posframe
         emacs-transient-posframe
-        emacs-flymake-popon
+        emacs-flymake-posframe
         emacs-eldoc-box
         emacs-ligature
         emacs-nerd-icons
