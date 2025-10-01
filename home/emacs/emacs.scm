@@ -175,6 +175,36 @@ native support for standard builds as well as emacs-mac.")
       (description "Nerd-icons-corfu.el is a library for adding icons to completions in Corfu.")
       (license license:gpl3+))))
 
+(define emacs-ocaml-eglot
+  (let ((commit "387e53ce2ce4970e7f754013f57a4e41933de016"))
+    (package
+      (name "emacs-ocaml-eglot")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/tarides/ocaml-eglot")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/tarides/ocaml-eglot")
+                      (commit commit)))
+                (sha256 (base32 "1c8viz2gpmm6cilxjbk4r4j5bzpl9954amrz2gfl1g84fgycxhqa"))))
+      (build-system emacs-build-system)
+      (arguments
+       (list
+        ;; Linting the package returns errors during 'check'
+        #:test-command #~(list "make" "test-ert")
+        #:phases
+        #~(modify-phases %standard-phases ; From emacs-xyz.scm
+            (add-after 'unpack 'inject-makel
+              (lambda* (#:key inputs #:allow-other-keys)
+                (symlink (search-input-file inputs "/include/makel.mk")
+                         "makel.mk"))))))
+      (inputs (list makel))
+      (synopsis "An overlay on Eglot for editing OCaml code using LSP")
+      (description "ocaml-eglot is a lightweight Emacs minor mode designed to
+enhance the experience of writing OCaml code by leveraging the Eglot Language
+Server Protocol (LSP) client.")
+      (license license:x11))))          ; MIT
+
 (define emacs-hotfuzz
   (let ((commit "48fcdae4b6aef1c9a92e600449e7a1e057b745d7"))
     (package

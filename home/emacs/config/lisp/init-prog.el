@@ -45,12 +45,10 @@
 (add-hook 'c++-ts-mode-hook 'eglot-ensure)
 (add-hook 'c-ts-mode-hook 'eglot-ensure)
 (add-hook 'clojure-mode-hook 'eglot-ensure)
-(add-hook 'haskell-mode-hook 'eglot-ensure)
 (add-hook 'js-ts-mode-hook 'eglot-ensure)
 (add-hook 'python-ts-mode-hook 'eglot-ensure)
 (add-hook 'rust-ts-mode-hook 'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook 'eglot-ensure)
-(add-hook 'tuareg-mode-hook 'eglot-ensure)
 (add-hook 'typescript-ts-mode-hook 'eglot-ensure)
 
 (use-package combobulate
@@ -113,7 +111,8 @@
            lisp-interaction-mode
            scheme-mode
            clojure-mode
-           fennel-mode)
+           fennel-mode
+           dune-mode)
           . paredit-mode))
   :config (eldoc-add-command 'paredit-backward-delete 'paredit-close-round))
 
@@ -170,8 +169,28 @@
 ;;; OCaml
 
 (use-package tuareg
-  :mode (("\\.ml[ily]?$" . tuareg-mode)
-         ("\\.topml$" . tuareg-mode)))
+  :mode
+  ;; TODO: Simplify this
+  (("\\.ml[ily]?$"    . tuareg-mode)
+   ("\\.topml$"       . tuareg-mode)
+   ("\\.ocamlinit\\'" . tuareg-mode)))
+
+(use-package ocaml-eglot
+  :after tuareg
+  :diminish ocaml-eglot
+  :hook
+  (tuareg-mode . ocaml-eglot)
+  (ocaml-eglot . eglot-ensure)
+  (ocaml-eglot . (lambda () (add-hook #'before-save-hook #'eglot-format nil t)))
+  :init (setq ocaml-eglot-syntax-checker 'flymake))
+
+(let ((ocaml-elisp-directory (expand-file-name "~/.opam/default/share/emacs/site-lisp")))
+  (when (file-exists-p ocaml-elisp-directory)
+    (add-to-list 'load-path ocaml-elisp-directory)
+    (require 'dune)
+    (require 'ocp-indent)
+    (require 'utop)
+    (add-hook 'ocaml-eglot-hook 'ocp-setup-indent)))
 
 ;;; Scheme
 
