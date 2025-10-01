@@ -36,6 +36,7 @@
   #:use-module ((gnu packages pkg-config) #:select (pkg-config))
   #:use-module ((gnu packages tls) #:select (openssl))
   #:use-module ((gnu packages node) #:select (node))
+  #:use-module ((gnu packages zig) #:select (zig-0.15))
   #:use-module ((gnu packages ocaml) #:select (emacs-tuareg))
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
@@ -415,6 +416,8 @@ open Base;;
    gcc-toolchain
    pkg-config
    openssl
+   ;; Zig
+   zig-0.15
    ;; LSP
    python-lsp-server
    node ;; npm install -g typescript-language-server typescript
