@@ -1,5 +1,6 @@
 (define-module (system common)
   #:use-module (guix gexp)
+  #:use-module ((guix store) #:select (%default-substitute-urls))
 
   #:use-module (gnu services)
   #:use-module (gnu services base)
