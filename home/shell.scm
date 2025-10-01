@@ -34,7 +34,6 @@ prefix = [ \"/home/tobias/projects/\" ]
       '(("grep" . "grep --color=auto")
         ("la"   . "ls -hpla")
         ("ls"   . "ls -hp --color=auto")
-        ("diff" . "diff --color=auto")
         ("ip"   . "ip -color=auto")))
      (abbreviations
       '(("gsr"  . "-- sudo guix system reconfigure -c $(nproc) -L ~/garden ~/garden/system/hosts/(hostname).scm")
