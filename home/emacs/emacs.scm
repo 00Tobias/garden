@@ -22,12 +22,12 @@
                                              texlive-ulem
                                              texlive-capt-of))
   #:use-module ((gnu packages base) #:select (binutils coreutils gnu-make sed))
+  #:use-module ((gnu packages llvm) #:select (clang))
   #:use-module ((gnu packages python) #:select (python))
   #:use-module ((gnu packages lisp) #:select (sbcl))
   #:use-module ((gnu packages readline) #:select (rlwrap))
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
   #:use-module ((gnu packages java) #:select (openjdk23 icedtea java-slf4j-simple))
-  #:use-module ((gnu packages cpp) #:select (ccls))
   #:use-module ((gnu packages guile) #:select (guile-next))
   #:use-module ((gnu packages guile-xyz) #:select (guile-ares-rs))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
@@ -385,6 +385,7 @@ open Base;;
    texlive-capt-of
    ;; Langs
    binutils                             ; Fixes odd missing 'as' native comp error
+   clang
    ;; Python
    python
    ;; Common Lisp
@@ -416,7 +417,6 @@ open Base;;
    pkg-config
    openssl
    ;; LSP
-   ccls
    python-lsp-server
    node
    ;; Treesitter
