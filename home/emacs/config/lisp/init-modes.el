@@ -87,7 +87,7 @@
                 'face `(:weight bold :background ,(face-foreground 'default) :foreground ,(face-background 'default)))
     (propertize (format-time-string "(%H:%M:%S)" (current-time))
                 'face `(:background ,(face-foreground 'default) :foreground ,(face-background 'default)))
-    (propertize (if-let ((status eshell-last-command-status))
+    (propertize (if-let* ((status eshell-last-command-status))
                     (if (= status 0) " " (format " [%s] " status)))
                 'face `(:weight bold :background ,(face-foreground 'default) :inherit error))
     "\n"))

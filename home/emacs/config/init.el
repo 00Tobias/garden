@@ -80,6 +80,14 @@
 
 (global-subword-mode 1)
 
+;; Let some trusted directories set risky local variables
+(setq safe-local-variable-directories '("~/garden/" "~/git/guix"))
+(dolist (subdir (seq-filter 'file-directory-p (directory-files (expand-file-name "~/projects/") t "\\`[^.]")))
+  (add-to-list 'safe-local-variable-directories subdir))
+
+;; Trust certain directories for bytecompiling lisp, etc.
+(setq trusted-content '("~/garden/" "~/projects/"))
+
 ;; Lastly, load files in ./lisp
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (require 'init-ui)

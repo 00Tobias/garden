@@ -13,10 +13,6 @@
 
 (electric-pair-mode 1)
 
-;; Let some trusted directories set risky local variables
-(setq safe-local-variable-directories '("~/garden/" "~/git/guix"))
-(dolist (subdir (seq-filter 'file-directory-p (directory-files (expand-file-name "~/projects/") t "\\`[^.]")))
-  (add-to-list 'safe-local-variable-directories subdir))
 
 ;;; treesit
 (setq treesit-extra-load-path '("~/.guix-home/profile/lib/tree-sitter"))

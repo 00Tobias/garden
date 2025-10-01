@@ -45,6 +45,8 @@
   #:use-module ((nongnu packages clojure) #:select (clj-kondo clojure-lsp))
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
+  #:use-module ((emacs-master) #:select (emacs-master-pgtk emacs-master))
+
   #:use-module (gnu services)
   #:use-module (gnu home services)
   #:use-module (rde home services emacs)
@@ -56,24 +58,24 @@
 (define-public emacs-package
   (cond ((or (string= (gethostname) "austrat")
              (string= (gethostname) "okarthel"))
-         ;; NOTE: Emacs currently has an error with incompatible pointer types in Fcomp_el_to_eln_rel_filename causing it to not compile with -O3
          ;; NOTE: Emacs on the default Guix version of gtk+ segfaults when closing a frame on gdk_window_get_screen. Updating gtk seems to fix the issue.
-         (replace-mesa (package
-                         (inherit emacs-next-pgtk)
-                         (inputs (modify-inputs (package-inputs emacs-next-pgtk)
-                                   (replace "gtk+"
-                                     (package
-                                       (inherit gtk+/fixed)
-                                       (name "gtk+")
-                                       (version "3.24.51")
-                                       (source (origin
-                                                 (method git-fetch)
-                                                 (uri (git-reference
-                                                       (url "https://gitlab.gnome.org/GNOME/gtk")
-                                                       (commit "ef9abe706ac0e35590aa188b104ca55228f5d6b4")))
-                                                 (file-name (git-file-name name version))
-                                                 (sha256 (base32 "13r0l774k8qjp3ngsc9pbv9s3skmdxcw03z8fgyqm2dra947n0sb")))))))))))
-        (else (emacs-next))))
+         (replace-mesa
+          (package
+            (inherit emacs-master-pgtk)
+            (inputs (modify-inputs (package-inputs emacs-master-pgtk)
+                      (replace "gtk+"
+                        (package
+                          (inherit gtk+/fixed)
+                          (name "gtk+")
+                          (version "3.24.51")
+                          (source (origin
+                                    (method git-fetch)
+                                    (uri (git-reference
+                                          (url "https://gitlab.gnome.org/GNOME/gtk")
+                                          (commit "ef9abe706ac0e35590aa188b104ca55228f5d6b4")))
+                                    (file-name (git-file-name name version))
+                                    (sha256 (base32 "13r0l774k8qjp3ngsc9pbv9s3skmdxcw03z8fgyqm2dra947n0sb")))))))))))
+        (else (emacs-master))))
 
 (define emacs-ultra-scroll
   (let ((commit "93cd969c2ed1e75a950e6dec112a0ab1e4a6903b"))

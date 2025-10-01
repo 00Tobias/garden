@@ -21,9 +21,18 @@
        (channel
         (name 'rde)
         (url "https://git.sr.ht/~abcdw/rde")
-	(introduction
-	 (make-channel-introduction
-	  "257cebd587b66e4d865b3537a9a88cccd7107c95"
-	  (openpgp-fingerprint
-	   "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))
+        (introduction
+         (make-channel-introduction
+          "257cebd587b66e4d865b3537a9a88cccd7107c95"
+          (openpgp-fingerprint
+           "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))
+       (channel
+        (name 'emacs-master)
+        (url "https://github.com/gs-101/emacs-master.git")
+        (branch "main")
+        (introduction
+         (make-channel-introduction
+          "568579841d0ca41a9d222a2cfcad9a7367f9073b"
+          (openpgp-fingerprint
+           "3049 BF6C 0829 94E4 38ED  4A15 3033 E0E9 F7E2 5FE4"))))
        %default-channels)

@@ -46,8 +46,6 @@
          ("\\<\\([nN][oO][tT][eE]\\):"      1 'font-lock-string-face prepend))))
 (add-hook 'prog-mode-hook 'highlight-todo)
 
-(setq flymake-mode-line-lighter "")
-
 (add-hook 'prog-mode-hook 'hs-minor-mode 1)
 (keymap-global-set "C-c b" 'hs-toggle-hiding)
 (keymap-global-set "C-c h" 'hs-hide-all)
