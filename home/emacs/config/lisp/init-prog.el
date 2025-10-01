@@ -175,23 +175,7 @@
 
 ;;; Scheme
 
-(use-package geiser
-  :init (setq geiser-default-implementation 'guile
-              geiser-active-implementations '(guile)
-              geiser-implementations-alist '(((regexp "\\.scm$") guile))
-              geiser-mode-auto-p t
-              geiser-repl-per-project-p t
-              geiser-repl-query-on-kill-p nil))
-
-(use-package geiser-guile
-  :if (file-exists-p "/gnu")
-  :after geiser
-  :config (add-to-list 'geiser-guile-load-path "~/git/guix"))
-
-;; Broken package: https://issues.guix.gnu.org/55013
-(use-package guix
-  :if (file-exists-p "/gnu")
-  :init (setq guix-guile-program '("guix" "repl")))
+(use-package arei)
 
 ;;; Fennel
 

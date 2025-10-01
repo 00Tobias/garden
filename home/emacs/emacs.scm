@@ -28,6 +28,8 @@
   #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
   #:use-module ((gnu packages java) #:select (openjdk23 icedtea java-slf4j-simple))
   #:use-module ((gnu packages cpp) #:select (ccls))
+  #:use-module ((gnu packages guile) #:select (guile-next))
+  #:use-module ((gnu packages guile-xyz) #:select (guile-ares-rs))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
   #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
   #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
@@ -285,9 +287,8 @@ native support for standard builds as well as emacs-mac.")
         emacs-sly-asdf
         emacs-eros
         emacs-tuareg
-        emacs-geiser
-        emacs-geiser-guile
-        emacs-guix
+        emacs-ocaml-eglot
+        emacs-arei
         emacs-fennel-mode
         emacs-web-mode
 
@@ -350,6 +351,9 @@ native support for standard builds as well as emacs-mac.")
    coreutils
    gnu-make
    sed
+   ;; Scheme
+   guile-next
+   guile-ares-rs
    ;; Rust
    rust
    ;; Libraries for cargo
