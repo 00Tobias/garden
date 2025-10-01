@@ -309,6 +309,7 @@ selection-color = " theme:highlight "
                bibata-cursor-theme
                wl-clipboard
                imv
+               foot
                obs-wlrobs
                xdg-desktop-portal
                xdg-desktop-portal-gtk
