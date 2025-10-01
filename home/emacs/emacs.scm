@@ -40,6 +40,7 @@
   #:use-module ((gnu packages ocaml) #:select (emacs-tuareg))
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
+  #:use-module ((gnu packages emacs-build) #:select (makel))
 
   #:use-module ((nongnu packages emacs) #:select (clhs))
   #:use-module ((nongnu packages clojure) #:select (clj-kondo clojure-lsp))
@@ -255,7 +256,7 @@ Server Protocol (LSP) client.")
       (license license:gpl3+))))
 
 
-(define sbcl-config (plain-file "sbcl-config" "
+(define sbcl-config (mixed-text-file "sbcl-config" "
 (require \"asdf\")
 (let ((guix-profile (format nil \"~a/.guix-profile/lib/\" (uiop:getenv \"HOME\")))
       (guix-home (format nil \"~a/.guix-home/profile/lib/\" (uiop:getenv \"HOME\"))))
@@ -268,6 +269,28 @@ Server Protocol (LSP) client.")
       (push guix-home
             (symbol-value (find-symbol (string '*foreign-library-directories*)
                                        (find-package 'cffi)))))))
+
+(load \"~/quicklisp/setup.lisp\")
+"))
+
+(define guile-geiser-config (mixed-text-file "guile-geiser-config" "
+(use-modules (guix gexp)
+             (guix utils)
+             (guix transformations)
+             (guix packages)
+             (guix download)
+             (guix git-download)
+
+             (gnu packages)
+
+             (gnu services)
+             (gnu home services))
+"))
+
+(define ocaml-config (mixed-text-file "ocaml-config" "
+#require \"core.top\";;
+#require \"ppx_jane\";;
+open Base;;
 "))
 
 (define without-tests
@@ -431,9 +454,12 @@ Server Protocol (LSP) client.")
      (elisp-packages elisp-packages)))
    (simple-service 'prog-home-config
                    home-files-service-type
-                   `((".local/bin/cc" ,#~(string-append #$gcc-toolchain "/bin/gcc"))
-                     (".sbclrc" ,sbcl-config)
-                     (".npmrc"  ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
+                   `((".local/bin/cc"  ,#~(string-append #$gcc-toolchain "/bin/gcc"))
+                     (".sbclrc"        ,sbcl-config)
+                     (".ccl-init.lisp" ,sbcl-config)
+                     (".guile-geiser"  ,guile-geiser-config)
+                     (".ocamlinit"     ,ocaml-config)
+                     (".npmrc"         ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
    (simple-service 'prog-env-vars
                    home-environment-variables-service-type
                    `(("CC" . ,#~(string-append #$gcc-toolchain "/bin/gcc"))
