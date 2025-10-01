@@ -32,7 +32,7 @@
 
     frame_width = 2
 
-    frame_color = \"#1c1c1c\"
+    frame_color = \"" theme:accent "\"
 
     idle_threshold = 120
 
@@ -61,18 +61,18 @@
     mouse_right_click = close_all
 
 [urgency_low]
-    background = \"#000000\"
-    foreground = \"#ffffff\"
+    background = \"" theme:bg "\"
+    foreground = \"" theme:fg "\"
     timeout = 3
 
 [urgency_normal]
-    background = \"#000000\"
-    foreground = \"#ffffff\"
+    background = \"" theme:bg "\"
+    foreground = \"" theme:fg "\"
     timeout = 3
 
 [urgency_critical]
-    background = \"#000000\"
-    foreground = \"#ffffff\"
+    background = \"" theme:highlight "\"
+    foreground = \"" theme:fg "\"
     timeout = 0
 
 [fullscreen_delay_everything]
