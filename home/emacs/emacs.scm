@@ -31,7 +31,7 @@
   #:use-module ((gnu packages guile) #:select (guile-next))
   #:use-module ((gnu packages guile-xyz) #:select (guile-ares-rs))
   #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
-  #:use-module ((gnu packages rust) #:select (rust rust-analyzer))
+  #:use-module ((gnu packages rust) #:select (rust))
   #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
   #:use-module ((gnu packages pkg-config) #:select (pkg-config))
   #:use-module ((gnu packages tls) #:select (openssl))
@@ -409,13 +409,14 @@ open Base;;
    guile-ares-rs
    ;; Rust
    rust
+   `(,rust "cargo")
+   `(,rust "tools")
    ;; Libraries for cargo
    gcc-toolchain
    pkg-config
    openssl
    ;; LSP
    ccls
-   rust-analyzer
    python-lsp-server
    node
    ;; Treesitter
