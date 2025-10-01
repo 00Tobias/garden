@@ -7,9 +7,10 @@
   #:use-module (gnu home services shepherd)
 
   #:use-module ((gnu packages wm) #:select (dunst))
-  #:use-module ((gnu packages fonts) #:select (font-sarasa-gothic)))
 
-(define dunstrc "
+  #:use-module ((home theme) #:prefix theme:))
+
+(define dunstrc (mixed-text-file "dunstrc" "
 [global]
     monitor = 0
     follow = none
@@ -35,7 +36,7 @@
 
     idle_threshold = 120
 
-    font = Sarasa UI SC 10
+    font = " theme:font " " theme:font-size "
 
     format = \"<b>%s</b>\\n%b\"
 
@@ -79,10 +80,10 @@
 [fullscreen_show_critical]
     msg_urgency = critical
     fullscreen = show
-")
+"))
 
 (define-public services
   (list
    (simple-service 'dunst-xdg-config
                    home-xdg-configuration-files-service-type
-                   `(("dunst/dunstrc" ,(plain-file "dunstrc" dunstrc))))))
+                   `(("dunst/dunstrc" ,dunstrc)))))

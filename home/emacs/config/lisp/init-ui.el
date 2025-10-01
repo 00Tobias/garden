@@ -13,8 +13,6 @@
 
 (load-theme 'modus-vivendi t)
 
-(add-to-list 'default-frame-alist '(font . "Sarasa Mono SC-10"))
-
 (blink-cursor-mode 0)
 
 (delete-selection-mode 1)
@@ -81,6 +79,22 @@
 (use-package eldoc-box
   :diminish eldoc-box-hover-at-point-mode
   :bind ("C-c d" . eldoc-box-help-at-point))
+
+(use-package ligature
+  :config
+  ;; Ligatures for Iosevka from https://github.com/mickeynp/ligature.el/issues/8#issuecomment-703120788
+  (ligature-set-ligatures
+   'prog-mode
+   '("<--" "<---" "<<-" "<-" "<->" "->" "->>" "-->" "--->"
+     "<!--" "-<<" "-<" "-<-" "->-" ">-" ">>-" "<-->" "<--->"
+     "<---->" "<==" "<===" "<<=" "<=" "<=>" "=>" "=>>" "==>"
+     "===>" "<!---" "=<<" "=<" "=<=" "=>=" ">=" ">>=" "<==>"
+     "<===>" "<====>" "<-------" "------->" "<======>" "<~~"
+     "<~" "~>" "~~>" "\\/" "/\\" "==" "!=" "/=" "~=" "<>"
+     "===" "!==" "=/=" "=!=" ":=" ":-" ":+" "<*" "<*>" "*>"
+     "<|" "<|>" "|>" "+:" "-:" "=:" "::" ":::" "<." "<.>"
+     ".>" "(*" "*)" ":>" "++" "+++" "|-" "-|"))
+  (global-ligature-mode t))
 
 (use-package nerd-icons-dired
   :hook dired-mode)

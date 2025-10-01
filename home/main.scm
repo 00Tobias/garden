@@ -62,7 +62,8 @@
   #:use-module ((home mpv mpv) #:prefix mpv:)
   #:use-module ((home creative) #:prefix creative:)
   #:use-module ((home ai) #:prefix ai:)
-  #:use-module ((home games) #:prefix games:))
+  #:use-module ((home games) #:prefix games:)
+  #:use-module ((home theme) #:prefix theme:))
 
 (define btop-nvidia
   (package
@@ -222,6 +223,8 @@
                       btop)
 
                   ;; Fonts
+                  theme:font-package
+                  theme:font-package-mono
                   font-google-noto
                   font-google-noto-sans-cjk
                   font-google-noto-emoji)))

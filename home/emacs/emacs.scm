@@ -39,8 +39,6 @@
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
 
-  #:use-module ((saayix packages fonts) #:select (font-nerd-symbols))
-
   #:use-module ((nongnu packages emacs) #:select (clhs))
   #:use-module ((nongnu packages clojure) #:select (clj-kondo clojure-lsp))
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
@@ -230,6 +228,7 @@
         emacs-transient-posframe
         emacs-flymake-popon
         emacs-eldoc-box
+        emacs-ligature
         emacs-nerd-icons
         emacs-nerd-icons-dired
         emacs-nerd-icons-completion
@@ -293,9 +292,7 @@
    aspell
    aspell-dict-en
    aspell-dict-sv
-   theme:font-package
    imagemagick                          ; Needed for image-dired
-   font-nerd-symbols
    curl                                 ; For elfeed
    ;; Org mode
    zip

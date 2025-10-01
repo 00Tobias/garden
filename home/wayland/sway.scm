@@ -64,7 +64,7 @@
 
 (define foot-config (mixed-text-file "foot-config" "
 term=xterm-256color
-font=" theme:font-term ":size=" theme:font-size "
+font=" theme:font-mono ":size=" theme:font-size "
 [colors]
 background=" (substring theme:bg 1 (string-length theme:bg)) "
 foreground=" (substring theme:fg 1 (string-length theme:fg)) "
@@ -73,7 +73,7 @@ foreground=" (substring theme:fg 1 (string-length theme:fg)) "
 (define tofi-config (mixed-text-file "tofi-config" "
 text-cursor = true
 prompt-text = \"\"
-font = " theme:font-package "/share/fonts/truetype/Sarasa-Regular.ttc
+font = " theme:font-package "/share/fonts/truetype/AtkynsonNextNerdFontPropo-Medium.ttf
 font-size = 12
 border-width = 1
 outline-width = 1

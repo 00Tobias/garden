@@ -22,7 +22,12 @@
                             (tool-bar-lines . nil)
                             (vertical-scroll-bars . nil)
                             (horizontal-scroll-bars . nil)
-                            (ns-appearance . dark)))
+                            (ns-appearance . dark)
+                            (font . "Iosevka Nerd Font-11")))
+
+(set-face-attribute 'default nil :family "Iosevka Nerd Font" :height 100 :weight 'medium)
+(set-face-attribute 'fixed-pitch nil :family "Iosevka Nerd Font" :height 100 :weight 'medium)
+(set-face-attribute 'variable-pitch nil :family "AtkynsonNext Nerd Font Propo" :height 110 :weight 'medium)
 
 (setq inhibit-startup-screen t)
 

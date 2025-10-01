@@ -18,7 +18,7 @@
                 ("*.background" . ,theme:bg)
                 ("*.cursorColor" . ,theme:fg)
 
-                (URxvt.font . ,(string-append "xft:" theme:font-term ":size=" theme:font-size))
+                (URxvt.font . ,(string-append "xft:" theme:font-mono ":size=" theme:font-size))
                 (URxvt.letterSpace . 0)
                 (URxvt.lineSpace . 0)
                 (URxvt.scrollBar . #f)
