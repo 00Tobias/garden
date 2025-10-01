@@ -36,7 +36,6 @@
   #:use-module ((gnu packages pkg-config) #:select (pkg-config))
   #:use-module ((gnu packages tls) #:select (openssl))
   #:use-module ((gnu packages node) #:select (node))
-  #:use-module ((contrib packages node-xyz) #:select (node-typescript node-typescript-language-server))
   #:use-module ((gnu packages ocaml) #:select (emacs-tuareg))
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages emacs-xyz)
@@ -418,7 +417,8 @@ open Base;;
    openssl
    ;; LSP
    python-lsp-server
-   node
+   node ;; npm install -g typescript-language-server typescript
+
    ;; Treesitter
    tree-sitter-bash
    tree-sitter-c
