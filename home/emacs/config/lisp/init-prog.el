@@ -196,6 +196,15 @@
     (require 'utop)
     (add-hook 'ocaml-eglot-hook 'ocp-setup-indent)))
 
+;;; Rust
+
+(use-package cargo-transient
+  :after rust-ts-mode
+  :bind (:map rust-ts-mode-map
+              ("C-c C-c" . compile)
+              ("C-c b" . cargo-transient))
+  :init (setq cargo-transient-compilation-buffer-name-function #'project-prefixed-buffer-name))
+
 ;;; Scheme
 
 (use-package arei)

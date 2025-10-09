@@ -197,6 +197,24 @@ enhance the experience of writing OCaml code by leveraging the Eglot Language
 Server Protocol (LSP) client.")
       (license license:x11))))          ; MIT
 
+(define emacs-cargo-transient
+  (let ((commit "b75511f911189b6b6c47976dd970eeb80ccfb3ee"))
+    (package
+      (name "emacs-cargo-transient")
+      (version (git-version "0" "1" commit))
+      (home-page "https://github.com/peterstuart/cargo-transient")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/peterstuart/cargo-transient")
+                      (commit commit)))
+                (sha256 (base32 "1s1kjc7xg55lnwn5ngdp89hnh2qp42x10cyqlji268xiglx0xzs2"))))
+      (inputs (list emacs-transient))
+      (build-system emacs-build-system)
+      (synopsis "A transient UI for Cargo, Rust's package manager")
+      (description "cargo-transient provides a transient interface for cargo.")
+      (license license:gpl3+))))
+
 (define emacs-uiua-mode
   (let ((commit "8f9c8abb710b3f3ae8320e89e3c91612c7dd6f45"))
     (package
@@ -330,6 +348,7 @@ Server Protocol (LSP) client.")
         emacs-eros
         emacs-tuareg
         emacs-ocaml-eglot
+        emacs-cargo-transient
         emacs-arei
         emacs-fennel-mode
         emacs-reformatter
