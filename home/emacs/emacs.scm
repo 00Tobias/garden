@@ -16,34 +16,16 @@
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
   #:use-module ((gnu packages imagemagick) #:select (imagemagick))
   #:use-module ((gnu packages curl) #:select (curl))
+  #:use-module ((gnu packages base) #:select (binutils))
   #:use-module ((gnu packages compression) #:select (zip unzip))
   #:use-module ((gnu packages tex) #:select (texlive-scheme-basic
                                              texlive-wrapfig
                                              texlive-ulem
                                              texlive-capt-of))
-  #:use-module ((gnu packages base) #:select (binutils coreutils gnu-make sed))
-  #:use-module ((gnu packages llvm) #:select (clang))
-  #:use-module ((gnu packages python) #:select (python))
-  #:use-module ((gnu packages lisp) #:select (sbcl))
-  #:use-module ((gnu packages readline) #:select (rlwrap))
-  #:use-module ((gnu packages clojure) #:select (clojure clojure-tools))
-  #:use-module ((gnu packages java) #:select (openjdk23 icedtea java-slf4j-simple))
-  #:use-module ((gnu packages guile) #:select (guile-next))
-  #:use-module ((gnu packages guile-xyz) #:select (guile-ares-rs))
-  #:use-module ((gnu packages python-xyz) #:select (python-lsp-server))
-  #:use-module ((gnu packages rust) #:select (rust))
-  #:use-module ((gnu packages commencement) #:select (gcc-toolchain))
-  #:use-module ((gnu packages pkg-config) #:select (pkg-config))
-  #:use-module ((gnu packages tls) #:select (openssl))
-  #:use-module ((gnu packages node) #:select (node))
-  #:use-module ((gnu packages zig) #:select (zig-0.15))
   #:use-module ((gnu packages ocaml) #:select (emacs-tuareg))
-  #:use-module (gnu packages tree-sitter)
-  #:use-module (gnu packages emacs-xyz)
   #:use-module ((gnu packages emacs-build) #:select (makel))
+  #:use-module (gnu packages emacs-xyz)
 
-  #:use-module ((nongnu packages emacs) #:select (clhs))
-  #:use-module ((nongnu packages clojure) #:select (clj-kondo clojure-lsp))
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
   #:use-module ((emacs-master) #:select (emacs-master-pgtk emacs-master))
@@ -300,53 +282,6 @@ Server Protocol (LSP) client.")
       (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
       (license license:gpl3+))))
 
-(define tree-sitter-grammar
-  (@@ (gnu packages tree-sitter) tree-sitter-grammar))
-
-(define tree-sitter-uiua
-  (tree-sitter-grammar
-   "uiua" "Uiua"
-   "1pwhdsvdi6p70r9iij3mqnpdl0m2vz242l2qxlanplfcasf58sf9"
-   "0.11.0"
-   #:repository-url "https://github.com/shnarazk/tree-sitter-uiua"))
-
-(define sbcl-config (mixed-text-file "sbcl-config" "
-(require \"asdf\")
-(let ((guix-profile (format nil \"~a/.guix-profile/lib/\" (uiop:getenv \"HOME\")))
-      (guix-home (format nil \"~a/.guix-home/profile/lib/\" (uiop:getenv \"HOME\"))))
-  (when (ignore-errors (asdf:load-system \"cffi\"))
-    (when (probe-file guix-profile)
-      (push guix-profile
-            (symbol-value (find-symbol (string '*foreign-library-directories*)
-                                       (find-package 'cffi)))))
-    (when (probe-file guix-home)
-      (push guix-home
-            (symbol-value (find-symbol (string '*foreign-library-directories*)
-                                       (find-package 'cffi)))))))
-
-(load \"~/quicklisp/setup.lisp\")
-"))
-
-(define guile-geiser-config (mixed-text-file "guile-geiser-config" "
-(use-modules (guix gexp)
-             (guix utils)
-             (guix transformations)
-             (guix packages)
-             (guix download)
-             (guix git-download)
-
-             (gnu packages)
-
-             (gnu services)
-             (gnu home services))
-"))
-
-(define ocaml-config (mixed-text-file "ocaml-config" "
-#require \"core.top\";;
-#require \"ppx_jane\";;
-open Base;;
-"))
-
 (define without-tests
   ;; Disable the tests that fail on native-comp / emacs-next
   (options->transformation
@@ -433,66 +368,14 @@ open Base;;
    aspell-dict-sv
    imagemagick                          ; Needed for image-dired
    curl                                 ; For elfeed
+   binutils                             ; Fixes odd missing 'as' native comp error
    ;; Org mode
    zip
    unzip
    texlive-scheme-basic
    texlive-wrapfig
    texlive-ulem
-   texlive-capt-of
-   ;; Langs
-   binutils                             ; Fixes odd missing 'as' native comp error
-   clang
-   ;; Python
-   python
-   ;; Common Lisp
-   sbcl
-   clhs
-   ;; Clojure
-   ;; FIXME: https://issues.guix.gnu.org/73432
-   rlwrap
-   ;; (package
-   ;;   (inherit clojure-tools)
-   ;;   (inputs (modify-inputs (package-inputs clojure-tools)
-   ;;             (append java-slf4j-simple))))
-   clj-kondo
-   clojure-lsp
-   `(,openjdk23 "jdk")
-   ;; Ocaml
-   coreutils
-   gnu-make
-   sed
-   ;; Scheme
-   guile-next
-   guile-ares-rs
-   ;; Rust
-   rust
-   `(,rust "cargo")
-   `(,rust "tools")
-   ;; Libraries for cargo
-   gcc-toolchain
-   pkg-config
-   openssl
-   ;; Zig
-   zig-0.15
-   ;; LSP
-   python-lsp-server
-   node ;; npm install -g typescript-language-server typescript
-
-   ;; Treesitter
-   tree-sitter-bash
-   tree-sitter-c
-   tree-sitter-clojure
-   tree-sitter-cpp
-   tree-sitter-css
-   tree-sitter-html
-   tree-sitter-lua
-   tree-sitter-rust
-   tree-sitter-python
-   tree-sitter-javascript
-   tree-sitter-json
-   tree-sitter-typescript
-   tree-sitter-uiua))
+   texlive-capt-of))
 
 (define-public services
   (list
@@ -513,19 +396,4 @@ open Base;;
     (home-emacs-configuration
      (emacs emacs-package)
      (native-comp? #t)
-     (elisp-packages elisp-packages)))
-   (simple-service 'prog-home-config
-                   home-files-service-type
-                   `((".local/bin/cc"  ,#~(string-append #$gcc-toolchain "/bin/gcc"))
-                     (".sbclrc"        ,sbcl-config)
-                     (".ccl-init.lisp" ,sbcl-config)
-                     (".guile-geiser"  ,guile-geiser-config)
-                     (".ocamlinit"     ,ocaml-config)
-                     (".npmrc"         ,(plain-file "npmrc" "prefix=~/.local/lib/npm/\n"))))
-   (simple-service 'prog-env-vars
-                   home-environment-variables-service-type
-                   `(("CC" . ,#~(string-append #$gcc-toolchain "/bin/gcc"))
-                     ("SBCL_HOME" . "$HOME/.guix-home/profile/lib/sbcl")
-                     ("JAVA_HOME" . ,openjdk23)
-                     ("CARGO_HOME" . "$HOME/.local/lib/cargo/")
-                     ("XTDB_ENABLE_BYTEUTILS_SHA1" . "true")))))
+     (elisp-packages elisp-packages)))))
