@@ -13,7 +13,16 @@
 
 (electric-pair-mode 1)
 
+;;; compilation
+
+(setq compilation-read-command nil
+      compilation-scroll-output 'first-error
+      compilation-auto-jump-to-first-error t
+      compilation-max-output-line-length nil)
+(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
+
 ;;; flymake
+
 (setq flymake-mode-line-lighter ""
       flymake-diagnostic-format-alist
       '((t . (origin code message))))
