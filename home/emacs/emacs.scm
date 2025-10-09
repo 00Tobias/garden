@@ -315,6 +315,7 @@ Server Protocol (LSP) client.")
         emacs-diff-hl
         emacs-vundo
         emacs-posframe
+        emacs-which-key-posframe
         emacs-transient-posframe
         emacs-flymake-posframe
         emacs-eldoc-box

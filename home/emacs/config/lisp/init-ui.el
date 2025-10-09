@@ -51,6 +51,10 @@
 (keymap-global-set "C-c h" 'hs-hide-all)
 (keymap-global-set "C-c H" 'hs-show-all)
 
+(setq which-key-lighter ""
+      which-key-idle-delay 0.5)
+(which-key-mode 1)
+
 (use-package diminish)
 
 (use-package ultra-scroll
@@ -69,9 +73,15 @@
 
 (use-package posframe)
 
+(use-package which-key-posframe
+  :demand t
+  :init (setq which-key-posframe-poshandler
+              'posframe-poshandler-window-bottom-right-corner)
+  :config (which-key-posframe-mode 1))
+
 (use-package transient-posframe
   :demand t
-  :init (setq transient-posframe-poshandler 'posframe-poshandler-frame-bottom-center)
+  :init (setq transient-posframe-poshandler 'posframe-poshandler-window-bottom-right-corner)
   :config (transient-posframe-mode 1))
 
 (use-package flymake-posframe
