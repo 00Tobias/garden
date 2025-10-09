@@ -10,7 +10,7 @@
 
   #:use-module (gnu packages)
   #:use-module ((gnu packages emacs) #:select (emacs-next emacs-next-pgtk))
-  #:use-module ((gnu packages gtk) #:select (gtk+/fixed))
+  #:use-module ((gnu packages gtk) #:select (gtk+))
   #:use-module ((gnu packages rust-apps) #:select (ripgrep))
   #:use-module ((gnu packages enchant) #:select (enchant))
   #:use-module ((gnu packages aspell) #:select (aspell aspell-dict-en aspell-dict-sv))
@@ -66,16 +66,25 @@
             (inputs (modify-inputs (package-inputs emacs-master-pgtk)
                       (replace "gtk+"
                         (package
-                          (inherit gtk+/fixed)
+                          (inherit gtk+)
                           (name "gtk+")
-                          (version "3.24.51")
+                          (version "3.24.52")
                           (source (origin
                                     (method git-fetch)
                                     (uri (git-reference
                                           (url "https://gitlab.gnome.org/GNOME/gtk")
-                                          (commit "ef9abe706ac0e35590aa188b104ca55228f5d6b4")))
+                                          (commit "f1dbc95ebbeed771621bddebc223352a99854a93")))
                                     (file-name (git-file-name name version))
-                                    (sha256 (base32 "13r0l774k8qjp3ngsc9pbv9s3skmdxcw03z8fgyqm2dra947n0sb")))))))))))
+                                    (sha256 (base32 "1ykmar93ll6nlpzi0s3a1kxrkqxkbzg7y6qbr5yaw8742bpibcn2"))
+                                    (patches (search-patches
+                                              "gtk3-respect-GUIX_GTK3_PATH.patch"
+                                              "gtk3-respect-GUIX_GTK3_IM_MODULE_FILE.patch"))))
+                          (arguments
+                           (substitute-keyword-arguments (package-arguments gtk+)
+                             ((#:tests? _ #f) #f)
+                             ((#:phases phases)
+                              #~(modify-phases #$phases
+                                  (delete 'disable-failing-tests))))))))))))
         (else (emacs-master))))
 
 (define emacs-ultra-scroll
