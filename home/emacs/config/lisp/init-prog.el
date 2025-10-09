@@ -193,14 +193,19 @@
   :diminish ocaml-eglot
   :hook
   (tuareg-mode . ocaml-eglot)
+  (tuareg-mode . (lambda () (setq-local compile-command "dune build ")))
   (ocaml-eglot . eglot-ensure)
   (ocaml-eglot . (lambda () (add-hook #'before-save-hook #'eglot-format nil t)))
+  :bind (:map tuareg-mode-map
+              ("C-c b" . compile))
   :init (setq ocaml-eglot-syntax-checker 'flymake))
 
 (let ((ocaml-elisp-directory (expand-file-name "~/.opam/default/share/emacs/site-lisp")))
   (when (file-exists-p ocaml-elisp-directory)
     (add-to-list 'load-path ocaml-elisp-directory)
     (require 'dune)
+    (require 'dune-flymake)
+    (require 'dune-watch)
     (require 'ocp-indent)
     (require 'utop)
     (add-hook 'ocaml-eglot-hook 'ocp-setup-indent)))

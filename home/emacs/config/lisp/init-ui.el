@@ -47,9 +47,7 @@
 (add-hook 'prog-mode-hook 'hs-minor-mode 1)
 (with-eval-after-load 'hideshow
   (setcar (alist-get 'hs-minor-mode minor-mode-alist) ""))
-(keymap-global-set "C-c b" 'hs-toggle-hiding)
-(keymap-global-set "C-c h" 'hs-hide-all)
-(keymap-global-set "C-c H" 'hs-show-all)
+(keymap-global-set "C-c h" 'hs-toggle-hiding)
 
 (setq which-key-lighter ""
       which-key-idle-delay 0.5)
