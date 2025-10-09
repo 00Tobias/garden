@@ -90,5 +90,12 @@
   :hook org-mode
   :init (setq org-bullets-bullet-list '("∙")))
 
+;;; Markdown
+
+;; Also used for documentation for Eglot formatted as markdown
+(use-package markdown-mode
+  :mode "\\.\\(md\\|markdown\\)$")
+
+
 (provide 'init-text)
 ;;; init-text.el ends here

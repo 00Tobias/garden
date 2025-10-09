@@ -360,6 +360,7 @@ Server Protocol (LSP) client.")
         ;; init-text.el
         emacs-jinx
         emacs-org-bullets
+        emacs-markdown-mode
 
         ;; init-modes.el
         emacs-elfeed
