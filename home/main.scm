@@ -52,6 +52,7 @@
 
   #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home shell) #:prefix shell:)
+  #:use-module ((home langs) #:prefix langs:)
   #:use-module ((home gtk) #:prefix gtk:)
   #:use-module ((home xorg xresources) #:prefix xresources:)
   #:use-module ((home xorg i3) #:prefix i3:)
@@ -124,6 +125,7 @@
     (packages
      (append
       shell:packages
+      langs:packages
       gtk:packages
       sway:packages
       emacs:packages
@@ -235,6 +237,7 @@
     (services
      (append
       shell:services
+      langs:services
       gtk:services
       sway:services
       dunst:services
@@ -284,7 +287,7 @@
                             "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
        (simple-service 'main-env-vars
                        home-environment-variables-service-type
-                       `(("PATH" . "$PATH:$HOME/.local/bin/:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/:$HOME/.opam/default/bin/")
+                       `(("PATH" . "$HOME/.local/bin/:$PATH:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/:$HOME/.opam/default/bin/")
                          ("HISTCONTROL" . "ignoredups:ignorespace")
                          ("HISTSIZE" . "10000")
                          ("HISTFILE" . "$HOME/.local/state/shell/history")
