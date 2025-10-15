@@ -33,7 +33,7 @@
   #:use-module ((gnu packages librewolf) #:select (librewolf))
   #:use-module ((gnu packages llvm) #:select (make-lld-wrapper lld-18))
 
-  #:use-module ((gnu packages qt) #:select (qtwayland-5 qt6ct))
+  #:use-module ((gnu packages qt) #:select (qtwayland qtwayland-5 qt6ct))
 
   #:use-module ((gnu packages fonts) #:select (font-google-noto
                                                font-google-noto-sans-cjk
@@ -291,7 +291,9 @@
                          ("_JAVA_AWT_WM_NONREPARENTING" . "1")
                          ("TERM" . "xterm-256color")
                          ("QT_QPA_PLATFORMTHEME" . "qt6ct")
-                         ("QT_PLUGIN_PATH" . ,#~(string-append #$qtwayland-5 "/lib/qt5/plugins:" #$qt6ct "/lib/qt6/plugins:$QT_PLUGIN_PATH")))))
+                         ("QT_PLUGIN_PATH" . ,#~(string-append #$qtwayland "/lib/qt6/plugins:"
+                                                               #$qtwayland-5 "/lib/qt5/plugins:"
+                                                               #$qt6ct "/lib/qt6/plugins:$QT_PLUGIN_PATH")))))
       (if (string= (gethostname) "okarthel")
           (list
            (simple-service 'okarthel-env-vars
