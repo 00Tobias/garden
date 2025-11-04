@@ -2,6 +2,14 @@
   #:use-module (guix channels))
 
 (cons* (channel
+        (name 'incognita)
+        (url "file:///home/tobias/projects/incognita/")
+        (introduction
+         (make-channel-introduction
+          "bd1a7531db92fd2fc98d3c90882b5ae259ac6604"
+          (openpgp-fingerprint
+           "4925 08B3 25EA 2DB3 7D05  9595 72F0 61B8 1813 165A"))))
+       (channel
         (name 'nonguix)
         (url "https://gitlab.com/nonguix/nonguix")
         (introduction
