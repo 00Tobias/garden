@@ -300,6 +300,16 @@ Server Protocol (LSP) client.")
       (description "This is a fuzzy Emacs completion style similar to the built-in flex style, but with a better scoring algorithm.")
       (license license:gpl3+))))
 
+(define emacs-magit-git
+  (package
+    (inherit emacs-magit)
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                     (url "https://github.com/magit/magit")
+                     (commit "3d1a008f1894dd087aee099629e3726877956033")))
+              (sha256 (base32 "11aiydzrfjbx7p72kapdsjbqkb72dj8zah666mx520msd7ywmsxj"))))))
+
 (define without-tests
   ;; Disable the tests that fail on native-comp / emacs-next
   (options->transformation
@@ -368,7 +378,7 @@ Server Protocol (LSP) client.")
         emacs-elpher
         emacs-pdf-tools
         emacs-libgit
-        emacs-magit
+        emacs-magit-git
         emacs-vterm
         emacs-pcmpl-args
         emacs-eshell-syntax-highlighting
@@ -378,7 +388,11 @@ Server Protocol (LSP) client.")
         emacs-mwim
 
         ;; init-frames.el
-        emacs-frames-only-mode)))
+        (package
+          (inherit emacs-frames-only-mode)
+          (native-inputs
+           (modify-inputs (package-native-inputs emacs-frames-only-mode)
+             (replace "emacs-magit" emacs-magit-git)))))))
 
 (define-public packages
   (list
