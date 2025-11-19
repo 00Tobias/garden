@@ -1,4 +1,4 @@
-(define-module (home wayland sway)
+(define-module (home sway)
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix packages)

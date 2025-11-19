@@ -33,7 +33,7 @@
   #:use-module ((home shell) #:prefix shell:)
   #:use-module ((home langs) #:prefix langs:)
   #:use-module ((home gtk) #:prefix gtk:)
-  #:use-module ((home wayland sway) #:prefix sway:)
+  #:use-module ((home sway) #:prefix sway:)
   #:use-module ((home emacs emacs) #:prefix emacs:)
   #:use-module ((home qutebrowser qutebrowser) #:prefix qutebrowser:)
   #:use-module ((home librewolf) #:prefix librewolf:)
