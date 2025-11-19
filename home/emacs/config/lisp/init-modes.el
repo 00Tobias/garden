@@ -72,6 +72,10 @@
   :diminish auto-revert-mode
   :bind ("C-c m" . magit))
 
+(use-package pinentry
+  :init (setq epg-pinentry-mode 'loopback)
+  :config (pinentry-start))
+
 (use-package vterm
   :if (file-exists-p "/gnu"))
 
