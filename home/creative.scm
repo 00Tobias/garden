@@ -10,7 +10,7 @@
   #:use-module ((gnu packages game-development) #:select (godot))
   #:use-module ((gnu packages gimp) #:select (gimp-next))
   #:use-module ((gnu packages inkscape) #:select (inkscape))
-  #:use-module ((gnu packages kde) #:select (krita))
+  #:use-module ((gnu packages kde-graphics) #:select (krita))
   #:use-module ((gnu packages libreoffice) #:select (libreoffice))
 
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
