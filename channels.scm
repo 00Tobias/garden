@@ -3,7 +3,7 @@
 
 (cons* (channel
         (name 'incognita)
-        (url "file:///home/tobias/projects/incognita/")
+        (url "https://codeberg.org/terra/incognita.git")
         (introduction
          (make-channel-introduction
           "bd1a7531db92fd2fc98d3c90882b5ae259ac6604"
