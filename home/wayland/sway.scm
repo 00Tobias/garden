@@ -3,15 +3,14 @@
   #:use-module (guix utils)
   #:use-module (guix packages)
 
-  #:use-module ((gnu packages wm) #:select (sway dunst wlroots))
+  #:use-module ((gnu packages wm) #:select (sway mako wlroots))
   #:use-module ((gnu packages vulkan) #:select (vulkan-loader
                                                 vulkan-headers
                                                 vulkan-tools
                                                 glslang))
   #:use-module ((gnu packages terminals) #:select (foot))
   #:use-module ((gnu packages base) #:select (coreutils findutils))
-  #:use-module ((gnu packages xdisorg) #:select (tofi
-                                                 wl-clipboard))
+  #:use-module ((gnu packages xdisorg) #:select (tofi wl-clipboard))
   #:use-module ((gnu packages image-viewers) #:select (imv))
   #:use-module ((gnu packages image) #:select (slurp flameshot))
   #:use-module ((gnu packages gnome) #:select (libnotify network-manager))
@@ -19,7 +18,9 @@
   #:use-module ((gnu packages admin) #:select (btop))
   #:use-module ((gnu packages music) #:select (playerctl))
   #:use-module ((gnu packages linux) #:select (brightnessctl))
-  #:use-module ((gnu packages kde) #:select (kdeconnect))
+  #:use-module ((gnu packages video) #:select (pipe-viewer))
+  #:use-module ((gnu packages password-utils) #:select (keepassxc))
+  #:use-module ((gnu packages kde-internet) #:select (kdeconnect))
   #:use-module ((gnu packages monitoring) #:select (batsignal))
   #:use-module ((gnu packages glib) #:select (glib))
   #:use-module ((gnu packages gnome) #:select (gsettings-desktop-schemas))
@@ -28,6 +29,9 @@
   #:use-module ((gnu packages freedesktop) #:select (xdg-desktop-portal
                                                      xdg-desktop-portal-gtk
                                                      xdg-desktop-portal-wlr))
+  #:use-module ((gnu packages mpd) #:select (mpdscribble))
+
+  #:use-module ((incognita packages syndication) #:select (photon))
 
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
@@ -39,6 +43,7 @@
 
   #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home emacs emacs) #:select (emacs-package))
+  #:use-module ((home mpd) #:select (mpdris2-fixed))
   #:use-module ((home theme) #:prefix theme:))
 
 (define wlroots-vulkan
@@ -93,6 +98,26 @@ outline-color = " theme:bg "
 selection-color = " theme:highlight "
 "))
 
+(define mako-config (mixed-text-file "mako-config" "
+layer=overlay
+anchor=top-center
+outer-margin=20
+margin=0
+width=350
+height=110
+default-timeout=3000
+ignore-timeout=1
+max-icon-size=32
+border-size=1
+border-color=" theme:fg "
+background-color=" theme:bg "
+font=" theme:font-package " " theme:font-size "
+
+[urgency=high]
+border-color=" theme:highlight "
+default-timeout=0
+"))
+
 (define-public sway-package
   (if (string= (gethostname) "okarthel")
       (replace-mesa sway)
@@ -103,6 +128,7 @@ selection-color = " theme:highlight "
    (simple-service 'sway-xdg-config home-xdg-configuration-files-service-type
                    `(("foot/foot.ini" ,foot-config)
                      ("tofi/config" ,tofi-config)
+                     ("mako/config" ,mako-config)
                      ("xdg-desktop-portal/sway-portals.conf"
                       ,(apply mixed-text-file "xdg-desktop-portal-sway-portals"
                               (serialize-ini-config
@@ -149,7 +175,9 @@ selection-color = " theme:highlight "
              (output DP-3 position 0 1080)
              (output DP-3 scale 2)
              (workspace 1 output eDP-1)
-             (workspace 9 output DP-3))
+             (workspace 9 output DP-3)
+
+             (exec ,(file-append batsignal "/bin/batsignal") -e -f 100 -w 30 -c 25 -d 10))
            '())
        `((focus_follows_mouse no)
          (focus_wrapping no)
@@ -266,14 +294,17 @@ selection-color = " theme:highlight "
                    "\"$(",(file-append coreutils "/bin/cat") "'/sys/class/power_supply/BAT0/capacity')%"
                    "($(",(file-append coreutils "/bin/cat") "'/sys/bus/pci/devices/0000:01:00.0/power/runtime_status'))\"")
 
-           (Mod4+v exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append pulsemixer "/bin/pulsemixer"))
+           (Mod4+z       exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append photon "/bin/photon") "~/irthir/rss.txt")
+           (Mod4+Shift+z exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append pipe-viewer "/bin/pipe-viewer"))
+           (Mod4+x       exec ,(file-append keepassxc "/bin/keepassxc"))
+           (Mod4+v       exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append pulsemixer "/bin/pulsemixer"))
            (Mod4+Shift+v exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append network-manager "/bin/nmtui"))
-           (Mod4+c exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append btop "/bin/btop"))))
+           (Mod4+c       exec ,(file-append foot "/bin/foot") -a floating-terminal ,(file-append btop "/bin/btop"))))
 
          (bindsym
           --locked
-          ((XF86AudioRaiseVolume exec ,(file-append playerctl "/bin/playerctl") volume 0.03+)
-           (XF86AudioLowerVolume exec ,(file-append playerctl "/bin/playerctl") volume 0.03-)
+          ((XF86AudioRaiseVolume exec ,(file-append playerctl "/bin/playerctl") volume 0.02+)
+           (XF86AudioLowerVolume exec ,(file-append playerctl "/bin/playerctl") volume 0.02-)
            (XF86AudioMute exec ,(file-append pulsemixer "/bin/pulsemixer") --toggle-mute)
            (XF86AudioPlay exec ,(file-append playerctl "/bin/playerctl") play-pause)
            (XF86AudioNext exec ,(file-append playerctl "/bin/playerctl") next)
@@ -283,20 +314,26 @@ selection-color = " theme:highlight "
 
          (for_window "[title=\"^dedicated-minibuffer-frame$\"]" floating enable, border pixel 1)
          (for_window "[app_id=\"floating-terminal\"]" floating enable, border pixel 1)
+         (for_window "[app_id=\"org.keepassxc.KeePassXC\"]" floating enable)
          (for_window "[class=\"steam\"]" floating enable)
          (for_window "[title=\"^notificationtoasts.*\"]" floating enable)
          (no_focus "[class=\"steam\"]")
          (assign "[class=\"steam\"]" 5)
 
          (for_window "[class=\"hl2_linux\"]" fullscreen enable)
+         (for_window "[class=\"cs2\"]" fullscreen enable)
+         (for_window "[class=\"Overwatch.exe\"]" fullscreen enable) ;; FIXME: Actual Class?
          (assign "[class=\"hl2_linux\"]" 6)
+         (assign "[class=\"cs2\"]" 6)
+         (assign "[class=\"Overwatch.exe\"]" 6)
 
-         (exec ,(file-append dunst "/bin/dunst"))
+         (exec ,(file-append mako "/bin/mako"))
          (exec ,(file-append kdeconnect "/bin/kdeconnectd"))
-         (exec ,(file-append batsignal "/bin/batsignal") -e -f 100 -w 30 -c 25 -d 10)
          (exec ,(file-append xdg-desktop-portal-gtk "/libexec/xdg-desktop-portal-gtk"))
          (exec ,(file-append xdg-desktop-portal-wlr "/libexec/xdg-desktop-portal-wlr"))
          (exec ,(file-append xdg-desktop-portal "/libexec/xdg-desktop-portal") -r)
+         (exec ,(file-append mpdscribble "/bin/mpdscribble") -D)
+         (exec ,(file-append mpdris2-fixed "/bin/mpDris2"))
          (exec /run/current-system/profile/bin/gsettings set org.gnome.desktop.interface color-scheme prefer-dark)
          (exec /run/current-system/profile/bin/gsettings set org.gnome.desktop.interface cursor-theme Bibata-Original-Ice)
          (exec /run/current-system/profile/bin/gsettings set org.gnome.desktop.interface cursor-size 16))))))))
