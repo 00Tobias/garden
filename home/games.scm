@@ -7,8 +7,7 @@
   #:use-module ((gnu packages qt) #:select (qtwayland))
   #:use-module ((gnu packages libusb) #:select (libusb))
 
-  #:use-module ((gnu packages games) #:select (wesnoth
-                                               nethack))
+  #:use-module ((gnu packages games) #:select (nethack))
 
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa))
 
@@ -43,7 +42,6 @@
 
 (define-public packages
   (let ((lst (list
-              wesnoth
               nethack
               prismlauncher-fixed)))
     (if (string= (gethostname) "okarthel")
