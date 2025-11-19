@@ -1,70 +1,50 @@
 (define-module (home main)
   #:use-module (guix gexp)
-  #:use-module (guix channels)
   #:use-module (guix utils)
   #:use-module (guix packages)
-  #:use-module (guix git-download)
-  #:use-module (guix build-system gnu)
-  #:use-module ((guix licenses) #:prefix license:)
-
-  #:use-module (nonguix utils)
 
   #:use-module ((gnu packages compression) #:select (atool
                                                      unrar-free
                                                      zip
                                                      unzip
                                                      p7zip))
-  #:use-module ((gnu packages pciutils) #:select (pciutils))
-  #:use-module ((gnu packages gl) #:select (mesa-utils))
   #:use-module ((gnu packages vpn) #:select (wireguard-tools))
   #:use-module ((gnu packages xfce) #:select (thunar))
   #:use-module ((gnu packages admin) #:select (btop))
-  #:use-module ((gnu packages gnupg) #:select (pinentry))
-  #:use-module ((gnu packages password-utils) #:select (password-store keepassxc))
+  #:use-module ((gnu packages password-utils) #:select (keepassxc))
+  #:use-module ((gnu packages video) #:select (pipe-viewer))
   #:use-module ((gnu packages pdf) #:select (zathura zathura-pdf-mupdf))
-  #:use-module ((gnu packages music) #:select (strawberry picard))
+  #:use-module ((gnu packages music) #:select (picard))
   #:use-module ((gnu packages bittorrent) #:select (qbittorrent))
-  #:use-module ((gnu packages gstreamer) #:select (gstreamer
-                                                   gst-libav
-                                                   gst-plugins-base
-                                                   gst-plugins-good
-                                                   gst-plugins-bad
-                                                   gst-plugins-ugly))
-  #:use-module ((gnu packages librewolf) #:select (librewolf))
-  #:use-module ((gnu packages llvm) #:select (make-lld-wrapper lld-18))
-
+  #:use-module ((gnu packages gnupg) #:select (pinentry-emacs))
   #:use-module ((gnu packages qt) #:select (qtwayland qtwayland-5 qt6ct))
 
-  #:use-module ((gnu packages fonts) #:select (font-google-noto
-                                               font-google-noto-sans-cjk
-                                               font-google-noto-emoji))
+  #:use-module ((incognita packages syndication) #:select (photon))
 
   #:use-module ((nongnu packages nvidia) #:select (replace-mesa nvda nvidia-driver))
 
-  #:use-module (gnu services)
-
   #:use-module (gnu home)
   #:use-module (gnu home services)
-  #:use-module (gnu home services guix)
+  #:use-module (gnu home services gnupg)
   #:use-module ((gnu home services desktop) #:select (home-dbus-service-type))
   #:use-module ((gnu home services sound) #:select (home-pipewire-service-type))
-  #:use-module (rde home services desktop)
 
   #:use-module ((trowel) #:select (aggressively-optimize))
   #:use-module ((home shell) #:prefix shell:)
   #:use-module ((home langs) #:prefix langs:)
   #:use-module ((home gtk) #:prefix gtk:)
-  #:use-module ((home xorg xresources) #:prefix xresources:)
-  #:use-module ((home xorg i3) #:prefix i3:)
-  #:use-module ((home xorg dunst) #:prefix dunst:)
   #:use-module ((home wayland sway) #:prefix sway:)
   #:use-module ((home emacs emacs) #:prefix emacs:)
   #:use-module ((home qutebrowser qutebrowser) #:prefix qutebrowser:)
+  #:use-module ((home librewolf) #:prefix librewolf:)
+  #:use-module ((home mpd) #:prefix mpd:)
   #:use-module ((home mpv mpv) #:prefix mpv:)
   #:use-module ((home creative) #:prefix creative:)
   #:use-module ((home ai) #:prefix ai:)
   #:use-module ((home games) #:prefix games:)
-  #:use-module ((home theme) #:prefix theme:))
+  #:use-module ((home theme) #:prefix theme:)
+
+  #:export (%home-environment))
 
 (define btop-nvidia
   (package
@@ -85,42 +65,21 @@
        ((#:make-flags flags #~'())
         #~(append #$flags (list "GPU_SUPPORT=true")))))))
 
-(define legacyfox
-  (package
-    (name "legacyfox")
-    (version "0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://git.gir.st/LegacyFox.git")
-             (commit "312a791ae03bddd725dee063344801f959cfe44d")))
-       (sha256 (base32 "05ppc2053lacvrlab4fspxmmjmkryvvc6ndrzhyk06ivmm2nlyyx"))))
-    (build-system gnu-build-system)
-    (arguments
-     (list
-      #:tests? #f
-      #:phases
-      #~(modify-phases %standard-phases
-          (delete 'configure)
-          (add-before 'install 'mkdir
-            (lambda* (#:key outputs #:allow-other-keys)
-              (let ((out (assoc-ref outputs "out")))
-                (mkdir-p (string-append out))
-                #t)))
-          (add-before 'install 'rename-config-librewolf-cfg
-            (lambda _
-              (substitute* "defaults/pref/config-prefs.js"
-                (("(config\\.js)")
-                 "librewolf.cfg")))))
-      #:make-flags
-      #~(list (string-append "DESTDIR=" #$output))))
-    (home-page "https://git.gir.st/LegacyFox.git")
-    (synopsis "Legacy bootstrapped extensions for Firefox 65 and beyond")
-    (description "Legacy bootstrapped extensions for Firefox 65 and beyond.")
-    (license license:mpl2.0)))
+(define git-config (plain-file "gitconfig" "
+[user]
+	email = tobias@nights.rest
+	name = Tobias
+	signingkey = 492508B325EA2DB37D05959572F061B81813165A
+[commit]
+	gpgsign = true
+[filter.lfs]
+	required = true
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	clean = git-lfs clean -- %f
+"))
 
-(define-public main-home
+(define %home-environment
   (home-environment
     (packages
      (append
@@ -130,106 +89,36 @@
       sway:packages
       emacs:packages
       qutebrowser:packages
+      librewolf:packages
+      mpd:packages
       mpv:packages
       creative:packages
       ai:packages
       games:packages
       (let ((lst (list
+                  theme:font-package
+                  theme:font-package-mono
+
+                  ;; Archive management
                   atool
                   unrar-free
                   zip
                   unzip
                   p7zip
 
-                  pinentry
-                  password-store
-                  keepassxc
-                  wireguard-tools
-                  thunar
-                  zathura
-                  zathura-pdf-mupdf
-                  qt6ct
-                  qbittorrent
-                  strawberry
-                  picard
-                  gstreamer
-                  gst-libav
-                  gst-plugins-base
-                  gst-plugins-good
-                  gst-plugins-bad
-                  gst-plugins-ugly
-                  (package
-                    (inherit mesa-utils)
-                    (inputs
-                     (modify-inputs (package-inputs mesa-utils)
-                       (prepend pciutils))))
-
-                  ;; Librewolf with Legacyfox, optimizations from Mercury, and Mozilla addons repo
-                  (package
-                    (inherit librewolf)
-                    (arguments
-                     (substitute-keyword-arguments (package-arguments librewolf)
-                       ((#:configure-flags flags #~'())
-                        #~(append (list "--enable-clang-plugin"
-                                        "--disable-debug-symbols"
-                                        "--disable-debug-js-modules"
-                                        "--enable-optimize=\"-O3 -march=native\""
-                                        "--enable-eme=widevine")
-                                  (fold delete #$flags '("--enable-optimize"
-                                                         "--disable-eme"))))
-                       ((#:phases phases)
-                        #~(modify-phases #$phases
-                            (delete 'fix-addons-placeholder)
-                            (delete 'patch-config)
-                            (add-after 'install 'add-legacyfox
-                              (lambda* (#:key inputs outputs #:allow-other-keys)
-                                (let* ((out (assoc-ref outputs "out"))
-                                       (librewolf-dir (string-append out "/lib/librewolf/"))
-                                       (legacyfox (assoc-ref inputs "legacyfox")))
-                                  (mkdir-p (string-append librewolf-dir "defaults/pref"))
-
-                                  (copy-file (string-append legacyfox "/defaults/pref/config-prefs.js")
-                                             (string-append librewolf-dir "defaults/pref/config-prefs.js"))
-
-                                  (copy-recursively (string-append legacyfox "/legacy")
-                                                    (string-append librewolf-dir "legacy"))
-
-                                  (copy-file (string-append legacyfox "/legacy.manifest")
-                                             (string-append librewolf-dir "legacy.manifest"))
-
-                                  (let ((port (open-file (string-append librewolf-dir "librewolf.cfg") "a")))
-                                    (display (call-with-input-file
-                                                 (string-append legacyfox "/config.js")
-                                               get-string-all)
-                                             port)
-                                    (close-port port)))))
-                            (add-before 'configure 'add-envvars
-                              (lambda* (#:key inputs outputs #:allow-other-keys)
-                                (let* ((flags "-O3 -ffp-contract=fast -march=native"))
-                                  (setenv "MOZ_OPTIMIZE" "1")
-                                  (setenv "OPT_LEVEL" "3")
-                                  (setenv "RUSTC_OPT_LEVEL" "3")
-                                  (setenv "CFLAGS" flags)
-                                  (setenv "CPPFLAGS" flags)
-                                  (setenv "CXXFLAGS" flags)
-                                  (setenv "LDFLAGS" "-Wl,-O3")
-                                  (setenv "RUSTFLAGS" "-C target-cpu=native -C codegen-units=1"))))))))
-                    (native-inputs
-                     (modify-inputs (package-native-inputs librewolf)
-                       (prepend
-                        (make-lld-wrapper lld-18 #:lld-as-ld? #t) ; Same version as clang in inputs
-                        legacyfox))))
+                  keepassxc                 ; Password manager
+                  qt6ct                     ; QT6 theming
+                  wireguard-tools           ; VPN connectivity
+                  thunar                    ; File manager
+                  photon                    ; RSS/Atom
+                  pipe-viewer               ; Search YouTube
+                  zathura zathura-pdf-mupdf ; PDF reader
+                  qbittorrent               ; Torrent client
+                  picard                    ; Music tagging
                   (if (or (string= (gethostname) "okarthel")
                           (string= (gethostname) "austrat"))
                       (aggressively-optimize btop-nvidia)
-                      btop)
-
-                  ;; Fonts
-                  theme:font-package
-                  theme:font-package-mono
-                  font-google-noto
-                  font-google-noto-sans-cjk
-                  font-google-noto-emoji)))
+                      btop))))
         (if (string= (gethostname) "okarthel")
             (map replace-mesa lst)
             lst))))
@@ -240,51 +129,25 @@
       langs:services
       gtk:services
       sway:services
-      dunst:services
       emacs:services
       qutebrowser:services
+      mpd:services
       mpv:services
       (list
+       (service home-gpg-agent-service-type
+                (home-gpg-agent-configuration
+                 (pinentry-program (file-append pinentry-emacs "/bin/pinentry-emacs"))
+                 (ssh-support? #t)
+                 (default-cache-ttl 3000)
+                 (max-cache-ttl 6000)
+                 (extra-content (string-append
+                                 "\n"
+                                 "allow-loopback-pinentry\n"
+                                 "allow-emacs-pinentry\n"))))
        (service home-dbus-service-type)
        (service home-pipewire-service-type)
-       (simple-service 'git-config home-files-service-type
-                       `((".gitconfig"  ,(plain-file "gitconfig" "
-[user]
-	email = tobias@nights.rest
-	name = tobias
-[filter.lfs]
-	required = true
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	clean = git-lfs clean -- %f
-"))))
-       (simple-service 'channels home-channels-service-type
-                       (list
-                        (channel
-                         (name 'nonguix)
-                         (url "https://gitlab.com/nonguix/nonguix")
-                         (introduction
-                          (make-channel-introduction
-                           "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
-                           (openpgp-fingerprint
-                            "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
-                        (channel
-                         (name 'saayix)
-                         (url "https://codeberg.org/look/saayix.git")
-                         (branch "entropy")
-                         (introduction
-                          (make-channel-introduction
-                           "12540f593092e9a177eb8a974a57bb4892327752"
-                           (openpgp-fingerprint
-                            "3FFA 7335 973E 0A49 47FC  0A8C 38D5 96BE 07D3 34AB"))))
-                        (channel
-                         (name 'rde)
-                         (url "https://git.sr.ht/~abcdw/rde")
-                         (introduction
-                          (make-channel-introduction
-                           "257cebd587b66e4d865b3537a9a88cccd7107c95"
-                           (openpgp-fingerprint
-                            "2841 9AC6 5038 7440 C7E9  2FFA 2208 D209 58C1 DEB0"))))))
+       (simple-service 'home-config home-files-service-type
+                       `((".gitconfig"  ,git-config)))
        (simple-service 'main-env-vars
                        home-environment-variables-service-type
                        `(("PATH" . "$HOME/.local/bin/:$PATH:$HOME/.local/lib/cargo/bin/:$HOME/.local/lib/npm/bin/:$HOME/.opam/default/bin/")
@@ -328,4 +191,4 @@
               ("LIBVA_DRIVER_NAME" . "nvidia")
               ("__EGL_VENDOR_LIBRARY_FILENAMES" . ,(file-append nvda "/share/glvnd/egl_vendor.d/10_nvidia.x86_64.json")))))
           '())))))
-main-home
+%home-environment
