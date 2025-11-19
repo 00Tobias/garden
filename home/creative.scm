@@ -8,7 +8,6 @@
   #:use-module ((gnu packages graphics) #:select (blender))
   #:use-module ((gnu packages python-xyz) #:select (python-numpy)) ; Blender python libraries
   #:use-module ((gnu packages game-development) #:select (godot))
-  #:use-module ((gnu packages gimp) #:select (gimp-next))
   #:use-module ((gnu packages inkscape) #:select (inkscape))
   #:use-module ((gnu packages kde-graphics) #:select (krita))
   #:use-module ((gnu packages libreoffice) #:select (libreoffice))
@@ -29,7 +28,6 @@
               blender
               python-numpy
               godot
-              gimp-next
               inkscape
               krita
               libreoffice)))
